@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ family.family_name }}{% endblock %}
+{% block content %}
+<article>
+		<h2>{{ family.family_name }}</h2>
+		{{ family.city }}
+		
+		<section>
+				{% for member in family.member_set.all %}
+					<h3>{{ member.first_name }}</h3>
+					{{ member.last_name }}
+				{% endfor %}
+</article>
+{% endblock %}

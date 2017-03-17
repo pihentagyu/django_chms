@@ -90,3 +90,5 @@ ENV/
 
 *.swp
 db.sqlite3
+
+django_chms/families/migrations/*

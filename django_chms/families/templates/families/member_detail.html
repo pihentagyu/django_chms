@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block title %} {{ member.last_name }},{{ member.first_name }} {% endblock %}
+
+{% block content %}
+<article>
+	<h2>{{ member.family.family_name }}</h2>
+	<h3>{{ member.first_name }} {{ member.last_name }}</h3>
+</article>
+{% endblock %}

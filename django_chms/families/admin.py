@@ -1,7 +1,12 @@
 from django.contrib import admin
 
-from .models import Family
+from .models import Family, Member
 
-# Register your models here.
+class MemberInline(admin.StackedInline):
+    model = Member
 
-admin.site.register(Family)
+class FamilyAdmin(admin.ModelAdmin):
+    inlines = [MemberInline,]
+
+admin.site.register(Family, FamilyAdmin)
+admin.site.register(Member)

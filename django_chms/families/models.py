@@ -17,4 +17,24 @@ class Family(models.Model):
     def __str__(self):
         return self.family_name
 
-
+class Member(models.Model):
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female')
+    )
+    family = models.ForeignKey(Family)
+    title = models.CharField(blank=True, max_length=15)
+    first_name = models.CharField(max_length=50)
+    middle_name = models.CharField(blank=True, max_length=255)
+    last_name = models.CharField(max_length=50)
+    suffix = models.CharField(blank=True, max_length=15)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
+    occupation = models.CharField(blank=True, max_length=255)
+    workplace = models.CharField(blank=True, max_length=255)
+    work_address = models.CharField(blank=True, max_length=255)
+    marital_status = models.CharField(blank=True, max_length=20)
+    birth_date = models.DateField(blank=True, null=True)
+    date_joined = models.DateField(blank=True, null=True)
+    notes = models.TextField(blank=True)
+    def __str__(self):
+        return '%s, %s' % (self.last_name, self.first_name)
