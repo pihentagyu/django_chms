@@ -1,13 +1,22 @@
 {% load static from staticfiles %}
+{% load family_extras %}
+
 <!doctype html>
 <html>
   <head>
 	  <title>{% block title %} {% endblock %}</title>
 	  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
-    <meta content="">
-    <style></style>
+      {% block static %}{% endblock %}
   </head>
+  <body>
+        <p>The latest family added is {% newest_family %}</p>
+       <div> <nav> {% nav_family_list %}</nav></div> 
   <div class="site-container">
-  <body>{% block content %} {% endblock %}</body>
+		  <nav>
+				  <a href="{% url 'home' %}">Home</a>
+				  <a href="{% url 'families:list' %}">Families</a>
+		</nav>
   </div>
+		  {% block content %}{% endblock %}
+  </body>
 </html>

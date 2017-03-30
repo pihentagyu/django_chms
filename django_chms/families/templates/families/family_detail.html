@@ -1,15 +1,23 @@
 {% extends "layout.html" %}
+{% load humanize family_extras %}
 
 {% block title %}{{ family.family_name }}{% endblock %}
 {% block content %}
 <article>
 		<h2>{{ family.family_name }}</h2>
 		{{ family.city }}
+        {{ family.notes|markdown_to_html}}
+
+        <p>There are {{ family.member_set.count|apnumber }} member{{ family.member_set.count|pluralize }} of this family: {{ family.member_set.all|join:", " }}</p>
 		
 		<section>
-				{% for member in family.member_set.all %}
-					<h3>{{ member.first_name }}</h3>
+				{% for member in members %}
+                <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></h3>
 					{{ member.last_name }}
 				{% endfor %}
 </article>
+{% if user.is_authenticated %}
+<hr>
+<a href="{% url 'families:create_adult_member' family_pk=family.pk %}" class="button">New Adult Member</a>
+{% endif %}
 {% endblock %}

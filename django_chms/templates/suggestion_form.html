@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}Suggest an idea{% endblock %}
+
+{% block content %}
+<h1>Suggestions</h1>
+<form method="post">
+    {{ form.as_p }}
+    {% csrf_token %}
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}

@@ -1,12 +1,17 @@
 from django.contrib import admin
 
-from .models import Family, Member
+from . import models
 
-class MemberInline(admin.StackedInline):
-    model = Member
+class AdultInline(admin.StackedInline):
+    model = models.Adult
+    max_num = 2
+
+class DependentInline(admin.StackedInline):
+    model = models.Dependent
 
 class FamilyAdmin(admin.ModelAdmin):
-    inlines = [MemberInline,]
+    inlines = [AdultInline, DependentInline,]
 
-admin.site.register(Family, FamilyAdmin)
-admin.site.register(Member)
+admin.site.register(models.Family, FamilyAdmin)
+admin.site.register(models.Adult)
+admin.site.register(models.Dependent)

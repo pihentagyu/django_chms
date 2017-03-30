@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load family_extras %}
 
 {% block title %} {{ member.last_name }},{{ member.first_name }} {% endblock %}
 
@@ -6,5 +7,14 @@
 <article>
 	<h2>{{ member.family.family_name }}</h2>
 	<h3>{{ member.first_name }} {{ member.last_name }}</h3>
+    {% with notes=member.notes %}
+    {{ notes|linebreaks }} The notes contain {{ notes|wordcount }} words.
+    Estimated time: {{ notes|wordcount|time_estimate }} minute{{ notes|wordcount|time_estimate|pluralize }}
+    {% endwith %}
+    {{ member.family.pk }} {{ member.pk }}
 </article>
+{% if user.is_authenticated %}
+<hr>
+<a href="{% url 'families:edit_adult_member' family_pk=member.family.pk member_pk=member.pk %}" class="button">Edit</a>
+{% endif %}
 {% endblock %}

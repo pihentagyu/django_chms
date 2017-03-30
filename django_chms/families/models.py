@@ -1,3 +1,5 @@
+from datetime import date
+from django.core.urlresolvers import reverse
 from django.db import models
 
 # Create your models here.
@@ -22,6 +24,8 @@ class Member(models.Model):
         ('M', 'Male'),
         ('F', 'Female')
     )
+    class Meta:
+        abstract = True
     family = models.ForeignKey(Family)
     title = models.CharField(blank=True, max_length=15)
     first_name = models.CharField(max_length=50)
@@ -29,12 +33,36 @@ class Member(models.Model):
     last_name = models.CharField(max_length=50)
     suffix = models.CharField(blank=True, max_length=15)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
-    occupation = models.CharField(blank=True, max_length=255)
-    workplace = models.CharField(blank=True, max_length=255)
-    work_address = models.CharField(blank=True, max_length=255)
-    marital_status = models.CharField(blank=True, max_length=20)
     birth_date = models.DateField(blank=True, null=True)
     date_joined = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True)
     def __str__(self):
         return '%s, %s' % (self.last_name, self.first_name)
+
+class Adult(Member):
+    occupation = models.CharField(blank=True, max_length=255)
+    workplace = models.CharField(blank=True, max_length=255)
+    work_address = models.CharField(blank=True, max_length=255)
+    marital_status = models.CharField(blank=True, max_length=20)
+
+    class Meta:
+        ordering = ['id',]
+
+    def get_absolute_url(self):
+        return reverse('families:adult', kwargs={
+            'family_pk': self.family_id,
+            'member_pk': self.id,
+            })
+
+class Dependent(Member):
+    school = models.CharField(blank=True, max_length=255)
+
+    def get_absolute_url(self):
+        return reverse('families:dependent', kwargs={
+            'family_pk': self.family_id,
+            'member_pk': self.id,
+            })
+
+    class Meta:
+        ordering = ['birth_date', 'id']
+

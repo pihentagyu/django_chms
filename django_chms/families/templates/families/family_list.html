@@ -1,4 +1,26 @@
-{% for family in families %}
-<h2>{{ family.family_name }}</h2>
-{{ family.notes }}
-{% endfor %}
+{% extends "layout.html" %}
+{% load static from staticfiles %}
+
+	  
+{% block static %}<link rel="stylesheet" href="{% static 'family/css/family.css' %}">{% endblock %}
+{% block title %}Families{% endblock %}
+
+{% block content %}
+    <div class="cards">
+        {% for family in families %}
+            <div class="card">
+                <header><a href="{% url 'families:detail' pk=family.pk %}">{{ family.family_name }}</a></header>
+                <div class="card-copy">
+                    {% if family.notes|wordcount <= 5 %}
+                        {{ family.notes }}
+                    {% else %}
+                        {{ family.notes|truncatewords:5 }}
+                        <a href="{% url 'families:detail' pk=family.pk %}">Read more</a>
+                    {% endif %}
+                </div>
+                <p>Created on: {{ family.created_at|date:"Y-m-d" }}</p>
+            </div>
+        {% endfor %}
+        <div> Questions? Email me! {{ email|urlize }}
+    </div>
+{% endblock %}

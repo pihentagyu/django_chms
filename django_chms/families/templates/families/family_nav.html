@@ -1,0 +1,4 @@
+{% for family in families %}
+
+<div> <a href="{% url 'families:detail' pk=family.pk %}">{{ family.family_name }}</a></div> 
+{% endfor %}
