@@ -2,6 +2,19 @@ from django import forms
 
 from . import models
 
+class FamilyForm(forms.ModelForm):
+    class Meta:
+        model = models.Family
+        fields = [ 'family_name',
+                'address1',
+                'address2',
+                'city',
+                'postal_code',
+                'state',
+                'country',
+                'notes',
+                ]
+
 class AdultMemberForm(forms.ModelForm):
     class Meta:
         model = models.Adult
@@ -26,3 +39,9 @@ class DependentMemberForm(forms.ModelForm):
                 'suffix',
                 'gender',
                 ]
+
+DependentMemberFormSet = forms.modelformset_factory(
+        models.Dependent,
+        form = DependentMemberForm,
+        extra=2,
+        )

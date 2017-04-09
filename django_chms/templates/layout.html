@@ -1,11 +1,16 @@
-{% load static from staticfiles %}
+{# {% load static from staticfiles %} #}
+
+{% load bootstrap3 %}
 {% load family_extras %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 
 <!doctype html>
 <html>
   <head>
 	  <title>{% block title %} {% endblock %}</title>
-	  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+      {# <link rel="stylesheet" href="{% static 'css/layout.css' %}"> #}
       {% block static %}{% endblock %}
   </head>
   <body>

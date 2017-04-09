@@ -49,8 +49,9 @@ class Adult(Member):
         ordering = ['id',]
 
     def get_absolute_url(self):
-        return reverse('families:adult', kwargs={
+        return reverse('families:member', kwargs={
             'family_pk': self.family_id,
+            'member_type': 'a',
             'member_pk': self.id,
             })
 
@@ -58,11 +59,12 @@ class Dependent(Member):
     school = models.CharField(blank=True, max_length=255)
 
     def get_absolute_url(self):
-        return reverse('families:dependent', kwargs={
+        return reverse('families:member', kwargs={
             'family_pk': self.family_id,
+            'member_type': 'd',
             'member_pk': self.id,
             })
 
-    class Meta:
-        ordering = ['birth_date', 'id']
+    #class Meta:
+    #    ordering = ['birth_date', 'id']
 

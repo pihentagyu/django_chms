@@ -1,0 +1,8 @@
+{% extends "families/member_detail.html" %}
+
+{% block save %}
+{% if user.is_authenticated %}
+<hr>
+<a href="{% url 'families:edit_adult_member' family_pk=member.family.pk member_pk=member.pk %}" class="button">Edit</a>
+{% endif %}
+{% endblock %}

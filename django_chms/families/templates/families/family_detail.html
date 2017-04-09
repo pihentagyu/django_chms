@@ -1,23 +1,49 @@
 {% extends "layout.html" %}
 {% load humanize family_extras %}
 
-{% block title %}{{ family.family_name }}{% endblock %}
+{% block title %}The {{ family.family_name }} Family{% endblock %}
 {% block content %}
 <article>
-		<h2>{{ family.family_name }}</h2>
-		{{ family.city }}
-        {{ family.notes|markdown_to_html}}
+		<h2>The {{ family.family_name }} Family</h2>
+        <p>{{ family.address1 }}</p>
+        <p>{{ family.address2 }}</p>
+	<p>{{ family.city }}</p>
+        <p>{{ family.postal_code }}</p>
+        <p>{{ family.state }}</p>
+        <p>{{ family.country }}</p>
+        <p>{{ family.notes|markdown_to_html}}</p>
+    {% if user.is_authenticated %}
+            <a href="{% url 'families:edit_family' pk=family.pk %}"
+                class="button">Edit Family Data</a>
+        <hr>
+    {% endif %}
 
-        <p>There are {{ family.member_set.count|apnumber }} member{{ family.member_set.count|pluralize }} of this family: {{ family.member_set.all|join:", " }}</p>
-		
+        <!--<p>There are {{ family.adult_set.count|apnumber }} adult member{{
+            family.adult_set.count|pluralize }} of this family: {{
+            family.adult_set.all|join:", " }}</p> -->
 		<section>
-				{% for member in members %}
-                <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></h3>
-					{{ member.last_name }}
+				{% for member in family.adult_set.all %}
+                    <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }} </a> 
+                    {% if member.last_name != family.family_name %}
+					    {{ member.last_name }}
+                    {% endif %}
+                        </h3>
 				{% endfor %}
-</article>
-{% if user.is_authenticated %}
-<hr>
-<a href="{% url 'families:create_adult_member' family_pk=family.pk %}" class="button">New Adult Member</a>
-{% endif %}
+				{% for member in family.dependent_set.all %}
+                <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }} </a>
+                    {% if member.last_name != family.family_name %}
+					    {{ member.last_name }}
+                    {% endif %}
+                    </h3>
+				{% endfor %}
+		</section>
+    </article>
+    {% if user.is_authenticated %}
+        {% if family.adult_set.count < 3 %}
+        <hr>
+            <a href="{% url 'families:create_member' family_pk=family.pk member_type='a' %}" class="button">New Adult Member</a>
+            <br>
+        {% endif %}
+            <a href="{% url 'families:create_member' family_pk=family.pk member_type='d' %}" class="button">Edit Dependents</a>
+    {% endif %}
 {% endblock %}

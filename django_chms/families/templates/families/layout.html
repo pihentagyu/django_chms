@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}Families | {{ block.super }}{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <ul class="breadcrumbs">
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'families:list' %}">Families</a></li>
+        {% block breadcrumbs %}{% endblock %}
+    </ul>
+{% endblock %}

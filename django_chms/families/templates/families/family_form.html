@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block title %} {{ form.instance.family_name|default:"New Family" }} {{ block.super }} {% endblock %}
+{% block content %}
+<div class="row">
+    <h1>{{ form.instance.family_name|default:"Enter a new family" }}</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <input type="submit" class="button" value="save">
+    </form>
+</div>
+{% endblock %}

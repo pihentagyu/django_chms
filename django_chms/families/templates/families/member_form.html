@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block title %} 
+    {% if  member_type  == "a" %}
+        {{ family }} {{ form.instance.first_name|default:"New Member" }} {{ block.super }} 
+    {% else %}
+        {{ family|default:"New Member" }} {{ block.super }} 
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if  member_type  == "a" %}
+    <div class="row">
+        <h1>{{ form.instance.first_name }} {{ form.instance.last_name|default:"Create a new Member" }}</h1>
+        <form method="POST" action="">
+            {% csrf_token %}
+            {{ form.as_ul }}
+            <input type="submit" class="button" value="save">
+        </form>
+    </div>
+{% else %}
+    <div class="row">
+        <h1>Dependents</h1>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <section>
+                {{ formset.management_form }}
+            </section>
+            <input type="submit" class="button" value="save">
+        </form>
+    </div>
+{% endif %}
+{% endblock %}
