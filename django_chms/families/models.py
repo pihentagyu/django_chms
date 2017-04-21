@@ -30,7 +30,7 @@ class Member(models.Model):
     title = models.CharField(blank=True, max_length=15)
     first_name = models.CharField(max_length=50)
     middle_name = models.CharField(blank=True, max_length=255)
-    last_name = models.CharField(max_length=50)
+    last_name = models.CharField(default=Family.family_name, max_length=50)
     suffix = models.CharField(blank=True, max_length=15)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
     birth_date = models.DateField(blank=True, null=True)

@@ -59,7 +59,7 @@ def member_form(request, member_type, family_pk, member_pk=None):
             member = get_object_or_404(models.Adult, family_id=family_pk, pk=member_pk)
         form_class = forms.AdultMemberForm
     else:
-        formset = forms.DependentMemberFormSet(queryset=family.dependent_set.all())
+        formset = forms.DependentMemberFormset(queryset=family.dependent_set.all())
 
     if member_type == 'a':
         if member_pk:
@@ -84,7 +84,7 @@ def member_form(request, member_type, family_pk, member_pk=None):
                     messages.success(request, "Family Member added!")
                     return HttpResponseRedirect(reverse('families:detail', kwargs={'pk':family_pk}))
         else:
-            formset = forms.DependentMemberFormSet(request.POST, queryset=family.dependent_set.all())
+            formset = forms.DependentMemberFormset(request.POST, queryset=family.dependent_set.all())
             if formset.is_valid():
                 members = formset.save(commit=False)
                 for member in members:
@@ -107,14 +107,20 @@ def member_form(request, member_type, family_pk, member_pk=None):
 def family_edit(request, pk):
     family = get_object_or_404(models.Family, pk=pk)
     form = forms.FamilyForm(instance=family)
+    member_forms = forms.FamilyMemberInlineFormset(queryset=form.instance.adult_set.all())
     if request.method == 'POST':
         form = forms.FamilyForm(instance=family, data=request.POST)
-        if form.is_valid():
+        member_forms = forms.FamilyMemberInlineFormset(request.POST, queryset=form.instance.adult_set.all())
+        if form.is_valid() and member_forms.is_valid():
             form.save()
+            members = member_forms.save(commit=False)
+            for member in members:
+                member.family = family
+                member.save()
             messages.success(request, "Updated {}".format(form.cleaned_data['family_name']))
         return HttpResponseRedirect(reverse('families:detail', kwargs={'pk':pk}))
     return render(request, 'families/family_form.html', {'form': form,
-        'family':pk})
+        'family':pk, 'formset': member_forms})
 
 @login_required
 def member_edit(request, family_pk, member_pk, member_type):

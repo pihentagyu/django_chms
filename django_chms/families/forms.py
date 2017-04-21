@@ -40,8 +40,29 @@ class DependentMemberForm(forms.ModelForm):
                 'gender',
                 ]
 
-DependentMemberFormSet = forms.modelformset_factory(
+DependentMemberFormset = forms.modelformset_factory(
         models.Dependent,
         form = DependentMemberForm,
         extra=2,
         )
+
+AdultMemberFormset = forms.modelformset_factory(
+        models.Adult,
+        form = AdultMemberForm,
+        extra=2,
+        )
+
+FamilyMemberInlineFormset = forms.inlineformset_factory(
+        models.Family,
+        models.Adult,
+        fields = (
+                'title',
+                'first_name',
+                'middle_name',
+                'last_name',
+                'suffix',
+                'gender',
+        ),
+        formset=AdultMemberFormset,
+        max_num=2,
+     )

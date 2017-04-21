@@ -24,7 +24,7 @@
         <form method="POST" action="">
             {% csrf_token %}
             <section>
-                {{ formset.management_form }}
+                {{ formset }}
             </section>
             <input type="submit" class="button" value="save">
         </form>
