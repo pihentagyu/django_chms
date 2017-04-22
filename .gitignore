@@ -89,6 +89,7 @@ ENV/
 .ropeproject
 
 *.swp
+*.swo
 db.sqlite3
 
 django_chms/families/migrations/*
