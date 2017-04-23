@@ -4,9 +4,10 @@
 
 {% block content %}
     {{ block.super }}
-    <ul class="breadcrumbs">
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'families:list' %}">Families</a></li>
-        {% block breadcrumbs %}{% endblock %}
-    </ul>
+    <nav>
+	    <form action="{% url 'families:search' %}" method="GET">
+			    <input type="search" name="q"
+			    <button type="button">Search</button>
+	    </form>
+    </nav>
 {% endblock %}

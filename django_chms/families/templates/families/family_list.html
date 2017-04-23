@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "families/layout.html" %}
 {% load bootstrap3 %}
 {# {% load static from staticfiles %}#}
 
@@ -9,6 +9,7 @@
 {% block title %}Families{% endblock %}
 
 {% block content %}
+{{ block.super }}
     <div class="cards">
         {% for family in families %}
             <div class="card">

@@ -140,3 +140,9 @@ def member_edit(request, family_pk, member_pk, member_type):
         return HttpResponseRedirect(member.get_absolute_url())
     return render(request, 'families/member_form.html', {'form': form, 'family':member.family})
 
+
+def search(request):
+    term = request.GET.get('q')
+    families = models.Family.objects.filter(family_name__icontains=term)
+    return render(request, 'families/family_list.html', {'families': families})
+
