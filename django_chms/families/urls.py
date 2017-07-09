@@ -10,6 +10,6 @@ urlpatterns = [
         url(r'edit_family_(?P<pk>\d+)/$', views.family_edit, name='edit_family'),
         url(r'delete_family_(?P<pk>\d+)/$', views.FamilyDeleteView.as_view(), name='delete_family'),
         url(r'create_family/$', views.FamilyCreateView.as_view(), name='create_family'),
-        url(r'search/$', views.search, name='search'), 
+        url(r'search/$', views.FamilySearchView.as_view(), name='search'), 
         url(r'(?P<pk>\d+)/$', views.FamilyDetailView.as_view(), name='detail'),
         ]

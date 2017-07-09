@@ -65,10 +65,25 @@ class MemberDetailView(DetailView, SingleObjectMixin):
         else:
             return models.Dependent.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['member_type'] = self.kwargs['member_type']
+        return context
+
+
+class FamilySearchView(PrefetchRelatedMixin, ListView):
+    prefetch_related = ('adult_set', 'dependent_set')
+    template_name = 'families/family_list.html'
+    model = models.Family
+    context_object_name = 'families'
+
+    def get_queryset(self):
+        term = self.request.GET.get('q')
+        return self.model.objects.filter(Q(family_name__icontains=term)|Q(adult__first_name__icontains=term)|Q(dependent__first_name__icontains=term)).distinct()
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['email'] = 'jdoepp@gmail.com'
         return context
 
 
@@ -181,9 +196,4 @@ def member_edit(request, family_pk, member_pk, member_type):
         return HttpResponseRedirect(member.get_absolute_url())
     return render(request, 'families/member_form.html', {'form': form, 'family':member.family})
 
-def search(request):
-    term = request.GET.get('q')
-    members = models.Adult.objects.filter(Q(last_name__icontains=term)|Q(first_name__icontains=term))
-    families = members__family
-    return render(request, 'families/family_list.html', {'families': families})
 
