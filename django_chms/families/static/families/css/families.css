@@ -1,3 +1,7 @@
 .card header a {
       color: #000080;
 } 
+
+div.right {
+    float: right;
+}

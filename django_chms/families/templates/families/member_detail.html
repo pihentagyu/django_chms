@@ -15,6 +15,5 @@
 
 {% if user.is_authenticated %}
     <hr>
-    <a href="{% url 'families:edit_member' family_pk=member.family.pk member_pk=member.pk member_type=member_type %}" class="button">Edit</a>
 {% endif %}
 {% endblock %}

@@ -15,7 +15,7 @@ def newest_family():
 @register.inclusion_tag('families/family_nav.html')
 def nav_family_list():
     '''Returns dictionary of families for navigation pane'''
-    families = Family.objects.all()
+    families = Family.objects.values('id', 'family_name')[:5]
     return {'families': families}
 
 

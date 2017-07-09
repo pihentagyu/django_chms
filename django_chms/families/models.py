@@ -18,8 +18,14 @@ class Family(models.Model):
     state = models.CharField(blank=True, max_length=50)
     country = models.CharField(blank=True, max_length=70)
     notes = models.TextField(blank=True)
+
     def __str__(self):
         return self.family_name
+
+    def time_to_complete(self):
+        from families.templatetags.family_extras import time_estimate
+        return '{} min'.format(time_estimate(len(self.notes.split())))
+
 
 class Member(models.Model):
     GENDER_CHOICES = (
@@ -70,6 +76,10 @@ class Dependent(Member):
             'member_type': 'd',
             'member_pk': self.id,
             })
+    def age(self):
+        today = date.today()
+        if self.birth_date:
+            return '{} years'.format(today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day)))
 
     #class Meta:
     #    ordering = ['birth_date', 'id']

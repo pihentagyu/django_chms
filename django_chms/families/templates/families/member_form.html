@@ -1,5 +1,4 @@
 {% extends 'layout.html' %}
-
 {% block title %} 
     {% if  member_type  == "a" %}
         {{ family }} {{ form.instance.first_name|default:"New Member" }} {{ block.super }} 

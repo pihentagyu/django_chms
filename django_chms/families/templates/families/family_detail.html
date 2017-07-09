@@ -15,6 +15,9 @@
     {% if user.is_authenticated %}
             <a href="{% url 'families:edit_family' pk=family.pk %}"
                 class="button">Edit Family Data</a>
+			<br>
+            <a href="{% url 'families:delete_family' pk=family.pk %}"
+                class="button">Delete Family</a>
         <hr>
     {% endif %}
 
@@ -37,6 +40,7 @@
                     </h3>
 				{% endfor %}
 		</section>
+
     </article>
     {% if user.is_authenticated %}
         {% if family.adult_set.count < 3 %}

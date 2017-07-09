@@ -1,35 +1,76 @@
 from itertools import chain
 
+from braces.views import PrefetchRelatedMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponseRedirect, Http404
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
+from django.views.generic.detail import SingleObjectMixin
 
 from . import forms
 from . import models
 
 # Create your views here.
 
-def family_list(request):
-    families = models.Family.objects.all()
-    email = 'jdoepp@gmail.com'
-    return render(request, 'families/family_list.html', {'families': families,
-        'email':email})
+class FamilyCreateView(LoginRequiredMixin, CreateView):
+    fields = ('user', 'family_name', 'address1', 'address2', 'city', 'postal_code', 'state', 'country', 'notes')
+    model = models.Family
 
-def family_detail(request, pk):
-    family = get_object_or_404(models.Family, pk=pk)
-    members = chain(family.adult_set.all(), family.dependent_set.all())
-    return render(request, 'families/family_detail.html', {'family':family,
-        'members': members
-        })
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['user'] = self.request.user.pk
+        return initial
 
-def member_detail(request, family_pk, member_pk, member_type):
-    if member_type == 'a':
-        member = get_object_or_404(models.Adult, family_id=family_pk, pk=member_pk)
-    else:
-        member = get_object_or_404(models.Dependent, family_id=family_pk, pk=member_pk)
-    return render(request, 'families/member_detail.html', {'member':member, 'member_type':member_type})
+
+class FamilyListView(PrefetchRelatedMixin, ListView):
+    prefetch_related = ('adult_set', 'dependent_set')
+    model = models.Family
+    context_object_name = 'families'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['email'] = 'jdoepp@gmail.com'
+        return context
+
+
+class FamilyDetailView(PrefetchRelatedMixin, DetailView):
+    prefetch_related = ('adult_set', 'dependent_set')
+    model = models.Family
+    template_name = 'families/family_detail.html'
+
+
+class FamilyDeleteView(DeleteView):
+    model = models.Family
+    success_url = reverse_lazy('families:list')
+
+    def get_queryset(self):
+        if not self.request.user.is_superuser:
+            return self.model.objects.filter(user=self.request.user)
+        else:
+            return self.model.objects.all()
+
+class MemberDetailView(DetailView, SingleObjectMixin):
+    context_object_name = 'member'
+    template_name = 'families/member_detail.html'
+    pk_url_kwarg = 'member_pk'
+
+    def get_queryset(self):
+        if self.kwargs['member_type'] == 'a':
+            return models.Adult.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
+        else:
+            return models.Dependent.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['member_type'] = self.kwargs['member_type']
+        return context
+
 
 @login_required
 def member_create(request, family_pk, member_type):
@@ -140,9 +181,9 @@ def member_edit(request, family_pk, member_pk, member_type):
         return HttpResponseRedirect(member.get_absolute_url())
     return render(request, 'families/member_form.html', {'form': form, 'family':member.family})
 
-
 def search(request):
     term = request.GET.get('q')
-    families = models.Family.objects.filter(family_name__icontains=term)
+    members = models.Adult.objects.filter(Q(last_name__icontains=term)|Q(first_name__icontains=term))
+    families = members__family
     return render(request, 'families/family_list.html', {'families': families})
 

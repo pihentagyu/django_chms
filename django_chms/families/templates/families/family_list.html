@@ -10,21 +10,24 @@
 
 {% block content %}
 {{ block.super }}
-    <div class="cards">
+    <h1>Families</h1>
+    <div class="right">
+	    <a href="{% url 'families:create_family' %}">New Family</a>
+    </div>
+    <table>
         {% for family in families %}
-            <div class="card">
+	<tr>
+            <td>
                 <header><a href="{% url 'families:detail' pk=family.pk %}">{{ family.family_name }}</a></header>
-                <div class="card-copy">
-                    {% if family.notes|wordcount <= 5 %}
-                        {{ family.notes }}
-                    {% else %}
-                        {{ family.notes|truncatewords:5 }}
-                        <a href="{% url 'families:detail' pk=family.pk %}">Read more</a>
-                    {% endif %}
-                </div>
-                <p>Created on: {{ family.created_at|date:"Y-m-d" }}</p>
-            </div>
+            </td>
+	{% for member in family.adult_set.all %}
+	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 
         {% endfor %}
+	{% for member in family.dependent_set.all %}
+	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 
+        {% endfor %}
+        {% endfor %}
+    </table>
         <div> Questions? Email me! {{ email|urlize }}
     </div>
 {% endblock %}

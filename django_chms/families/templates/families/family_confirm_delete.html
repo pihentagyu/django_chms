@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+	<h1>Delete {{ family.name }}?</h1> 
+	
+    <form method="POST">
+        {% csrf_token %}
+		<input type="submit" class="button" value="Delete"> <a href="{% url 'families:detail' pk=family.pk %}">Cancel</a>
+	</form>
+{% endblock %}
