@@ -16,8 +16,8 @@ class AdultInline(admin.StackedInline):
                 )
             )
 
-class DependentInline(admin.StackedInline):
-    model = models.Dependent
+class ChildInline(admin.StackedInline):
+    model = models.Child
     fieldsets = (
         (None,
             {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','date_joined','school')}
@@ -41,7 +41,7 @@ class YearJoinedListFilter(admin.SimpleListFilter):
             return queryset.filter(date_joined__year=self.value())
 
 class FamilyAdmin(admin.ModelAdmin):
-    inlines = [AdultInline, DependentInline,]
+    inlines = [AdultInline, ChildInline,]
     search_fields = ['family_name']
     list_filter = ['family_name','city']
     list_display = ['family_name']
@@ -75,7 +75,7 @@ class AdultAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'family','last_name', 'birth_date', 'date_joined', 'gender']
     radio_fields = {'gender': admin.VERTICAL}
 
-class DependentAdmin(admin.ModelAdmin):
+class ChildAdmin(admin.ModelAdmin):
     #fields = ['family','title','first_name','middle_name','last_name','suffix',
     #        'gender','birth_date','date_joined','school','notes']
     fieldsets = (
@@ -94,6 +94,6 @@ class DependentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.Family, FamilyAdmin)
-#admin.site.register(models.Adult, models.Dependent)
+#admin.site.register(models.Adult, models.Child)
 admin.site.register(models.Adult, AdultAdmin)
-admin.site.register(models.Dependent, DependentAdmin)
+admin.site.register(models.Child, ChildAdmin)

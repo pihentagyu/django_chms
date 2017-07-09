@@ -1,11 +1,15 @@
 from datetime import date
 from django.core.urlresolvers import reverse
 from django.db import models
+import os
 
 from django.contrib.auth.models import User
 # Create your models here.
 
 class Family(models.Model):
+    def get_image_path(instance, filename):
+        return os.path.join('photos', str(instance.id), filename)
+
     class Meta:
         verbose_name_plural = 'Families'
     created_at = models.DateTimeField(auto_now_add=True)
@@ -18,6 +22,7 @@ class Family(models.Model):
     state = models.CharField(blank=True, max_length=50)
     country = models.CharField(blank=True, max_length=70)
     notes = models.TextField(blank=True)
+    image = models.ImageField(upload_to=get_image_path, blank=True, null=True)
 
     def __str__(self):
         return self.family_name
@@ -67,7 +72,7 @@ class Adult(Member):
             'member_pk': self.id,
             })
 
-class Dependent(Member):
+class Child(Member):
     school = models.CharField(blank=True, max_length=255)
 
     def get_absolute_url(self):

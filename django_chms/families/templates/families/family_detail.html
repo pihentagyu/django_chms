@@ -32,7 +32,7 @@
                     {% endif %}
                         </h3>
 				{% endfor %}
-				{% for member in family.dependent_set.all %}
+				{% for member in family.child_set.all %}
                 <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }} </a>
                     {% if member.last_name != family.family_name %}
 					    {{ member.last_name }}
@@ -43,11 +43,11 @@
 
     </article>
     {% if user.is_authenticated %}
-        {% if family.adult_set.count < 3 %}
+        {% if family.adult_set.count < 2 %}
         <hr>
-            <a href="{% url 'families:create_member' family_pk=family.pk member_type='a' %}" class="button">New Adult Member</a>
+            <a href="{% url 'families:create_adult' family_pk=family.pk %}" class="button">New Adult</a>
             <br>
         {% endif %}
-            <a href="{% url 'families:create_member' family_pk=family.pk member_type='d' %}" class="button">Edit Dependents</a>
+            <a href="{% url 'families:create_child' family_pk=family.pk %}" class="button">Add Child</a>
     {% endif %}
 {% endblock %}

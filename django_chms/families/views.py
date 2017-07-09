@@ -28,7 +28,7 @@ class FamilyCreateView(LoginRequiredMixin, CreateView):
 
 
 class FamilyListView(PrefetchRelatedMixin, ListView):
-    prefetch_related = ('adult_set', 'dependent_set')
+    prefetch_related = ('adult_set', 'child_set')
     model = models.Family
     context_object_name = 'families'
 
@@ -39,7 +39,7 @@ class FamilyListView(PrefetchRelatedMixin, ListView):
 
 
 class FamilyDetailView(PrefetchRelatedMixin, DetailView):
-    prefetch_related = ('adult_set', 'dependent_set')
+    prefetch_related = ('adult_set', 'child_set')
     model = models.Family
     template_name = 'families/family_detail.html'
 
@@ -63,7 +63,7 @@ class MemberDetailView(DetailView, SingleObjectMixin):
         if self.kwargs['member_type'] == 'a':
             return models.Adult.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
         else:
-            return models.Dependent.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
+            return models.Child.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -72,14 +72,14 @@ class MemberDetailView(DetailView, SingleObjectMixin):
 
 
 class FamilySearchView(PrefetchRelatedMixin, ListView):
-    prefetch_related = ('adult_set', 'dependent_set')
+    prefetch_related = ('adult_set', 'child_set')
     template_name = 'families/family_list.html'
     model = models.Family
     context_object_name = 'families'
 
     def get_queryset(self):
         term = self.request.GET.get('q')
-        return self.model.objects.filter(Q(family_name__icontains=term)|Q(adult__first_name__icontains=term)|Q(dependent__first_name__icontains=term)).distinct()
+        return self.model.objects.filter(Q(family_name__icontains=term)|Q(adult__first_name__icontains=term)|Q(child__first_name__icontains=term)).distinct()
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -87,13 +87,47 @@ class FamilySearchView(PrefetchRelatedMixin, ListView):
         return context
 
 
+class AdultCreateView(LoginRequiredMixin, CreateView):
+
+    model = models.Adult
+    fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address','notes')
+    template_name = 'families/member_form.html'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['user'] = self.request.user.pk
+        return initial
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['member_type'] = 'a'
+        return context
+
+
+class ChildCreateView(LoginRequiredMixin, CreateView):
+
+    model = models.Child
+    fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'date_joined', 'school','notes')
+    template_name = 'families/member_form.html'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['user'] = self.request.user.pk
+        initial['last_name'] = self.model.objects.get(pk=self.kwargs['family_pk']).family.family_name
+        return initial
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['member_type'] = 'd'
+        return context
+
 @login_required
 def member_create(request, family_pk, member_type):
     family = get_object_or_404(models.Family, pk=family_pk)
     if member_type == 'a':
         form_class = forms.AdultMemberForm
     else:
-        form_class = forms.DependentMemberForm
+        form_class = forms.ChildMemberForm
 
     form = form_class()
     if request.method == 'POST':
@@ -115,7 +149,7 @@ def member_form(request, member_type, family_pk, member_pk=None):
             member = get_object_or_404(models.Adult, family_id=family_pk, pk=member_pk)
         form_class = forms.AdultMemberForm
     else:
-        formset = forms.DependentMemberFormset(queryset=family.dependent_set.all())
+        formset = forms.ChildMemberFormset(queryset=family.child_set.all())
 
     if member_type == 'a':
         if member_pk:
@@ -140,7 +174,7 @@ def member_form(request, member_type, family_pk, member_pk=None):
                     messages.success(request, "Family Member added!")
                     return HttpResponseRedirect(reverse('families:detail', kwargs={'pk':family_pk}))
         else:
-            formset = forms.DependentMemberFormset(request.POST, queryset=family.dependent_set.all())
+            formset = forms.ChildMemberFormset(request.POST, queryset=family.child_set.all())
             if formset.is_valid():
                 members = formset.save(commit=False)
                 for member in members:
@@ -184,8 +218,8 @@ def member_edit(request, family_pk, member_pk, member_type):
         member = get_object_or_404(models.Adult, family_id=family_pk, pk=member_pk)
         form_class = forms.AdultMemberForm
     else:
-        member = get_object_or_404(models.Dependent, family_id=family_pk, pk=member_pk)
-        form_class = forms.DependentMemberForm
+        member = get_object_or_404(models.Child, family_id=family_pk, pk=member_pk)
+        form_class = forms.ChildMemberForm
     form = form_class(instance=member)
 
     if request.method == 'POST':

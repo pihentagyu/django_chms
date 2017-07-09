@@ -23,7 +23,7 @@
 	{% for member in family.adult_set.all %}
 	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 
         {% endfor %}
-	{% for member in family.dependent_set.all %}
+	{% for member in family.child_set.all %}
 	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 
         {% endfor %}
         {% endfor %}

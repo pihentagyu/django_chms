@@ -28,9 +28,9 @@ class AdultMemberForm(forms.ModelForm):
                 'occupation',
                 ]
 
-class DependentMemberForm(forms.ModelForm):
+class ChildMemberForm(forms.ModelForm):
     class Meta:
-        model = models.Dependent
+        model = models.Child
         fields = [
                 'title',
                 'first_name',
@@ -40,9 +40,9 @@ class DependentMemberForm(forms.ModelForm):
                 'gender',
                 ]
 
-DependentMemberFormset = forms.modelformset_factory(
-        models.Dependent,
-        form = DependentMemberForm,
+ChildMemberFormset = forms.modelformset_factory(
+        models.Child,
+        form = ChildMemberForm,
         extra=2,
         )
 
