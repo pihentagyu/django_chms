@@ -47,7 +47,7 @@ class FamilyAdmin(admin.ModelAdmin):
     list_display = ['family_name']
     fieldsets = (
             (None,
-                {'fields':('user','family_name','address1','address2','city','postal_code','state','country')}
+                {'fields':('user','family_name','address1','address2','city','postal_code','state','country', 'image')}
                 ),
             ('Notes',
                 {'fields': ('notes',),

@@ -1,3 +1,4 @@
+from datetime import date
 from django import template
 from django.utils.safestring import mark_safe
 import markdown2
@@ -18,16 +19,16 @@ def nav_family_list():
     families = Family.objects.values('id', 'family_name')[:5]
     return {'families': families}
 
-
 @register.simple_tag
 def current_time(format_string):
     return datetime.datetime.now().strftime(format_string)
 
-@register.filter('time_estimate')
-def time_estimate(word_count):
-    '''Estimate the time it takes based on word count'''
-    minutes = round(word_count/20)
-    return minutes
+@register.filter('age_calc')
+def age_calc(birth_date):
+    '''Get age from date of birth'''
+    if birth_date:
+        today = date.today()
+        return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
 
 @register.filter('markdown_to_html')
 def markdown_to_html(markdown_text):

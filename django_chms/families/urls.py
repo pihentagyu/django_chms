@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from . import views
 
+#static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 urlpatterns = [
         url(r'^$', views.FamilyListView.as_view(), name='list'),
         url(r'(?P<family_pk>\d+)/(?P<member_type>a|d)_(?P<member_pk>\d+)/$', views.MemberDetailView.as_view(), name='member'),

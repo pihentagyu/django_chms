@@ -7,13 +7,18 @@
 <article>
 	<h2>{{ member.family.family_name }}</h2>
 	<h3>{{ member.first_name }} {{ member.last_name }}</h3>
-    {% with notes=member.notes %}
-    {{ notes|linebreaks }} The notes contain {{ notes|wordcount }} words.
-    Estimated time: {{ notes|wordcount|time_estimate }} minute{{ notes|wordcount|time_estimate|pluralize }}
-    {% endwith %}
+	<h4>{{ member.birth_date }}</h3>
+	{% if member_type == 'd' %}
+	<p>Age: {{ age }}</p>
+	{% endif %}
 </article>
 
 {% if user.is_authenticated %}
     <hr>
 {% endif %}
+<br>
+	<a href="{% url 'families:list' %}">Browse Families</a>
+<br>
+    <a href="{{ member.family.get_absolute_url }}">Doepp Family</a>
+					
 {% endblock %}

@@ -31,6 +31,7 @@ class FamilyListView(PrefetchRelatedMixin, ListView):
     prefetch_related = ('adult_set', 'child_set')
     model = models.Family
     context_object_name = 'families'
+    paginate_by = 10
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -68,6 +69,10 @@ class MemberDetailView(DetailView, SingleObjectMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['member_type'] = self.kwargs['member_type']
+        if self.kwargs['member_type'] == 'd':
+            context['age'] = self.get_queryset().get(pk=self.kwargs['member_pk']).age()
+        else:
+            context['age'] = None
         return context
 
 
@@ -120,26 +125,6 @@ class ChildCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data()
         context['member_type'] = 'd'
         return context
-
-@login_required
-def member_create(request, family_pk, member_type):
-    family = get_object_or_404(models.Family, pk=family_pk)
-    if member_type == 'a':
-        form_class = forms.AdultMemberForm
-    else:
-        form_class = forms.ChildMemberForm
-
-    form = form_class()
-    if request.method == 'POST':
-        form = form_class(request.POST)
-        if form.is_valid():
-            member = form.save(commit=False)
-            member.family = family
-            member.save()
-            messages.success(request, "Family Member added!")
-            return HttpResponseRedirect(reverse('families:detail', kwargs={'pk':family_pk}))
-
-    return render(request, 'families/member_form.html', {'form': form, 'family':family})
 
 @login_required
 def member_form(request, member_type, family_pk, member_pk=None):

@@ -1,4 +1,3 @@
-from datetime import date
 from django.core.urlresolvers import reverse
 from django.db import models
 import os
@@ -27,9 +26,10 @@ class Family(models.Model):
     def __str__(self):
         return self.family_name
 
-    def time_to_complete(self):
-        from families.templatetags.family_extras import time_estimate
-        return '{} min'.format(time_estimate(len(self.notes.split())))
+    def get_absolute_url(self):
+        return reverse('families:detail', kwargs={
+            'pk': self.id,
+            })
 
 
 class Member(models.Model):
@@ -75,6 +75,10 @@ class Adult(Member):
 class Child(Member):
     school = models.CharField(blank=True, max_length=255)
 
+    class Meta:
+        verbose_name_plural = 'Children'
+        #    ordering = ['birth_date', 'id']
+
     def get_absolute_url(self):
         return reverse('families:member', kwargs={
             'family_pk': self.family_id,
@@ -82,10 +86,8 @@ class Child(Member):
             'member_pk': self.id,
             })
     def age(self):
-        today = date.today()
-        if self.birth_date:
-            return '{} years'.format(today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day)))
+        from families.templatetags.family_extras import age_calc
+        return '{} years'.format(age_calc(self.birth_date))
 
-    #class Meta:
-    #    ordering = ['birth_date', 'id']
+
 
