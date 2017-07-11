@@ -7,41 +7,7 @@
     <form method="POST" action="">
         {% csrf_token %}
         {{ form.as_ul }}
-
-        {{ formset.management_form }}
-
-        <table form="grid" style="width: 100%">
-            <thead>
-                <tr>
-                    <th scope="col" class="text-center" style="width:10%">title</th>
-                    <th scope="col" class="text-center" style="width:10%">First Name</th>
-                    <th scope="col" class="text-center" style="width:10%">Middle Name</th>
-                    <th scope="col" class="text-center" style="width:10%">Last Name</th>
-                    <th scope="col" class="text-center" style="width:10%">Suffix</th>
-                    <th scope="col" class="text-center" style="width:10%">Gender</th>
-                    <th scope="col" class="text-center" style="width:10%">Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for form in formset %}
-                    <tr {% if form.instance.pk %}item{% else %}new{% endif %}>
-                        <td>{{ form.id }}{{ form.title }}</td>
-                        <td>{{ form.first_name }}</td>
-                        <td>{{ form.middle_name }}</td>
-                        <td>{{ form.last_name }}</td>
-                        <td>{{ form.suffix }}</td>
-                        <td>{{ form.gender }}</td>
-                        {% if form.instance.pk %}
-                            <td>{{ form.DELETE }}</td>
-                        {% else %}
-                            <td></td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <input type="submit" class="button" value="save">
+        <input type="submit" class="button" value="Save"><a href="{% url 'families:list' %}">Cancel</a>
     </form>
 </div>
 {% endblock %}

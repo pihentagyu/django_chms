@@ -9,11 +9,11 @@ ul.nav {
     background-color: #333;
 }
 
-li.nav {
+ul.nav li {
     float: left;
 }
 
-li.nav a {
+ul.nav li a {
     display: block;
     color: white;
     text-align: center;
@@ -21,7 +21,7 @@ li.nav a {
     text-decoration: none;
 }
 
-li.nav a:hover {
+ul.nav li a:hover {
     background-color: #111;
 }
 

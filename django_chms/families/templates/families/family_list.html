@@ -25,7 +25,7 @@
         {% for family in families %}
 	<tr>
             <td>
-                <header><a href="{% url 'families:detail' pk=family.pk %}">{{ family.family_name }}</a></header>
+                <header><a href="{% url 'families:family_detail' pk=family.pk %}">{{ family.family_name }}</a></header>
             </td>
 	{% for member in family.adult_set.all %}
 	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 

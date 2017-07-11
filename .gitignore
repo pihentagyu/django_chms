@@ -93,5 +93,6 @@ ENV/
 db.sqlite3
 
 django_chms/families/migrations/*
+django_chms/media/
 
 .directory

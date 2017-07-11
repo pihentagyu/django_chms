@@ -4,21 +4,26 @@
 {% block title %} {{ member.last_name }},{{ member.first_name }} {% endblock %}
 
 {% block content %}
-<article>
-	<h2>{{ member.family.family_name }}</h2>
-	<h3>{{ member.first_name }} {{ member.last_name }}</h3>
-	<h4>{{ member.birth_date }}</h3>
-	{% if member_type == 'd' %}
-	<p>Age: {{ age }}</p>
-	{% endif %}
-</article>
+    <article>
+        <h2>{{ member.family.family_name }}</h2>
+        <h3>{{ member.first_name }} {{ member.last_name }}</h3>
+        <h4>{{ member.birth_date }}</h3>
+        {% if member_type == 'd' and age %}
+            <p>Age: {{ age }}</p>
+        {% endif %}
+    </article>
 
 {% if user.is_authenticated %}
     <hr>
 {% endif %}
-<br>
-	<a href="{% url 'families:list' %}">Browse Families</a>
-<br>
-    <a href="{{ member.family.get_absolute_url }}">Doepp Family</a>
+<ul class="nav">
+    <li><a href="{% url 'families:list' %}">Browse Families</a></li>
+    <li><a href="{{ member.family.get_absolute_url }}">{{ member.family }} Family</a></li>
+    {% if member_type == 'd' %}
+        <li><a href="{% url 'families:edit_child' member_pk=member_pk family_pk=family_pk %}">Edit Family Member</a></li>
+    {% else %}
+        <li><a href="{% url 'families:edit_adult' member_pk=member.pk family_pk=family_pk %}">Edit Family Member</a></li>
+    {% endif %}
+</ul>
 					
 {% endblock %}

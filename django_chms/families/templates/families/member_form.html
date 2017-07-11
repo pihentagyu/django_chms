@@ -1,32 +1,19 @@
 {% extends 'layout.html' %}
 {% block title %} 
-    {% if  member_type  == "a" %}
-        {{ family }} {{ form.instance.first_name|default:"New Member" }} {{ block.super }} 
-    {% else %}
-        {{ family|default:"New Member" }} {{ block.super }} 
-{% endif %}
+    {{ family }} {{ form.instance.first_name|default:"New Member" }} {{ block.super }} 
 {% endblock %}
 
 {% block content %}
-{% if  member_type  == "a" %}
     <div class="row">
-        <h1>{{ form.instance.first_name }} {{ form.instance.last_name|default:"Create a new Member" }}</h1>
+        {% if  member_type  == "a" %}
+            <h1>{{ form.instance.first_name }} {{ form.instance.last_name|default:"Add a New Adult Member" }}</h1>
+        {% else %}
+            <h1>{{ form.instance.first_name }} {{ form.instance.last_name|default:"Add a New Child Member" }}</h1>
+        {% endif %}
         <form method="POST" action="">
             {% csrf_token %}
             {{ form.as_p }}
-            <input type="submit" class="button" value="save">
+            <input type="submit" class="button" value="Save"><a href="{% url 'families:family_detail' pk=family_pk %}">Cancel</a>
         </form>
     </div>
-{% else %}
-    <div class="row">
-        <h1>Child</h1>
-        <form method="POST" action="">
-            {% csrf_token %}
-            <section>
-                {{ form.as_p }}
-            </section>
-            <input type="submit" class="button" value="save">
-        </form>
-    </div>
-{% endif %}
 {% endblock %}

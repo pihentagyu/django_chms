@@ -37,21 +37,18 @@
         <hr>
     {% endif %}
 
-        <!--<p>There are {{ family.adult_set.count|apnumber }} adult member{{
-            family.adult_set.count|pluralize }} of this family: {{
-            family.adult_set.all|join:", " }}</p> -->
 		<section>
-				{% for member in family.adult_set.all %}
-                    <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }} </a> 
-                    {% if member.last_name != family.family_name %}
-					    {{ member.last_name }}
+				{% for adult in family.adult_set.all %}
+                    <h3> <a href="{{ adult.get_absolute_url }}">{{ adult.first_name }} </a> 
+                    {% if adult.last_name != family.family_name %}
+					    {{ adult.last_name }}
                     {% endif %}
                         </h3>
 				{% endfor %}
-				{% for member in family.child_set.all %}
-                <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }} </a>
-                    {% if member.last_name != family.family_name %}
-					    {{ member.last_name }}
+				{% for child in family.child_set.all %}
+                <h3> <a href="{{ child.get_absolute_url }}">{{ child.first_name }} </a>
+                    {% if child.last_name != family.family_name %}
+					    {{ child.last_name }}
                     {% endif %}
                     </h3>
 				{% endfor %}

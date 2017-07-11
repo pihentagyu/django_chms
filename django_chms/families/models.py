@@ -27,7 +27,7 @@ class Family(models.Model):
         return self.family_name
 
     def get_absolute_url(self):
-        return reverse('families:detail', kwargs={
+        return reverse('families:family_detail', kwargs={
             'pk': self.id,
             })
 
@@ -52,9 +52,9 @@ class Member(models.Model):
     def __str__(self):
         return '%s, %s' % (self.last_name, self.first_name)
 
-    def save(self, *args, **kwargs):
-        self.last_name = self.family.family_name
-        super(Member, self).save(*args, **kwargs)
+    #def save(self, *args, **kwargs):
+    #    self.last_name = self.family.family_name
+    #    super(Member, self).save(*args, **kwargs)
 
 class Adult(Member):
     occupation = models.CharField(blank=True, max_length=255)
@@ -66,7 +66,7 @@ class Adult(Member):
         ordering = ['id',]
 
     def get_absolute_url(self):
-        return reverse('families:member', kwargs={
+        return reverse('families:member_detail', kwargs={
             'family_pk': self.family_id,
             'member_type': 'a',
             'member_pk': self.id,
@@ -80,14 +80,17 @@ class Child(Member):
         #    ordering = ['birth_date', 'id']
 
     def get_absolute_url(self):
-        return reverse('families:member', kwargs={
+        return reverse('families:member_detail', kwargs={
             'family_pk': self.family_id,
             'member_type': 'd',
             'member_pk': self.id,
             })
     def age(self):
         from families.templatetags.family_extras import age_calc
-        return '{} years'.format(age_calc(self.birth_date))
+        if self.birth_date:
+            return '{} years'.format(age_calc(self.birth_date))
+        else:
+            return
 
 
 
