@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'bootstrap3',
     'debug_toolbar',
+    'accounts',
     'families',
 ]
 
@@ -141,3 +142,5 @@ DEBUG_TOOLBAR_CONFIG = {
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+LOGIN_REDIRECT_URL = 'families:list'

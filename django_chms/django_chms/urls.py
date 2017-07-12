@@ -22,10 +22,12 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns, static
 from . import views
 
 urlpatterns = [
-    url(r'^families/', include('families.urls', namespace='families')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^suggest/$', views.suggestion_view, name='suggestion'),
     url(r'^$', views.front_page, name='home'),
+    url(r'^admin/', admin.site.urls),
+    url(r'^accounts/', include('accounts.urls', namespace='accounts')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^families/', include('families.urls', namespace='families')),
+    url(r'^suggest/$', views.suggestion_view, name='suggestion'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()

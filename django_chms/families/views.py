@@ -80,7 +80,6 @@ class FamilySearchView(PrefetchRelatedMixin, ListView):
 
 
 class AdultCreateView(LoginRequiredMixin, CreateView):
-
     model = models.Adult
     fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address','notes')
     template_name = 'families/member_form.html'
@@ -129,7 +128,6 @@ class MemberDetailView(DetailView, SingleObjectMixin):
 
 
 class ChildCreateView(LoginRequiredMixin, CreateView):
-
     model = models.Child
     fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'date_joined', 'school','notes')
     template_name = 'families/member_form.html'
@@ -153,7 +151,6 @@ class ChildCreateView(LoginRequiredMixin, CreateView):
 
 
 class ChildUpdateView(LoginRequiredMixin, UpdateView):
-
     template_name = 'families/member_form.html' 
     model = models.Child
     fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'date_joined', 'school','notes')
@@ -171,7 +168,6 @@ class ChildUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class AdultUpdateView(LoginRequiredMixin, UpdateView):
-
     template_name = 'families/member_form.html' 
     model = models.Adult
     fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address','notes')
@@ -186,24 +182,4 @@ class AdultUpdateView(LoginRequiredMixin, UpdateView):
         context['family_pk'] = self.kwargs['family_pk']
         context['member_pk'] = self.kwargs['member_pk']
         return context
-
-
-@login_required
-def member_edit(request, family_pk, member_pk, member_type):
-    if member_type == 'a':
-        member = get_object_or_404(models.Adult, family_id=family_pk, pk=member_pk)
-        form_class = forms.AdultMemberForm
-    else:
-        member = get_object_or_404(models.Child, family_id=family_pk, pk=member_pk)
-        form_class = forms.ChildMemberForm
-    form = form_class(instance=member)
-
-    if request.method == 'POST':
-        form = form_class(instance=member, data=request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Updated {}".format(form.cleaned_data['first_name']))
-        return HttpResponseRedirect(member.get_absolute_url())
-    return render(request, 'families/member_form.html', {'form': form, 'family':member.family})
-
 

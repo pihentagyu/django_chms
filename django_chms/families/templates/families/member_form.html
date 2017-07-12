@@ -1,4 +1,6 @@
 {% extends 'layout.html' %}
+{% load bootstrap3 %}
+
 {% block title %} 
     {{ family }} {{ form.instance.first_name|default:"New Member" }} {{ block.super }} 
 {% endblock %}
@@ -12,7 +14,7 @@
         {% endif %}
         <form method="POST" action="">
             {% csrf_token %}
-            {{ form.as_p }}
+            {% bootstrap_form form %}
             <input type="submit" class="button" value="Save"><a href="{% url 'families:family_detail' pk=family_pk %}">Cancel</a>
         </form>
     </div>
