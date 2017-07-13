@@ -12,7 +12,7 @@ class Family(models.Model):
     class Meta:
         verbose_name_plural = 'Families'
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
+    user = models.OneToOneField(User, blank=True, null=True, on_delete=models.SET_NULL)
     family_name = models.CharField(max_length=50)
     address1 = models.CharField(blank=True, max_length=255)
     address2 = models.CharField(blank=True, max_length=255)
