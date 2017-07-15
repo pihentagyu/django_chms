@@ -131,7 +131,7 @@ STATICFILES_DIRS = (
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'suggestions')
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
@@ -144,3 +144,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 #LOGIN_REDIRECT_URL = 'accounts:loggedin'
+
