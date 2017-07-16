@@ -1,7 +1,12 @@
 {% extends "layout.html" %}
+{% load static from staticfiles %}
 
-{% block title %}Church Management System{% endblock %}
+{% block title %}{{ church_name }}{% endblock %}
 
 {% block content %}
-<h1>Church Management System for Django</h1>
+<h1>{{ church_name }}</h1>
+<h2>Church Management System</h2>
+<div class="center">
+<img src="{{ image }}" alt='Main image'>
+</div>
 {% endblock %}

@@ -1,0 +1,63 @@
+{% load family_extras %}
+{% autoescape on %}
+{% with lb_='{' rb_='}' %}
+\documentclass[letterpaper]{article}
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{12}
+{0mm} % Einzug
+{1.5\baselineskip} % Vorabstand
+{0.7\baselineskip} % Nachabstand
+%{\ttfamily\large\scshape\hrule\vspace{0.8\baselineskip}}}
+{\centering\LARGE\bfseries}}
+
+\renewcommand{\subsection}{\@startsection{section}{12}
+{0mm} % Einzug
+{1.5\baselineskip} % Vorabstand
+{0.7\baselineskip} % Nachabstand
+%{\ttfamily\large\scshape\hrule\vspace{0.8\baselineskip}}}
+{\large\bfseries}}
+\makeatother
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\begin{document}
+\title{{lb_}}{{ church_name }} Directory{{rb_}}
+\maketitle
+\pagebreak
+
+{% for family in families %}
+    \section{{lb_}}{{ family.family_name }}{{rb_}}
+    \begin{minipage}{0.45\textwidth}
+    \begin{description}
+    \item[Family Name] {{ family.family_name }}
+    \item[Address1] {{ family.address1 }}
+    {% if family.address2 %}
+    \item[Address2] {{ family.address2 }}
+    {% endif %}
+    \item[City] {{ family.city }}
+    \item[State] {{ family.state }}
+    \end{description}
+    \end{minipage}
+    \begin{minipage}{0.5\textwidth}
+    {% if family.image %}
+        \framebox{{lb_}}\includegraphics[width=\textwidth]{{lb_}}{{ media_root }}/{{ family.image }}{{rb_}}{{rb_}}
+    {% endif %}
+    \end{minipage} \hfill
+
+    \begin{description}
+        \item[Notes] {{ family.notes|markdown_to_latex }}
+    \end{description}
+
+	{% for member in family.adult_set.all %}
+	{{ member.first_name }}
+        {% endfor %}
+
+	{% for member in family.child_set.all %}
+	{{ member.first_name }}
+        {% endfor %}
+    \pagebreak
+        {% endfor %}
+\end{document}
+{% endwith %}
+{% endautoescape %}
+

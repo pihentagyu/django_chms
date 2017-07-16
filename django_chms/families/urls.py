@@ -6,6 +6,7 @@ from . import views
 
 urlpatterns = [
         url(r'^$', views.FamilyListView.as_view(), name='list'),
+        url(r'^addressbook$', views.family_list_as_pdf, name='addressbook'),
         url(r'(?P<family_pk>\d+)/(?P<member_type>a|d)_(?P<member_pk>\d+)/$', views.MemberDetailView.as_view(), name='member_detail'),
         url(r'(?P<family_pk>\d+)/create_adult/$', views.AdultCreateView.as_view(), name='create_adult'),
         url(r'(?P<family_pk>\d+)/create_child/$', views.ChildCreateView.as_view(), name='create_child'),

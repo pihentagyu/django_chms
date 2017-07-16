@@ -1,16 +1,21 @@
-from itertools import chain
-
 from braces.views import PrefetchRelatedMixin
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect, Http404
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import get_template
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
+from itertools import chain
+import os
+from subprocess import Popen, PIPE
+import tempfile
 
 from . import forms
 from . import models
@@ -28,6 +33,32 @@ class FamilyListView(PrefetchRelatedMixin, ListView):
         context['email'] = 'jdoepp@gmail.com'
         return context
 
+def family_list_as_pdf(request):
+    families = models.Family.objects.all()
+
+    template = get_template('families/addressbook.tex')
+    adult_set = families.prefetch_related('adult_set')
+    child_set = families.prefetch_related('child_set')
+    rendered_tpl = template.render({'families':families, 'adult_set': adult_set, 'child_set': child_set, 'media_root': settings.MEDIA_ROOT, 'church_name': settings.CHURCH_NAME}).encode('utf-8')
+    # Python3 only. For python2 check out the docs!
+    with tempfile.TemporaryDirectory() as tempdir:  
+        # Create subprocess, supress output with PIPE and
+        # run latex twice to generate the TOC properly.
+        # Finally read the generated pdf.
+        for i in range(2):
+            process = Popen(
+                ['pdflatex', '-output-directory', tempdir],
+                stdin=PIPE,
+                stdout=PIPE,
+            )
+            out, err = process.communicate(rendered_tpl)
+            print(out, err)
+        with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
+            pdf = f.read()
+    r = HttpResponse(content_type='application/pdf')  
+    r['Content-Disposition'] = 'attachment; filename=texput.pdf'
+    r.write(pdf)
+    return r
 
 class FamilyDetailView(PrefetchRelatedMixin, DetailView):
     prefetch_related = ('adult_set', 'child_set')
@@ -182,4 +213,5 @@ class AdultUpdateView(LoginRequiredMixin, UpdateView):
         context['family_pk'] = self.kwargs['family_pk']
         context['member_pk'] = self.kwargs['member_pk']
         return context
+
 

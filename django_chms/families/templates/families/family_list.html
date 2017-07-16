@@ -1,10 +1,12 @@
 {% extends "families/layout.html" %}
+{% load family_extras %}
 {% load bootstrap3 %}
-{# {% load static from staticfiles %}#}
+{% load static from staticfiles %}
 
 {# Load CSS and JavaScript #}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
+{% bootstrap_messages %}
 {# {% block static %}<link rel="stylesheet" href="{% static 'family/css/family.css' %}">{% endblock %} #}
 {% block title %}Families{% endblock %}
 
@@ -14,12 +16,12 @@
     <div class="right">
 	    <a href="{% url 'families:create_family' %}">New Family</a>
     </div>
-    <table>
+    <table class="fam_list">
 	 <thead>
     <tr>
       <th>Family Name</th>
-      <th columnspan="2">Adults</th>
-      <th columnspan="20">Children</th>
+      <th colspan="2">Adults</th>
+      <th>Children</th>
     </tr>
   </thead>
         {% for family in families %}
@@ -30,12 +32,15 @@
 	{% for member in family.adult_set.all %}
 	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 
         {% endfor %}
-	{% for member in family.child_set.all %}
-	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 
-        {% endfor %}
+    <td>
+        {{ family.child_set|set_fields_joined:'first_name' }}
+    </td>
         {% endfor %}
     </table>
-	<br><br>
+	<br>
+    <a href="{% url 'families:addressbook' %}">Create Addressbook PDF<a>
+    <br>
+    <br>
 {% if is_paginated %}
   <ul class="pagination">
     {% if page_obj.has_previous %}

@@ -1,12 +1,27 @@
 div.right {
     float: right;
 }
+div.center {
+    float: center;
+}
+table.fam_list {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.fam_list th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+table.fam_list tr:nth-child(even){background-color: #eaecf2}
+
 ul.nav {
     list-style-type: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #333;
+    background-color: #D4AF37;
 }
 
 ul.nav li {
@@ -22,7 +37,7 @@ ul.nav li a {
 }
 
 ul.nav li a:hover {
-    background-color: #111;
+    background-color: #2B50C8;
 }
 
 ul.pagination {

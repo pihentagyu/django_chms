@@ -68,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -145,3 +146,6 @@ MEDIA_URL = '/media/'
 
 #LOGIN_REDIRECT_URL = 'accounts:loggedin'
 
+CHURCH_NAME = 'Anglican Church of the Redeemer'
+
+CHURCH_IMAGE = os.path.join(MEDIA_ROOT, 'photos', 'acotr.jpg')

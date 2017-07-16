@@ -22,6 +22,7 @@ class Family(models.Model):
     country = models.CharField(blank=True, max_length=70)
     notes = models.TextField(blank=True)
     image = models.ImageField(upload_to=get_image_path, blank=True, null=True)
+    image_sm = models.ImageField(upload_to=get_image_path, blank=True, null=True)
 
     def __str__(self):
         return self.family_name

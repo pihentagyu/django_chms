@@ -2,6 +2,7 @@ from datetime import date
 from django import template
 from django.utils.safestring import mark_safe
 import markdown2
+import pypandoc
 
 
 from families.models import Family
@@ -35,4 +36,23 @@ def markdown_to_html(markdown_text):
     '''Converts markdown text to HTML'''
     html_body = markdown2.markdown(markdown_text)
     return mark_safe(html_body)
+
+
+@register.filter('markdown_to_latex')
+def markdown_to_latex(markdown_text):
+    '''Converts markdown text to LaTeX'''
+    tex_body = pypandoc.convert_text(markdown_text, format='markdown', to='latex')
+    return mark_safe(tex_body)
+
+@register.filter('join_by')
+def join_by(value, arg=', '):
+    return arg.join(value)
+
+@register.filter('set_fields_joined')
+def set_fields_joined(set_name, field):
+    '''Takes all members of a related set and returns all fields from those related values joined delimited by commas'''
+    set_name_all = set_name.all()
+    all_fields = [m.__dict__ for m in set_name_all]
+    res = [f.get(field) for f in all_fields]
+    return ', '.join(res)
 
