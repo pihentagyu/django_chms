@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 import os
@@ -20,6 +21,7 @@ class Family(models.Model):
     postal_code = models.CharField(blank=True, max_length=10)
     state = models.CharField(blank=True, max_length=50)
     country = models.CharField(blank=True, max_length=70)
+    membership_status = models.CharField(max_length=2, choices=settings.MEMBERSHIP_TYPES, default='FM')
     notes = models.TextField(blank=True)
     image = models.ImageField(upload_to=get_image_path, blank=True, null=True)
     image_sm = models.ImageField(upload_to=get_image_path, blank=True, null=True)
@@ -48,6 +50,7 @@ class Member(models.Model):
     suffix = models.CharField(blank=True, max_length=15)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
     birth_date = models.DateField(blank=True, null=True)
+    membership_status = models.CharField(max_length=2, choices=settings.MEMBERSHIP_TYPES, default='FM')
     date_joined = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True)
     def __str__(self):

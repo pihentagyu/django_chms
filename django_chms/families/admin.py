@@ -8,7 +8,7 @@ class AdultInline(admin.StackedInline):
     max_num = 2
     fieldsets = (
             (None,
-                {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','marital_status','date_joined','occupation', 'workplace','work_address')}
+                {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','marital_status','membership_status','date_joined','occupation', 'workplace','work_address')}
                 ),
             ('Notes',
                 {'fields': ('notes',),
@@ -20,7 +20,7 @@ class ChildInline(admin.StackedInline):
     model = models.Child
     fieldsets = (
         (None,
-            {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','date_joined','school')}
+            {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','membership_status','date_joined','school')}
             ),
         ('Notes',
             {'fields': ('notes',),
@@ -47,7 +47,7 @@ class FamilyAdmin(admin.ModelAdmin):
     list_display = ['family_name']
     fieldsets = (
             (None,
-                {'fields':('user','family_name','address1','address2','city','postal_code','state','country', 'image')}
+                {'fields':('user','family_name','address1','address2','city','postal_code','state','country', 'membership_status', 'image')}
                 ),
             ('Notes',
                 {'fields': ('notes',),
@@ -59,11 +59,11 @@ class FamilyAdmin(admin.ModelAdmin):
 
 class AdultAdmin(admin.ModelAdmin):
     #fields = ['family','title','first_name','middle_name','last_name',
-    #        'suffix','gender','birth_date','marital_status','date_joined',
+    #        'suffix','gender','birth_date','marital_status','membership_status','date_joined',
     #        'occupation', 'workplace','work_address', 'notes']
     fieldsets = (
             (None,
-                {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','marital_status','date_joined','occupation', 'workplace','work_address')}
+                {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','marital_status','membership_status','date_joined','occupation', 'workplace','work_address')}
                 ),
             ('Notes',
                 {'fields': ('notes',),
@@ -77,10 +77,10 @@ class AdultAdmin(admin.ModelAdmin):
 
 class ChildAdmin(admin.ModelAdmin):
     #fields = ['family','title','first_name','middle_name','last_name','suffix',
-    #        'gender','birth_date','date_joined','school','notes']
+    #        'gender','birth_date','membership_status','date_joined','school','notes']
     fieldsets = (
         (None,
-            {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','date_joined','school')}
+            {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','membership_status','date_joined','school')}
             ),
         ('Notes',
             {'fields': ('notes',),

@@ -148,4 +148,10 @@ MEDIA_URL = '/media/'
 
 CHURCH_NAME = 'Anglican Church of the Redeemer'
 
-CHURCH_IMAGE = os.path.join(MEDIA_ROOT, 'photos', 'acotr.jpg')
+CHURCH_IMAGE = os.path.join(MEDIA_URL, 'photos', 'acotr.jpg')
+
+MEMBERSHIP_TYPES = (
+    ('FM', 'Member'),
+    ('RA', 'Regular Attender')
+)
+
