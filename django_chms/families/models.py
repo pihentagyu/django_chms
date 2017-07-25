@@ -2,7 +2,6 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 import os
-from smart_selects.db_fields import ChainedForeignKey
 
 from django.contrib.auth.models import User
 from cities_local.models import Country, Region, City
