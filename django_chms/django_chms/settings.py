@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'bootstrap3',
     'debug_toolbar',
-    'smart_selects',
     'accounts',
     'families',
     'cities_light',
