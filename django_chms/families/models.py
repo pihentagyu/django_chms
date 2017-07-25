@@ -2,8 +2,10 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 import os
+from smart_selects.db_fields import ChainedForeignKey
 
 from django.contrib.auth.models import User
+from cities_local.models import Country, Region, City
 # Create your models here.
 
 class Family(models.Model):
@@ -17,10 +19,11 @@ class Family(models.Model):
     family_name = models.CharField(max_length=50)
     address1 = models.CharField(blank=True, max_length=255)
     address2 = models.CharField(blank=True, max_length=255)
-    city = models.CharField(blank=True, max_length=50)
-    postal_code = models.CharField(blank=True, max_length=10)
-    state = models.CharField(blank=True, max_length=50)
-    country = models.CharField(blank=True, max_length=70)
+    postal_code = models.CharField(blank=True, max_length=15)
+    country = models.ForeignKey(Country, blank=True, null=True)
+    region = models.ForeignKey(Region, blank=True, null=True)
+    city = models.ForeignKey(City, blank=True, null=True)
+
     membership_status = models.CharField(max_length=2, choices=settings.MEMBERSHIP_TYPES, default='FM')
     notes = models.TextField(blank=True)
     image = models.ImageField(upload_to=get_image_path, blank=True, null=True)
@@ -42,7 +45,11 @@ class Member(models.Model):
     )
     class Meta:
         abstract = True
-    family = models.ForeignKey(Family)
+    family = models.ForeignKey(Family,
+         related_name="%(app_label)s_%(class)s_related", 
+         related_query_name="%(app_label)s_%(class)ss",
+         )
+            
     title = models.CharField(blank=True, max_length=15)
     first_name = models.CharField(max_length=50)
     middle_name = models.CharField(blank=True, max_length=255)

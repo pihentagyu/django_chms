@@ -2,6 +2,7 @@ from datetime import date
 from django.contrib import admin
 
 from . import models
+from . import forms
 
 class AdultInline(admin.StackedInline):
     model = models.Adult
@@ -43,17 +44,18 @@ class YearJoinedListFilter(admin.SimpleListFilter):
 class FamilyAdmin(admin.ModelAdmin):
     inlines = [AdultInline, ChildInline,]
     search_fields = ['family_name']
-    list_filter = ['family_name','city']
-    list_display = ['family_name']
-    fieldsets = (
-            (None,
-                {'fields':('user','family_name','address1','address2','city','postal_code','state','country', 'membership_status', 'image')}
-                ),
-            ('Notes',
-                {'fields': ('notes',),
-                'classes': ('collapse',)}
-                )
-            )
+    form = forms.FamilyForm
+    #list_filter = ['family_name','city']
+    #list_display = ['family_name']
+    #fieldsets = (
+    #        (None,
+    #            {'fields':('user','family_name','address1','address2','postal_code','country','region','city','membership_status', 'image')}
+    #            ),
+    #        ('Notes',
+    #            {'fields': ('notes',),
+    #            'classes': ('collapse',)}
+    #            )
+    #        )
     #list_display = ['family_name', 'city', 'time_to_complete']
     #list_editable = ['city']
 

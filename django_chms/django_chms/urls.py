@@ -24,9 +24,11 @@ from . import views
 urlpatterns = [
     url(r'^$', views.front_page, name='home'),
     url(r'^admin/', admin.site.urls),
+    url(r'^chaining/', include('smart_selects.urls')),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^families/', include('families.urls', namespace='families')),
+    url(r'^cities_local/', include('cities_local.urls', namespace='cities_local')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()

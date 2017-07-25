@@ -8,11 +8,11 @@
 {% bootstrap_javascript %}
 {% bootstrap_messages %}
 {# {% block static %}<link rel="stylesheet" href="{% static 'family/css/family.css' %}">{% endblock %} #}
-{% block title %}Families{% endblock %}
+{% block title %}Directory{% endblock %}
 
 {% block content %}
 {{ block.super }}
-    <h1>Families</h1>
+    <h1>Directory</h1>
     <div class="right">
 	    <a href="{% url 'families:create_family' %}">New Family</a>
     </div>
@@ -29,11 +29,11 @@
             <td>
                 <header><a href="{% url 'families:family_detail' pk=family.pk %}">{{ family.family_name }}</a></header>
             </td>
-	{% for member in family.adult_set.all %}
+	{% for member in family.families_adult_related.all %}
 	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 
         {% endfor %}
     <td>
-        {{ family.child_set|set_fields_joined:'first_name' }}
+        {{ family.families_child_related|set_fields_joined:'first_name' }}
     </td>
         {% endfor %}
     </table>

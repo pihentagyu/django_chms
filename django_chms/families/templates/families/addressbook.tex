@@ -35,7 +35,7 @@
     \item[Address2] {{ family.address2 }}
     {% endif %}
     \item[City] {{ family.city }}
-    \item[State] {{ family.state }}
+    \item[State] {{ family.region }}
     \end{description}
     \end{minipage}
     \begin{minipage}{0.5\textwidth}
@@ -48,11 +48,11 @@
         \item[Notes] {{ family.notes|markdown_to_latex }}
     \end{description}
 
-	{% for member in family.adult_set.all %}
+	{% for member in family.families_adult_related.all %}
 	{{ member.first_name }}
         {% endfor %}
 
-	{% for member in family.child_set.all %}
+	{% for member in family.families_child_related.all %}
 	{{ member.first_name }}
         {% endfor %}
     \pagebreak

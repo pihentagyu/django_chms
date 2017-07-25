@@ -1,9 +1,11 @@
 from braces.views import PrefetchRelatedMixin
+from dal import autocomplete
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
+from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect, Http404
 from django.db.models import Q
@@ -19,13 +21,15 @@ import tempfile
 
 from . import forms
 from . import models
+from cities_local.models import Country, Region, City
 
 # Create your views here.
 
 class FamilyListView(PrefetchRelatedMixin, ListView):
-    prefetch_related = ('adult_set', 'child_set')
+    prefetch_related = ('families_adult_related', 'families_child_related')
     model = models.Family
     context_object_name = 'families'
+    ordering = ['family_name']
     paginate_by = 10
 
     def get_context_data(self):
@@ -37,9 +41,9 @@ def family_list_as_pdf(request):
     families = models.Family.objects.all()
 
     template = get_template('families/addressbook.tex')
-    adult_set = families.prefetch_related('adult_set')
-    child_set = families.prefetch_related('child_set')
-    rendered_tpl = template.render({'families':families, 'adult_set': adult_set, 'child_set': child_set, 'media_root': settings.MEDIA_ROOT, 'church_name': settings.CHURCH_NAME}).encode('utf-8')
+    families_adult_related = families.prefetch_related('families_adult_related')
+    families_child_related = families.prefetch_related('families_child_related')
+    rendered_tpl = template.render({'families':families, 'families_adult_related': families_adult_related, 'families_child_related': families_child_related, 'media_root': settings.MEDIA_ROOT, 'church_name': settings.CHURCH_NAME}).encode('utf-8')
     # Python3 only. For python2 check out the docs!
     with tempfile.TemporaryDirectory() as tempdir:  
         # Create subprocess, supress output with PIPE and
@@ -61,19 +65,33 @@ def family_list_as_pdf(request):
     return r
 
 class FamilyDetailView(PrefetchRelatedMixin, DetailView):
-    prefetch_related = ('adult_set', 'child_set')
+    prefetch_related = ('families_adult_related', 'families_child_related')
     model = models.Family
     template_name = 'families/family_detail.html'
 
 
 class FamilyCreateView(LoginRequiredMixin, CreateView):
-    fields = ('user', 'family_name', 'address1', 'address2', 'city', 'postal_code', 'state', 'country', 'notes')
-    model = models.Family
+    #fields = ('user', 'family_name', 'address1', 'address2', 'city', 'postal_code', 'region', 'country', 'notes')
+    template_name = 'families/family_form.html'
+    form_class = forms.FamilyForm
     success_url = reverse_lazy('families:list')
+    #class Meta:
+    #    model = models.Family
+
+    #form_class =  modelform_factory(models.Family,
+    #    fields = ('user', 'family_name', 'address1', 'address2', 'postal_code', 'country', 'region', 'city', 'notes'),
+    #    widgets = {'country': autocomplete.ModelSelect2(url='cities_local:country_autocomplete'),
+    #        'region': autocomplete.ModelSelect2(url='cities_local:region_autocomplete', forward=['country']),
+    #        'city': autocomplete.ModelSelect2(url='cities_local:city_autocomplete', forward=['country', 'region']),
+    #        }
+    #    )
 
     def get_initial(self):
         initial = super().get_initial()
         initial['user'] = self.request.user.pk
+        initial['country'] = Country.objects.get(name=settings.DEFAULT_COUNTRY).pk
+        initial['region'] = Region.objects.get(name=settings.DEFAULT_REGION).pk
+        initial['city'] = City.objects.get(name=settings.DEFAULT_CITY).pk
         return initial
 
 
@@ -89,13 +107,12 @@ class FamilyDeleteView(DeleteView):
 
 
 class FamilyUpdateView(LoginRequiredMixin, UpdateView):
-    fields = ('user', 'family_name', 'address1', 'address2', 'city', 'postal_code', 'state', 'country', 'notes')
 
     model = models.Family
-
+    fields = ('user', 'family_name', 'address1', 'address2', 'postal_code', 'country', 'region', 'city', 'notes'),
 
 class FamilySearchView(PrefetchRelatedMixin, ListView):
-    prefetch_related = ('adult_set', 'child_set')
+    prefetch_related = ('families_adult_related', 'families_child_related')
     template_name = 'families/family_list.html'
     model = models.Family
     context_object_name = 'families'
@@ -213,5 +230,4 @@ class AdultUpdateView(LoginRequiredMixin, UpdateView):
         context['family_pk'] = self.kwargs['family_pk']
         context['member_pk'] = self.kwargs['member_pk']
         return context
-
 

@@ -14,7 +14,7 @@
         			<li>{{ family.address2 }}</li>
 					<li>{{ family.city }}</li>
         			<li>{{ family.postal_code }}</li>
-        			<li>{{ family.state }}</li>
+        			<li>{{ family.region }}</li>
         			<li>{{ family.country }}</li>
 								</ul>
 						</div>
@@ -38,14 +38,14 @@
     {% endif %}
 
 		<section>
-				{% for adult in family.adult_set.all %}
+				{% for adult in family.families_adult_related.all %}
                     <h3> <a href="{{ adult.get_absolute_url }}">{{ adult.first_name }} </a> 
                     {% if adult.last_name != family.family_name %}
 					    {{ adult.last_name }}
                     {% endif %}
                         </h3>
 				{% endfor %}
-				{% for child in family.child_set.all %}
+				{% for child in family.families_child_related.all %}
                 <h3> <a href="{{ child.get_absolute_url }}">{{ child.first_name }} </a>
                     {% if child.last_name != family.family_name %}
 					    {{ child.last_name }}
@@ -56,7 +56,7 @@
 
     </article>
     {% if user.is_authenticated %}
-        {% if family.adult_set.count < 2 %}
+        {% if family.families_adult_related.count < 2 %}
         <hr>
             <a href="{% url 'families:create_adult' family_pk=family.pk %}" class="button">New Adult</a>
             <br>

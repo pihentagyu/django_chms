@@ -31,18 +31,26 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',
+    'dal_select2',
+    #'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_static_jquery',
     'django.contrib.humanize',
     'bootstrap3',
     'debug_toolbar',
+    'smart_selects',
     'accounts',
     'families',
+    'cities_light',
+    'cities_local',
 ]
+CITIES_LIGHT_APP_NAME = 'cities_local'
 
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -127,8 +135,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-        os.path.join(BASE_DIR, 'assets'),
+        os.path.join(BASE_DIR, 'assets/'),
         )
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
@@ -155,3 +164,12 @@ MEMBERSHIP_TYPES = (
     ('RA', 'Regular Attender')
 )
 
+CITIES_LIGHT_INCLUDE_COUNTRIES = ['US', 'GB']
+
+CITIES_LIGHT_TRANSLATION_LANGUAGES = ['en', 'hu']
+
+INCLUDE_CITY_TYPES = ['PPL']
+
+DEFAULT_COUNTRY = 'United States'
+DEFAULT_REGION = 'Tennessee'
+DEFAULT_CITY = 'Chattanooga'
