@@ -109,7 +109,8 @@ class FamilyDeleteView(DeleteView):
 class FamilyUpdateView(LoginRequiredMixin, UpdateView):
 
     model = models.Family
-    fields = ('user', 'family_name', 'address1', 'address2', 'postal_code', 'country', 'region', 'city', 'notes'),
+    #fields = ('user', 'family_name', 'address1', 'address2', 'postal_code', 'country', 'region', 'city', 'notes'),
+    form_class = forms.FamilyForm
 
 class FamilySearchView(PrefetchRelatedMixin, ListView):
     prefetch_related = ('families_adult_related', 'families_child_related')
