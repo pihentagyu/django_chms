@@ -1,0 +1,10 @@
+Django==1.11.3
+bootstrap3
+django-debug-toolbar
+django-braces
+django-markdown2
+pypandoc
+django-country
+django-cities-light
+django-autocomplete-light
+django-static-jquery
