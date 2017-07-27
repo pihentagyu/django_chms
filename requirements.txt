@@ -1,5 +1,5 @@
 Django==1.11.3
-bootstrap3
+django-bootstrap3
 django-debug-toolbar
 django-braces
 django-markdown2
