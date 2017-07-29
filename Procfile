@@ -1,1 +1,1 @@
-web: gunicorn django-chms:app 
+web: gunicorn django-chms.wsgi
