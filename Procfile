@@ -1,1 +1,1 @@
-web: gunicorn django-chms.wsgi
+python manage.py 127.0.0.1:8000
