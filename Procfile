@@ -1,1 +1,1 @@
-web: gunicorn ProjectName.wsgi:application --log-file 
+web: gunicorn django-chms.wsgi:application --log-file django-chms.log
