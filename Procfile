@@ -1,1 +1,1 @@
-web: gunicorn django-chms.wsgi --log-file -
+web: python manage.py 0.0.0.0:5000
