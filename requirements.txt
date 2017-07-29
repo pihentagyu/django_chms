@@ -16,5 +16,6 @@ gunicorn==19.7.1
 markdown2==2.3.3
 Pillow==2.6.1
 progressbar2==3.30.2
-virtualenv==15.1.0
 psycopg2
+pypandoc==1.4
+virtualenv==15.1.0
