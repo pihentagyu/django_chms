@@ -3,9 +3,6 @@
 {% load bootstrap3 %}
 
 {% load staticfiles %}
-{% static 'static_jquery/js/jquery.js' %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
- <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
 
 {% block title %} {{ form.instance.family_name|default:"New Family" }} {{ block.super }} {% endblock %}
 {% block content %}
