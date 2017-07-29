@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
-import os
 import dj_database_url
+import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +26,7 @@ SECRET_KEY = 'n4vqg2&4gvtm6n**4&nn$*f1&2g_^m5ornve6+p64oet%z33q='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['django-chms.herokuapp.com']
+ALLOWED_HOSTS = ['django-chms.herokuapp.com', 'localhost']
 
 
 # Application definition
@@ -95,6 +95,8 @@ DATABASES = {
     }
 }
 
+#DATABASES['default'] = dj_database_url.config(default='postgresql://localhost/django-chms')
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -154,8 +156,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 #LOGIN_REDIRECT_URL = 'accounts:loggedin'
-
-DATABASES['default'] =  dj_database_url.config(default='postgresql://localhost')
 
 CHURCH_NAME = 'Anglican Church of the Redeemer'
 
