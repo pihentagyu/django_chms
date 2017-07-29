@@ -12,6 +12,7 @@ django-smart-selects==1.5.2
 django-static-jquery==2.1.4
 django-tables2==1.10.0
 djangorestframework==3.6.3
+gunicorn==19.7.1
 markdown2==2.3.3
 Pillow==2.6.1
 progressbar2==3.30.2
