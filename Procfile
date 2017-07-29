@@ -1,1 +1,1 @@
-python manage.py 127.0.0.1:8000
+web: gunicorn django-chms.wsgi --log-file -
