@@ -98,3 +98,7 @@ django_chms/media/
 .directory
 
 static/
+venv
+*.pyc
+staticfiles
+.env
