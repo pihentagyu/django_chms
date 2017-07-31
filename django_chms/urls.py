@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^families/', include('families.urls', namespace='families')),
     url(r'^cities_local/', include('cities_local.urls', namespace='cities_local')),
+    url(r'^groups/', include('groups.urls', namespace='groups')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()

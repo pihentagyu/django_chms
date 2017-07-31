@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'accounts',
     'families',
+    'groups',
     'cities_light',
     'cities_local',
 ]
