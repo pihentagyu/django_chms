@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ group.group_name }}{% endblock %}
+{% block content %}
+<article>
+		<h2>{{ group.group_name }}</h2>
+
+        <ul style="list-style-type:none">
+        			<li>{{ group.group_type }}</li>
+        			<li>{{ group.group_description }}</li>
+								</ul>
+
+
+    {% if user.is_authenticated %}
+            <a href="{% url 'groups:edit_group' pk=group.pk %}"
+                class="button">Edit Group</a>
+			<br>
+            <a href="{% url 'groups:delete_group' pk=group.pk %}"
+                class="button">Delete Group</a>
+        <hr>
+    {% endif %}
+
+		<section>
+				{% for adult in group.groups_adultgroupmember_related.all %}
+                    <h3> <a href="{{ adult.member.get_absolute_url }}">{{ adult_member }} </a> 
+                        </h3>
+				{% endfor %}
+				{% for child in group.groups_childgroupmember_related.all %}
+                <h3> <a href="{{ child.member.get_absolute_url }}">{{ child.member }} </a>
+                    </h3>
+				{% endfor %}
+		</section>
+</article>
+        	<a href="{% url 'groups:group_list' %}">Back to list</a>
+{% endblock %}
