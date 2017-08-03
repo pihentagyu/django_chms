@@ -1,0 +1,56 @@
+{% extends "groups/layout.html" %}
+{% load group_extras %}
+{% load bootstrap3 %}
+{% load static from staticfiles %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+ 
+
+{% block title %}{{ church_name }}groups by type{% endblock %}
+
+{% block content %}
+{{ block.super }}
+    <h1>Group Type List</h1>
+    <div class="right">
+	    <a href="{% url 'groups:grouptype_create' %}">New Type</a>
+    </div>
+    <table class="fam_list">
+        {% for grouptype in grouptypes %}
+	        <tr>
+            <th><a href="{% url 'groups:grouptype_detail' pk=grouptype.pk %}">{{ grouptype.group_type }}</a></th>
+    <td>   
+	{% for group in groups_group_related.all %}
+    <tr>   
+    <td>   
+        <a href="{% url 'groups:group_detail pk=group.pk' %}">{{ group.group_name }}</a>
+     </td>
+	 </tr>
+    {% endfor %}
+    {% endfor %}
+    </table>
+    <br>
+{% if is_paginated %}
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+{% endblock %}
