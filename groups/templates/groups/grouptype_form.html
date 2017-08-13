@@ -1,0 +1,17 @@
+{% extends 'groups/layout.html' %}
+{% load family_extras %}
+{% load bootstrap3 %}
+
+{% load staticfiles %}
+
+{% block title %} {{ form.instance.group_type|default:"New Group Type" }} {{ block.super }} {% endblock %}
+{% block content %}
+<div>
+    <h1>{{ form.instance.group_type|default:"Enter a new group Type" }}</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" class="button" value="Save"><a href="{% url 'groups:grouptype_list' %}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

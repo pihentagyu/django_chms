@@ -1,4 +1,4 @@
-{% extends "groups/layout.html" %}
+{% extends "families/layout.html" %}
 {% load group_extras %}
 {% load bootstrap3 %}
 {% load static from staticfiles %}
@@ -9,24 +9,22 @@
 {% bootstrap_messages %}
  
 
-{% block title %}{{ church_name }} Group List{% endblock %}
+{% block title %}{{ church_name }} Member List{% endblock %}
 
 {% block content %}
 {{ block.super }}
-    <h1>Group List</h1>
-    <div class="right">
-	    <a href="{% url 'groups:group_create' %}">New Group</a>
-    </div>
+    <h1>Member List</h1>
     <table class="fam_list">
-        {% for group in groups %}
+        {% for member in members %}
+        {% if member.adult %}
 	        <tr>
-            <th><a href="{% url 'groups:group_detail' pk=group.pk %}">{{ group.group_name }}</a></th>
-    <td>   
-	{% for group_member in group.groupmember_set.all %}
-		<a href="{{ group_member.member__member.get_absolute_url }}">{{ group_member.member }}</a>: {{ group_member.member_role }}
-    {% endfor %}
-     </td>
-	 </tr>
+                <th><a href="{% url 'families:member_detail' family_pk=member.family.pk member_type="a" member_pk=member.pk %}">{{ member.last_name }}, {{ member.first_name }}</a></th>
+	          </tr>
+	      {% else %}
+    	      <tr>
+                <th><a href="{% url 'families:member_detail' family_pk=member.family.pk member_type="d" member_pk=member.pk %}">{{ member.last_name }}, {{ member.first_name }}</a></th>
+   	      </tr>
+   	      {% endif %}
     {% endfor %}
     </table>
     <br>

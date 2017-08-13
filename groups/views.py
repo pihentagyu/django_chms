@@ -74,10 +74,10 @@ class GroupTypeListView(PrefetchRelatedMixin, ListView):
 
 
 class GroupTypeCreateView(LoginRequiredMixin, CreateView):
-    fields = ('group_type')
+    model = models.GroupType
+    fields = ('group_type',)
     template_name = 'groups/grouptype_form.html'
     success_url = reverse_lazy('groups:grouptype_list')
-    model = models.GroupType
 
 
 class GroupTypeDetailView(PrefetchRelatedMixin, DetailView):
@@ -86,9 +86,9 @@ class GroupTypeDetailView(PrefetchRelatedMixin, DetailView):
     template_name = 'groups/grouptype_detail.html'
 
 
-class GroupTypeDetailView(DetailView, SingleObjectMixin):
-    context_object_name = 'group_type'
-    template_name = 'families/grouptype_detail.html'
+#class GroupTypeDetailView(DetailView, SingleObjectMixin):
+#    context_object_name = 'group_type'
+#    template_name = 'families/grouptype_detail.html'
 
 
 class GroupTypeUpdateView(LoginRequiredMixin, UpdateView):
