@@ -8,25 +8,26 @@ from django.core.urlresolvers import reverse_lazy
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect, Http404
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from itertools import chain
+from model_utils.managers import InheritanceManagerMixin
+from model_utils.managers import InheritanceQuerySet
 import os
 from subprocess import Popen, PIPE
 import tempfile
-
 from . import forms
 from . import models
 from cities_local.models import Country, Region, City
-
 # Create your views here.
 
 class FamilyListView(PrefetchRelatedMixin, ListView):
-    prefetch_related = ('families_adult_related', 'families_child_related')
+    prefetch_related = ('member_set',)
+    #self.model.objects.prefetch_related(Prefetch('member_set', queryset=models.Member.objects.select_subclasses(), to_attr='members'))
     model = models.Family
     context_object_name = 'families'
     ordering = ['family_name']
@@ -34,16 +35,17 @@ class FamilyListView(PrefetchRelatedMixin, ListView):
 
     def get_context_data(self):
         context = super().get_context_data()
-        context['email'] = 'jdoepp@gmail.com'
         return context
+
+    def get_queryset(self):
+        #return super(FamilyListView, self).get_queryset(request).select_subclasses()
+        return InheritanceQuerySet(self.model).select_subclasses()
 
 def family_list_as_pdf(request):
     families = models.Family.objects.all()
 
     template = get_template('families/addressbook.tex')
-    families_adult_related = families.prefetch_related('families_adult_related')
-    families_child_related = families.prefetch_related('families_child_related')
-    rendered_tpl = template.render({'families':families, 'families_adult_related': families_adult_related, 'families_child_related': families_child_related, 'media_root': settings.MEDIA_ROOT, 'church_name': settings.CHURCH_NAME}).encode('utf-8')
+    rendered_tpl = template.render({'families':families, 'adult_set': families_adult_related, 'child_set': families_child_related, 'media_root': settings.MEDIA_ROOT, 'church_name': settings.CHURCH_NAME}).encode('utf-8')
     # Python3 only. For python2 check out the docs!
     with tempfile.TemporaryDirectory() as tempdir:  
         # Create subprocess, supress output with PIPE and
@@ -65,7 +67,8 @@ def family_list_as_pdf(request):
     return r
 
 class FamilyDetailView(PrefetchRelatedMixin, DetailView):
-    prefetch_related = ('families_adult_related', 'families_child_related')
+    #prefetch_related = ('families_adult_related', 'families_child_related')
+    prefetch_related = ('member_set',)
     model = models.Family
     template_name = 'families/family_detail.html'
 
@@ -74,7 +77,7 @@ class FamilyCreateView(LoginRequiredMixin, CreateView):
     #fields = ('user', 'family_name', 'address1', 'address2', 'city', 'postal_code', 'region', 'country', 'notes')
     template_name = 'families/family_form.html'
     form_class = forms.FamilyForm
-    success_url = reverse_lazy('families:list')
+    success_url = reverse_lazy('families:family_list')
     #class Meta:
     #    model = models.Family
 
@@ -97,7 +100,7 @@ class FamilyCreateView(LoginRequiredMixin, CreateView):
 
 class FamilyDeleteView(DeleteView):
     model = models.Family
-    success_url = reverse_lazy('families:list')
+    success_url = reverse_lazy('families:family_list')
 
     def get_queryset(self):
         if not self.request.user.is_superuser:
@@ -107,24 +110,55 @@ class FamilyDeleteView(DeleteView):
 
 
 class FamilyUpdateView(LoginRequiredMixin, UpdateView):
-
     model = models.Family
     #fields = ('user', 'family_name', 'address1', 'address2', 'postal_code', 'country', 'region', 'city', 'notes'),
     form_class = forms.FamilyForm
 
 class FamilySearchView(PrefetchRelatedMixin, ListView):
-    prefetch_related = ('families_adult_related', 'families_child_related')
+    prefetch_related = ('member_set',)
+    ordering = ['family_name']
     template_name = 'families/family_list.html'
     model = models.Family
     context_object_name = 'families'
 
     def get_queryset(self):
         term = self.request.GET.get('q')
-        return self.model.objects.filter(Q(family_name__icontains=term)|Q(adult__first_name__icontains=term)|Q(child__first_name__icontains=term)).distinct()
+        return self.model.objects.filter(Q(family_name__icontains=term)|Q(member__first_name__icontains=term)).distinct()
+
+
+class MemberListView(ListView):
+    model = models.Member
+    #members = model.objects.all().select_subclasses()
+    context_object_name = 'members'
+    ordering = ['last_name']
+    paginate_by = 10
 
     def get_context_data(self):
         context = super().get_context_data()
-        context['email'] = 'jdoepp@gmail.com'
+        context['church_name'] = settings.CHURCH_NAME
+        return context
+
+
+class MemberDetailView(DetailView, SingleObjectMixin):
+    context_object_name = 'member'
+    template_name = 'families/member_detail.html'
+    pk_url_kwarg = 'member_pk'
+
+    def get_queryset(self):
+        if self.kwargs['member_type'] == 'a':
+            return models.Adult.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
+        else:
+            return models.Child.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['member_type'] = self.kwargs['member_type']
+        context['member_pk'] = self.kwargs['member_pk']
+        context['family_pk'] = self.kwargs['family_pk']
+        if self.kwargs['member_type'] == 'd':
+            context['age'] = self.get_queryset().get(pk=self.kwargs['member_pk']).age()
+        else:
+            context['age'] = None
         return context
 
 
@@ -153,29 +187,6 @@ class AdultCreateView(LoginRequiredMixin, CreateView):
         return super(AdultCreateView, self).form_valid(form)
 
 
-class MemberDetailView(DetailView, SingleObjectMixin):
-    context_object_name = 'member'
-    template_name = 'families/member_detail.html'
-    pk_url_kwarg = 'member_pk'
-
-    def get_queryset(self):
-        if self.kwargs['member_type'] == 'a':
-            return models.Adult.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
-        else:
-            return models.Child.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['member_type'] = self.kwargs['member_type']
-        context['member_pk'] = self.kwargs['member_pk']
-        context['family_pk'] = self.kwargs['family_pk']
-        if self.kwargs['member_type'] == 'd':
-            context['age'] = self.get_queryset().get(pk=self.kwargs['member_pk']).age()
-        else:
-            context['age'] = None
-        return context
-
-
 class ChildCreateView(LoginRequiredMixin, CreateView):
     model = models.Child
     fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'date_joined', 'school','notes')
@@ -199,23 +210,6 @@ class ChildCreateView(LoginRequiredMixin, CreateView):
         return super(ChildCreateView, self).form_valid(form)
 
 
-class ChildUpdateView(LoginRequiredMixin, UpdateView):
-    template_name = 'families/member_form.html' 
-    model = models.Child
-    fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'date_joined', 'school','notes')
-    pk_url_kwarg = 'member_pk'
-
-    #def get_success_url(self):
-    #    return reverse_lazy('families:member_detail', kwargs={'family_pk': self.kwargs['family_pk'], 'member_pk': self.kwargs['pk'], 'member_type': 'd'})
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context['member_type'] = 'd'
-        context['family_pk'] = self.kwargs['family_pk']
-        context['member_pk'] = self.kwargs['member_pk']
-        return context
-
-
 class AdultUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'families/member_form.html' 
     model = models.Adult
@@ -232,3 +226,19 @@ class AdultUpdateView(LoginRequiredMixin, UpdateView):
         context['member_pk'] = self.kwargs['member_pk']
         return context
 
+
+class ChildUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = 'families/member_form.html' 
+    model = models.Child
+    fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'date_joined', 'school','notes')
+    pk_url_kwarg = 'member_pk'
+
+    #def get_success_url(self):
+    #    return reverse_lazy('families:member_detail', kwargs={'family_pk': self.kwargs['family_pk'], 'member_pk': self.kwargs['pk'], 'member_type': 'd'})
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['member_type'] = 'd'
+        context['family_pk'] = self.kwargs['family_pk']
+        context['member_pk'] = self.kwargs['member_pk']
+        return context

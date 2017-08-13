@@ -40,6 +40,25 @@ ul.nav li a:hover {
     background-color: #2B50C8;
 }
 
+ul.nav2 {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+
+}
+
+ul.nav2 li {
+    float: left;
+}
+
+ul.nav2 li a {
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
 ul.pagination {
     list-style-type: none;
     margin: 0;

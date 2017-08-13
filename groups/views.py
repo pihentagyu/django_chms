@@ -4,12 +4,13 @@ from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
+from django.views.generic.detail import SingleObjectMixin
 from django.conf import settings
 from . import models
 
 # Create your views here.
 class GroupListView(PrefetchRelatedMixin, ListView):
-    prefetch_related = ('groups_groupadultmember_related', 'groups_groupchildmember_related')
+    prefetch_related = ('groupmember_set',)
     model = models.Group
     context_object_name = 'groups'
     ordering = ['group_name']
@@ -28,7 +29,7 @@ class GroupCreateView(LoginRequiredMixin, CreateView):
 
 
 class GroupDetailView(PrefetchRelatedMixin, DetailView):
-    prefetch_related = ('groups_groupadultmember_related', 'groups_groupchildmember_related')
+    prefetch_related = ('groupmember_set',)
     model = models.Group
     template_name = 'groups/group_detail.html'
 
@@ -48,8 +49,9 @@ class GroupUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Group
     fields = ('group_name', 'group_type', 'group_description')
 
+
 class GroupSearchView(PrefetchRelatedMixin, ListView):
-    prefetch_related = ('groups_groupadultmember_related', 'groups_groupchildmember_related')
+    prefetch_related = ('groupmember_set', )
     template_name = 'groups/group_list.html'
     model = models.Group
     context_object_name = 'groups'
@@ -58,7 +60,40 @@ class GroupSearchView(PrefetchRelatedMixin, ListView):
         term = self.request.GET.get('q')
         return self.model.objects.filter(Q(group_name__icontains=term)|Q(group_description__icontains=term)|Q(group_type__group_type__icontains=term)).distinct()
 
+
+class GroupTypeListView(PrefetchRelatedMixin, ListView):
+    prefetch_related = ('group_set',)
+    model = models.GroupType
+    context_object_name = 'grouptypes'
+    ordering = ['group_type']
+    paginate_by = 10
     def get_context_data(self):
         context = super().get_context_data()
-        context['email'] = 'jdoepp@gmail.com'
+        context['church_name'] = settings.CHURCH_NAME
         return context
+
+
+class GroupTypeCreateView(LoginRequiredMixin, CreateView):
+    fields = ('group_type')
+    template_name = 'groups/grouptype_form.html'
+    success_url = reverse_lazy('groups:grouptype_list')
+    model = models.GroupType
+
+
+class GroupTypeDetailView(PrefetchRelatedMixin, DetailView):
+    prefetch_related = ('group_set',)
+    model = models.GroupType
+    template_name = 'groups/grouptype_detail.html'
+
+
+class GroupTypeDetailView(DetailView, SingleObjectMixin):
+    context_object_name = 'group_type'
+    template_name = 'families/grouptype_detail.html'
+
+
+class GroupTypeUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = 'families/grouptype_form.html' 
+    model = models.GroupType
+    fields = ('group_type')
+
+

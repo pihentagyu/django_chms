@@ -51,7 +51,7 @@ class FamilyViewsTests(TestCase):
                 gender = 'M',
                 )
     def test_family_list_view(self):
-        resp = self.client.get(reverse('families:list'))
+        resp = self.client.get(reverse('families:family_list'))
         self.assertEqual(resp.status_code, 200)
         self.assertIn(self.family, resp.context['families'])
         self.assertIn(self.family2, resp.context['families'])

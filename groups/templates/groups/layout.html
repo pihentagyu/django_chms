@@ -5,10 +5,14 @@
 {% block content %}
     {{ block.super }}
 	    <div class="right">
-	    <form action="{% url 'groups:search' %}" method="GET">
+	    <form action="{% url 'groups:group_search' %}" method="GET">
 			    <input type="search" name="q"
 			    <button type="button">
 			    </button>
 	    </form>
 	    </div>
+        <ul class="nav2">
+            <li><a href="{% url 'groups:group_list' %}">List by Group</a><li>
+            <li><a href="{% url 'groups:grouptype_list' %}">List by Type</a><li>
+        </ul>
 {% endblock %}

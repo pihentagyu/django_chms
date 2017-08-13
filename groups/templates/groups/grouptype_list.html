@@ -22,10 +22,10 @@
 	        <tr>
             <th><a href="{% url 'groups:grouptype_detail' pk=grouptype.pk %}">{{ grouptype.group_type }}</a></th>
     <td>   
-	{% for group in groups_group_related.all %}
+	{% for group in grouptype.group_set.all %}
     <tr>   
     <td>   
-        <a href="{% url 'groups:group_detail pk=group.pk' %}">{{ group.group_name }}</a>
+        <a href="{{ group.get_absolute_url }}">{{ group.group_name }}</a>
      </td>
 	 </tr>
     {% endfor %}

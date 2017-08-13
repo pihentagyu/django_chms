@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.urlresolvers import reverse
-from families.models import Adult, Child
+from families.models import Member
 
 # Create your models here.
 
@@ -16,6 +16,11 @@ class Group(models.Model):
     def __str__(self):
         return self.group_name
 
+    def get_absolute_url(self):
+        return reverse('groups:group_detail', kwargs={
+            'pk': self.id,
+            })
+
 class MemRole(models.Model):
     class Meta:
         verbose_name_plural = 'Membership Roles'
@@ -23,26 +28,12 @@ class MemRole(models.Model):
     def __str__(self):
         return self.mem_role
 
-class GroupAdultMember(models.Model):
-    group = models.ForeignKey(Group,
-         related_name="%(app_label)s_%(class)s_related", 
-         related_query_name="%(app_label)s_%(class)ss",
-         )
-    member = models.ForeignKey(Adult)
+class GroupMember(models.Model):
+    group = models.ForeignKey(Group)
+    member = models.ForeignKey(Member)
     leader = models.BooleanField(default=False)
     member_role = models.ForeignKey(MemRole, blank=True, null=True)
 
-    def __str__(self):
-        return '%s: %s (%s)' % (self.group, self.member, self.member_role)
-
-class GroupChildMember(models.Model):
-    group = models.ForeignKey(Group,
-         related_name="%(app_label)s_%(class)s_related", 
-         related_query_name="%(app_label)s_%(class)ss",
-         )
-    member = models.ForeignKey(Child)
-    leader = models.BooleanField(default=False)
-    member_role = models.ForeignKey(MemRole, blank=True, null=True)
     def __str__(self):
         return '%s: %s (%s)' % (self.group, self.member, self.member_role)
 

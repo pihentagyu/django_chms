@@ -92,7 +92,13 @@ ENV/
 *.swo
 db.sqlite3*
 
-django_chms/families/migrations/*
+families/migrations/*
+cities_local/migrations
+accounts/migrations
+families/migrations
+groups/migrations
+
+
 django_chms/media/
 
 .directory
@@ -102,3 +108,4 @@ venv
 *.pyc
 staticfiles
 .env
+

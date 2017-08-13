@@ -48,11 +48,11 @@
         \item[Notes] {{ family.notes|markdown_to_latex }}
     \end{description}
 
-	{% for member in family.families_adult_related.all %}
+	{% for member in family.adult_set.all %}
 	{{ member.first_name }}
         {% endfor %}
 
-	{% for member in family.families_child_related.all %}
+	{% for member in family.child_set.all %}
 	{{ member.first_name }}
         {% endfor %}
     \pagebreak

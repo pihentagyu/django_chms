@@ -15,22 +15,19 @@
 {{ block.super }}
     <h1>Group List</h1>
     <div class="right">
-	    <a href="{% url 'groups:create_group' %}">New Group</a>
+	    <a href="{% url 'groups:group_create' %}">New Group</a>
     </div>
     <table class="fam_list">
         {% for group in groups %}
 	        <tr>
             <th><a href="{% url 'groups:group_detail' pk=group.pk %}">{{ group.group_name }}</a></th>
     <td>   
-	{% for amember in group.groups_groupadultmember_related.all %}
-    {% if amember.leader %}
-        <a href="{{ amember.member.get_absolute_url }}">{{ amember.member }}</a>: {{ amember.member_role }}
-        {% endif %}
-    {% endfor %}
-	{% for chmember in group.groups_groupchildmember_related.all %}
-    {% if chmember.leader %}
-        <a href="{{ chmember.member.get_absolute_url }}">{{ chmember.member }}</a>: {{ chmember.member_role }}
-        {% endif %}
+	{% for group_member in group.groupmember_set.all %}
+        {% if group_member__adult %}
+        <a href="{{ group_member__member.get_absolute_url group_member__member__family.pk 'a' group_member__member.pk}}">{{ group_member.member }}</a>: {{ group_member.member_role }}
+        {% else %}
+        <a href="{{ group_member__member.get_absolute_url group_member__member__family.pk 'a' group_member__member.pk}}">{{ group_member.member }}</a>: {{ group_member.member_role }}
+        {% end %}
     {% endfor %}
      </td>
 	 </tr>

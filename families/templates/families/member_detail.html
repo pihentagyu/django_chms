@@ -17,12 +17,12 @@
     <hr>
 {% endif %}
 <ul class="nav">
-    <li><a href="{% url 'families:list' %}">Browse Families</a></li>
+    <li><a href="{% url 'families:family_list' %}">Browse Families</a></li>
     <li><a href="{{ member.family.get_absolute_url }}">{{ member.family }} Family</a></li>
     {% if member_type == 'd' %}
-        <li><a href="{% url 'families:edit_child' member_pk=member_pk family_pk=family_pk %}">Edit Family Member</a></li>
+        <li><a href="{% url 'families:child_edit' member_pk=member_pk family_pk=family_pk %}">Edit Family Member</a></li>
     {% else %}
-        <li><a href="{% url 'families:edit_adult' member_pk=member.pk family_pk=family_pk %}">Edit Family Member</a></li>
+        <li><a href="{% url 'families:adult_edit' member_pk=member.pk family_pk=family_pk %}">Edit Family Member</a></li>
     {% endif %}
 </ul>
 					

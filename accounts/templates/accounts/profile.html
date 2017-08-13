@@ -3,11 +3,11 @@
 
 {% block content %}
     <h1> {{ user.username }} </h1>
-    <a href="{% url 'families:list' %}">Browse Families</a>
+    <a href="{% url 'families:family_list' %}">Browse Families</a>
     <br>
     {% if family %}
         <a href="{% url 'families:family_detail' pk=user.family.pk %}">Your Family</a>
     {% else %}
-        <a href="{% url 'families:create_family' %}">Add Your Family</a>
+        <a href="{% url 'families:family_create' %}">Add Your Family</a>
     {% endif %}
 {% endblock %}

@@ -12,22 +12,20 @@
 
 
     {% if user.is_authenticated %}
-            <a href="{% url 'groups:edit_group' pk=group.pk %}"
+            <a href="{% url 'groups:group_edit' pk=group.pk %}"
                 class="button">Edit Group</a>
 			<br>
-            <a href="{% url 'groups:delete_group' pk=group.pk %}"
+            <a href="{% url 'groups:group_delete' pk=group.pk %}"
                 class="button">Delete Group</a>
         <hr>
     {% endif %}
 
 		<section>
-				{% for adult in group.groups_adultgroupmember_related.all %}
-                    <h3> <a href="{{ adult.member.get_absolute_url }}">{{ adult_member }} </a> 
-                        </h3>
-				{% endfor %}
-				{% for child in group.groups_childgroupmember_related.all %}
-                <h3> <a href="{{ child.member.get_absolute_url }}">{{ child.member }} </a>
-                    </h3>
+				{% for group_member in group.groupmember_set.all %}
+                    {% if group_member__adult %}
+                        <h3><a href="{{ group_member__member.get_absolute_url group_member__member__family.pk 'a' group_member__member.pk}}">{{ group_member.member }}</a>: {{ group_member.member_role }}</h3>
+                    {% else %}
+                        <h3><a href="{{ group_member__member.get_absolute_url group_member__member__family.pk 'a' group_member__member.pk}}">{{ group_member.member }}</a>: {{ group_member.member_role }}</h3>
 				{% endfor %}
 		</section>
 </article>

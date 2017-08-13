@@ -1,11 +1,16 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
+from model_utils.managers import InheritanceManager
 import os
 
 from django.contrib.auth.models import User
 from cities_local.models import Country, Region, City
 # Create your models here.
+
+
 
 class Family(models.Model):
     def get_image_path(instance, filename):
@@ -26,8 +31,21 @@ class Family(models.Model):
     membership_status = models.CharField(max_length=2, choices=settings.MEMBERSHIP_TYPES, default='FM')
     notes = models.TextField(blank=True)
     image = models.ImageField(upload_to=get_image_path, blank=True, null=True)
-    image_sm = models.ImageField(upload_to=get_image_path, blank=True, null=True)
+    image_sm = ImageSpecField(source='image',
+                                    processors=[ResizeToFill(300, 200)],
+                                    format='JPEG',
+                                    options={'quality': 60})
 
+    def get_adults(self):
+        #return [member for member in self.member_set.all() if hasattr(member, 'adult')]
+        return [member for member in self.member_set.all() if hasattr(member, 'adult')]
+
+    def get_children(self):
+        return [member for member in self.member_set.all() if hasattr(member, 'child')]
+    
+    def get_children_names(self):
+        return [member.first_name for member in self.member_set.all() if hasattr(member, 'child')]
+   
     def __str__(self):
         return self.family_name
 
@@ -36,19 +54,15 @@ class Family(models.Model):
             'pk': self.id,
             })
 
-
 class Member(models.Model):
     GENDER_CHOICES = (
         ('M', 'Male'),
         ('F', 'Female')
     )
-    class Meta:
-        abstract = True
-    family = models.ForeignKey(Family,
-         related_name="%(app_label)s_%(class)s_related", 
-         related_query_name="%(app_label)s_%(class)ss",
-         )
-            
+    #class Meta:
+    #    abstract = True
+    family = models.ForeignKey(Family) 
+    objects = InheritanceManager()
     title = models.CharField(blank=True, max_length=15)
     first_name = models.CharField(max_length=50)
     middle_name = models.CharField(blank=True, max_length=255)
@@ -62,9 +76,23 @@ class Member(models.Model):
     def __str__(self):
         return '%s, %s' % (self.last_name, self.first_name)
 
+    def get_member_type(self):
+        if getattr(self, 'adult'):
+            return 'a'
+        else:
+            return 'd'
+
+    def get_absolute_url(self):
+        member_type = self.get_member_type()
+        return reverse('families:member_detail', kwargs={
+            'family_pk': self.family_id,
+            'member_type': member_type,
+            'member_pk': self.id,
+            })
     #def save(self, *args, **kwargs):
     #    self.last_name = self.family.family_name
     #    super(Member, self).save(*args, **kwargs)
+
 
 class Adult(Member):
     occupation = models.CharField(blank=True, max_length=255)

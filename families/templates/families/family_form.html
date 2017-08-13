@@ -12,7 +12,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         {{ form.media }}
-        <input type="submit" class="button" value="Save"><a href="{% url 'families:list' %}">Cancel</a>
+        <input type="submit" class="button" value="Save"><a href="{% url 'families:family_list' %}">Cancel</a>
     </form>
 </div>
 {% endblock %}

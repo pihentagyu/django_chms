@@ -5,6 +5,6 @@
 	
     <form method="POST">
         {% csrf_token %}
-		<input type="submit" class="button" value="Delete"> <a href="{% url 'families:detail' pk=family.pk %}">Cancel</a>
+		<input type="submit" class="button" value="Delete"> <a href="{% url 'families:family_detail' pk=family.pk %}">Cancel</a>
 	</form>
 {% endblock %}

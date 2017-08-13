@@ -14,7 +14,7 @@
 {{ block.super }}
     <h1>Directory</h1>
     <div class="right">
-	    <a href="{% url 'families:create_family' %}">New Family</a>
+	    <a href="{% url 'families:family_create' %}">New Family</a>
     </div>
     <table class="fam_list">
 	 <thead>
@@ -29,13 +29,18 @@
             <td>
                 <header><a href="{% url 'families:family_detail' pk=family.pk %}">{{ family.family_name }}</a></header>
             </td>
-	{% for member in family.families_adult_related.all %}
+
+
+	{% for member in family.get_adults %}
 	<td> <a href="{{ member.get_absolute_url }}">{{ member.first_name }}</a></td> 
-        {% endfor %}
-    <td>
-        {{ family.families_child_related|set_fields_joined:'first_name' }}
-    </td>
-        {% endfor %}
+
+    {% endfor %}
+	<td>
+	{{ family.get_children_names|join_by }}
+	<!-- {{ member.first_name }} -->
+
+	</td>
+    {% endfor %}
     </table>
 	<br>
     <a href="{% url 'families:addressbook' %}">Create Addressbook PDF<a>
@@ -62,6 +67,4 @@
     {% endif %}
   </ul>
 {% endif %}
-        <div> Questions? Email me! {{ email|urlize }}
-    </div>
 {% endblock %}
