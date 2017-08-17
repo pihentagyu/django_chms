@@ -77,7 +77,7 @@ class Member(models.Model):
         return '%s, %s' % (self.last_name, self.first_name)
 
     def get_member_type(self):
-        if getattr(self, 'adult'):
+        if hasattr(self, 'adult'):
             return 'a'
         else:
             return 'd'
@@ -103,26 +103,14 @@ class Adult(Member):
     class Meta:
         ordering = ['id',]
 
-    def get_absolute_url(self):
-        return reverse('families:member_detail', kwargs={
-            'family_pk': self.family_id,
-            'member_type': 'a',
-            'member_pk': self.id,
-            })
 
 class Child(Member):
     school = models.CharField(blank=True, max_length=255)
 
     class Meta:
         verbose_name_plural = 'Children'
-        #    ordering = ['birth_date', 'id']
+        ordering = ['birth_date', 'id']
 
-    def get_absolute_url(self):
-        return reverse('families:member_detail', kwargs={
-            'family_pk': self.family_id,
-            'member_type': 'd',
-            'member_pk': self.id,
-            })
     def age(self):
         from families.templatetags.family_extras import age_calc
         if self.birth_date:

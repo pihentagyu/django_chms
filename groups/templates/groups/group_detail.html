@@ -22,12 +22,14 @@
 
 		<section>
 				{% for group_member in group.groupmember_set.all %}
-                    {% if group_member__adult %}
-                        <h3><a href="{{ group_member__member.get_absolute_url group_member__member__family.pk 'a' group_member__member.pk}}">{{ group_member.member }}</a>: {{ group_member.member_role }}</h3>
-                    {% else %}
-                        <h3><a href="{{ group_member__member.get_absolute_url group_member__member__family.pk 'a' group_member__member.pk}}">{{ group_member.member }}</a>: {{ group_member.member_role }}</h3>
+                        <h3><a href="{{ group_member__families.member.get_absolute_url }}">{{ group_member.member }}</a>: {{ group_member.member_role }}</h3>
+                                    <a href="{% url 'groups:member_delete' pk=group_member.pk group_pk=group.pk %}">Remove</a>
+                   
 				{% endfor %}
 		</section>
-</article>
+</article>	
+ <a href="{% url 'groups:member_create' group_pk=group.pk %}" class="button">Add Member</a>
+	<br>
+
         	<a href="{% url 'groups:group_list' %}">Back to list</a>
 {% endblock %}

@@ -5,7 +5,7 @@ from families.models import Member
 # Create your models here.
 
 class GroupType(models.Model):
-    group_type = models.CharField(max_length=35)
+    group_type = models.CharField(unique=True, max_length=35)
     def __str__(self):
         return self.group_type
 
@@ -13,6 +13,8 @@ class Group(models.Model):
     group_name = models.CharField(max_length=100)
     group_type = models.ForeignKey(GroupType, blank=True, null=True)
     group_description = models.CharField(blank=True, max_length=255)
+    group_members = models.ManyToManyField(Member, through='GroupMember')
+
     def __str__(self):
         return self.group_name
 
@@ -29,8 +31,8 @@ class MemRole(models.Model):
         return self.mem_role
 
 class GroupMember(models.Model):
-    group = models.ForeignKey(Group)
     member = models.ForeignKey(Member)
+    group = models.ForeignKey(Group)
     leader = models.BooleanField(default=False)
     member_role = models.ForeignKey(MemRole, blank=True, null=True)
 

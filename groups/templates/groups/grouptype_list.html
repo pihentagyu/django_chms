@@ -20,7 +20,7 @@
     <table class="fam_list">
         {% for grouptype in grouptypes %}
 	        <tr>
-            <th><a href="{% url 'groups:grouptype_detail' pk=grouptype.pk %}">{{ grouptype.group_type }}</a></th>
+            <th><a href="{% url 'groups:grouptype_group_list' pk=grouptype.pk %}">{{ grouptype.group_type }}</a></th>
     <td>   
 	{% for group in grouptype.group_set.all %}
     <tr>   

@@ -23,7 +23,7 @@
             <th><a href="{% url 'groups:group_detail' pk=group.pk %}">{{ group.group_name }}</a></th>
     <td>   
 	{% for group_member in group.groupmember_set.all %}
-		<a href="{{ group_member.member__member.get_absolute_url }}">{{ group_member.member }}</a>: {{ group_member.member_role }}
+		<a href="{{ group_member.get_absolute_url }}">{{ group_member.member }}</a>{% if group_member.member_role %} : {{ group_member.member_role }} {% endif %}
     {% endfor %}
      </td>
 	 </tr>
