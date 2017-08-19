@@ -38,19 +38,14 @@
     {% endif %}
 
 		<section>
-				{% for member in family.get_adults %}
+				{% for member in family.member_set.all %}
+
                     <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }} </a> 
                     {% if member.last_name != family.family_name %}
 					    {{ member.last_name }}
                     {% endif %}
                         </h3>
-				{% endfor %}
-				{% for member in family.get_children %}
-                    <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }} </a> 
-                    {% if member.last_name != family.family_name %}
-					    {{ member.last_name }}
-                    {% endif %}
-                        </h3>
+
 				{% endfor %}
 		</section>
 

@@ -193,6 +193,9 @@ class ChildCreateView(LoginRequiredMixin, CreateView):
     template_name = 'families/member_form.html'
     #success_url = reverse_lazy('families:family_detail', kwargs={'pk': model.family.pk})
 
+    def get_success_url(self):
+        return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
+
     def get_initial(self):
         initial = super().get_initial()
         initial['user'] = self.request.user.pk

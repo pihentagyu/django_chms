@@ -15,6 +15,7 @@ class GroupListView(PrefetchRelatedMixin, ListView):
     context_object_name = 'groups'
     ordering = ['group_name']
     paginate_by = 10
+
     def get_context_data(self):
         context = super().get_context_data()
         context['church_name'] = settings.CHURCH_NAME
@@ -67,6 +68,7 @@ class GroupTypeListView(PrefetchRelatedMixin, ListView):
     context_object_name = 'grouptypes'
     ordering = ['group_type']
     paginate_by = 10
+
     def get_context_data(self):
         context = super().get_context_data()
         context['church_name'] = settings.CHURCH_NAME
@@ -74,26 +76,62 @@ class GroupTypeListView(PrefetchRelatedMixin, ListView):
 
 
 class GroupTypeCreateView(LoginRequiredMixin, CreateView):
-    fields = ('group_type')
+    model = models.GroupType
+    fields = ('group_type',)
     template_name = 'groups/grouptype_form.html'
     success_url = reverse_lazy('groups:grouptype_list')
-    model = models.GroupType
 
 
-class GroupTypeDetailView(PrefetchRelatedMixin, DetailView):
+class GroupTypeGroupListView(PrefetchRelatedMixin, ListView):
     prefetch_related = ('group_set',)
-    model = models.GroupType
-    template_name = 'groups/grouptype_detail.html'
+    model = models.Group
+    template_name = 'groups/grouptype_group_list.html'
+    context_object_name = 'groups'
+    def get_queryset(self):
+        return self.model.objects.filter(group_type=self.kwargs['pk'])
 
 
-class GroupTypeDetailView(DetailView, SingleObjectMixin):
-    context_object_name = 'group_type'
-    template_name = 'families/grouptype_detail.html'
+#class GroupTypeDetailView(DetailView, SingleObjectMixin):
+#    context_object_name = 'group_type'
+#    template_name = 'families/grouptype_detail.html'
 
 
 class GroupTypeUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'families/grouptype_form.html' 
     model = models.GroupType
-    fields = ('group_type')
+    fields = ('group_type',)
 
+class MemberCreateView(LoginRequiredMixin, CreateView):
+    model = models.GroupMember
+    fields = ('member', 'leader', 'member_role', 'group')
+    template_name = 'groups/groupmember_form.html'
+
+    #def get_queryset(self):
+    #    return self.model.objects.filter(group__group=self.kwargs['group_pk'])
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['group'] = self.kwargs['group_pk']
+        return initial
+
+    def get_success_url(self):
+        return reverse_lazy('groups:group_detail', kwargs={'pk': self.kwargs['group_pk']})
+
+
+class MemberDeleteView(DeleteView):
+    model = models.GroupMember
+
+    def get_success_url(self):
+        return reverse_lazy('groups:group_detail', kwargs={'pk': self.kwargs['group_pk']})
+
+    def get_queryset(self):
+        if not self.request.user.is_superuser:
+            return self.model.objects.filter(user=self.request.user)
+        else:
+            return self.model.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['group_pk'] = self.kwargs['group_pk']
+        return context
 
