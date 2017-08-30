@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'accounts',
     'families',
     'groups',
+    'events',
     'cities_light',
     'cities_local',
 ]

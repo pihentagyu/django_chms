@@ -1,6 +1,9 @@
 {% load static from staticfiles %}
+{% load humanize event_extras %}
 
 <!doctype html>
+{% this_year as year %}
+{% this_month as month %}
 <html>
   <head>
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js" type="text/javascript"></script>
@@ -15,6 +18,7 @@
 			 <li class="nav"><a class="nav" href="{% url 'home' %}">Home</a></li>
 			 <li class="nav"><a class="nav" href="{% url 'families:family_list' %}">Families</a></li>
 			 <li class="nav"><a class="nav" href="{% url 'groups:group_list' %}">Groups</a></li>
+			 <li class="nav"><a class="nav" href="{% url 'events:event_monthly' year=year month=month %}">Events</a></li>
 			</ul>
 		</nav>
   </div>

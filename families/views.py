@@ -1,13 +1,12 @@
 from braces.views import PrefetchRelatedMixin
 from dal import autocomplete
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.forms.models import modelform_factory
-from django.http import HttpResponse
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
