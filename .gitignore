@@ -97,6 +97,7 @@ cities_local/migrations
 accounts/migrations
 families/migrations
 groups/migrations
+events/migrations
 
 
 django_chms/media/
@@ -108,4 +109,5 @@ venv
 *.pyc
 staticfiles
 .env
-
+*.html~
+*.css~

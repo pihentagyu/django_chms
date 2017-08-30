@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+{% load bootstrap3 %}
+
+{% block title %} 
+    {{ group }} New Group Member {{ block.super }} 
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+
+            <h1>Add a New Group Member</h1>
+
+        <form method="POST" action="">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <input type="submit" class="button" value="Save">
+        </form>
+    </div>
+{% endblock %}

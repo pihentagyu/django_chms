@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+	<h1>Remove {{ groupmember.member }} from {{ groupmember.group }}?</h1> 
+	
+    <form method="POST">
+        {% csrf_token %}
+		<input type="submit" class="button" value="Delete"> <a href="{% url 'groups:group_detail' pk=group_pk %}">Cancel</a>
+	</form>
+{% endblock %}
