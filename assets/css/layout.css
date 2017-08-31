@@ -46,23 +46,34 @@ table.cal {
       width: 100%;
     }
 
-table.cal td {
+td.cal {
       border: 1px solid #ccc;
       color: #444;
       line-height: 22px;
       text-align: left;
       vertical-align: top;
     }
-
- table.cal tr:first-child td {
-      color: #222;
-      font-weight: 700;
-      height: 26px;
-    }
-table.cal tr {
+tr.cal {
      	height: 150px;
+    }  
 
-    }
+tr.thead {
+	height: 30px;
+}
+
+th.cal {
+      border: 1px solid #ccc;
+      text-align: center;
+      vertical-align: middle;
+    }	
+
+ td.day {
+      border: 1px solid #ccc;
+      color: #444;
+      line-height: 22px;
+      text-align: left;
+      vertical-align: top;
+    }  
     
 
 .selected.cal {

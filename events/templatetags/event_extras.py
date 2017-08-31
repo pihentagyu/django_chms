@@ -5,6 +5,8 @@
 
 import calendar
 from django import template
+from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse
 from datetime import date
 from itertools import groupby
 
@@ -104,7 +106,7 @@ class EventCalendarNode(template.Node):
 class EventCalendar(calendar.HTMLCalendar):
     """
     Overload Python's calendar.HTMLCalendar to add the appropriate events to
-    each day's table cell.
+    each day's table cell.`
     """
 
     def __init__(self, events):
@@ -151,14 +153,15 @@ class EmptyCalendar:
         cal = calendar.HTMLCalendar()
         '''Create an empty calendar table as a base'''
         body = ['<div class="cal">', '<header class="cal">', '<button class="cal">«</button>', '<h2 class="cal">', calendar.month_name[self.month], ' ', str(self.year), '</h2>', '<button class="cal">»</button>', '</header>', '<table class="cal">']
-        body.append('<tr class="day">')
+        body.append('<tr class="thead">')
         for weekday in calendar.day_abbr:
-            body.append('<td class="cal">{}</td>'.format(weekday))
+            body.append('<th class="cal">{}</th>'.format(weekday))
         body.append('</tr>')
-        body.append('<tr class="cal">')
         for week in cal.monthdatescalendar(self.year, self.month):
+            body.append('<tr class="cal">')
             for day in week:
-                body.append('<td class="dateno">{}</td>'.format(day.day))
+                body.append('<td class="cal"><a href="{}">{}</a></td>'.format(reverse_lazy('events:event_daily', kwargs={'day':str(day.day).zfill(2), 'month':str(self.month).zfill(2), 'year':self.year}), day.day))
+        #return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
             body.append('</tr>')
         body.append('</table>')
         body.append('</div>')

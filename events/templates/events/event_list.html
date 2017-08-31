@@ -12,10 +12,10 @@
 {{ block.super }}
 
 
-<p> year {{ year }}</p>
-<p>month {{ month }}</p>
+<p> year {{ calyear }}</p>
+<p>month {{ calmonth }}</p>
 <div id="calendar">
-    {% event_calendar year month events.event_list %}
+    {% event_calendar calyear calmonth events.event_list %}
 </div>
 
 {% endblock %}

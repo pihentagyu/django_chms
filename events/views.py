@@ -8,7 +8,7 @@ from . import models
 class EventYearlyListView(ListView):
     model = models.SimpleEvent
     context_object_name = 'events'
-    template_name = "events/event_list.html"
+    template_name = "events/event_year_list.html"
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -22,8 +22,8 @@ class EventMonthlyListView(ListView):
 
     def get_context_data(self):
         context = super().get_context_data()
-        context['year'] = self.kwargs['year']
-        context['month'] = self.kwargs['month']
+        context['calyear'] = self.kwargs['year']
+        context['calmonth'] = self.kwargs['month']
         return context
 
 
