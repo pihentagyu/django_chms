@@ -5,46 +5,73 @@
 
 import calendar
 from django import template
+from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
 from django.urls import reverse
-from datetime import date
+from datetime import date, datetime, timedelta
 from itertools import groupby
 
 from django.utils.html import conditional_escape as esc
 
 register = template.Library()
 
-def do_empty_calendar(parser, token):
+def do_monthly_calendar(parser, token):
     """
-    The template tag's syntax is {% event_calendar year month %}
-    """
-
-    try:
-        tag_name, year, month, event_list = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError("%r tag requires two arguments" % token.contents.split()[0])
-    return EmptyCalendarNode(year, month)
-
-def do_event_calendar(parser, token):
-    """
-    The template tag's syntax is {% event_calendar year month event_list %}
+    The template tag's syntax is {% monthly_calendar year month event_list %}
     """
 
     try:
         tag_name, year, month, event_list = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError("%r tag requires three arguments" % token.contents.split()[0])
-    return EventCalendarNode(year, month)
+        try:
+            tag_name, year, month = token.split_contents()
+        except ValueError:
+            raise template.TemplateSyntaxError("%r tag requires two arguments" % token.contents.split()[0])
+    return EventCalendarNode('monthly', year, month=month)
 
-class EmptyCalendarNode(template.Node):
+def do_daily_calendar(parser, token):
+    """
+    The template tag's syntax is {% monthly_calendar year month event_list %}
+    """
+
+    try:
+        tag_name, year, month, day, from_time, to_time, delta, event_list = token.split_contents()
+    except ValueError:
+        try:
+            tag_name, year, month, day, from_time, to_time, delta = token.split_contents()
+        except ValueError:
+            raise template.TemplateSyntaxError("%r tag requires six arguments" % token.contents.split()[0])
+    return EventCalendarNode('daily', year, month=month, day=day, from_time=from_time, to_time=to_time, delta=delta)
+
+
+class EventCalendarNode(template.Node):
     """
     Process a particular node in the template. Fail silently.
     """
 
-    def __init__(self, year, month, event_list=None):
+    def __init__(self, cal_type, year, **kwargs):# month=None, day=None, week=None, event_list=None):
         try:
             self.year = template.Variable(year)
-            self.month = template.Variable(month)
+            month = kwargs.get('month')
+            day = kwargs.get('day')
+            from_time = kwargs.get('from_time')
+            to_time = kwargs.get('to_time')
+            delta = kwargs.get('delta')
+            week = kwargs.get('week')
+            event_list = kwargs.get('event_list')
+            self.cal_type = cal_type
+            if month:
+                self.month = template.Variable(month)
+            if day:
+                self.day = template.Variable(day)
+            if from_time:
+                self.from_time = template.Variable(from_time)
+            if to_time:
+                self.to_time = template.Variable(to_time)
+            if delta:
+                self.delta = template.Variable(delta)
+            if week:
+                self.week = template.Variable(week)
             if event_list:
                 self.event_list = template.Variable(event_list)
             else:
@@ -53,22 +80,60 @@ class EmptyCalendarNode(template.Node):
             raise template.TemplateSyntaxError
 
     def render(self, context):
+        # Get the variables from the context so the method is thread-safe.
+        calyear = self.year.resolve(context)
         try:
-            # Get the variables from the context so the method is thread-safe.
-            my_year = self.year.resolve(context)
-            my_month = self.month.resolve(context)
+            try:
+                calyear = int(calyear)
+            except ValueError:
+                return
+            if self.cal_type in ('monthly, weekly, daily'):
+                calmonth = self.month.resolve(context)
+                try:
+                    calmonth = int(calmonth)
+                except ValueError:
+                    return
+            else:
+                calmonth = None
+            if self.cal_type == 'daily':
+                calday = self.day.resolve(context)
+                try:
+                    calday = int(calday)
+                except ValueError:
+                    return
+                from_time = self.from_time.resolve(context)
+                to_time = self.to_time.resolve(context)
+                delta = self.delta.resolve(context)
+            else:
+                calday = None
+                from_time = None
+                to_time = None
+                delta = None
+            if self.cal_type == 'weekly':
+                calweek = self.month.resolve(context)
+                try:
+                    calweek = int(calweek)
+                except ValueError:
+                    return
+            else:
+                calweek = None
             if self.event_list:
                 my_event_list = self.event_list.resolve(context)
-                cal = EventCalendar(my_event_list)
+                cal = EventCalendar(self.cal_type, calyear, month=calmonth, day=calday, 
+                        from_time=from_time, to_time=to_time, delta=delta, week=calweek, 
+                        event_list=my_event_list)
             else:
-                cal = EmptyCalendar(int(my_month), int(my_year))
-            return cal.format_month(int(my_month), int(my_year))
-            #return cal.format_month()
+                cal = EventCalendar(self.cal_type, calyear, month=calmonth, day=calday, 
+                        from_time=from_time, to_time=to_time, delta=delta, week=calweek)
+            if self.cal_type == 'monthly':
+                return cal.format_month()
+            elif self.cal_type == 'daily':
+                return cal.format_day()
         except ValueError:
             return          
         except template.VariableDoesNotExist:
             return
-
+'''
 
 class EventCalendarNode(template.Node):
     """
@@ -101,8 +166,71 @@ class EventCalendarNode(template.Node):
             return          
         except template.VariableDoesNotExist:
             return
+'''
+class EventCalendar:
+    def __init__(self, cal_type, year, **kwargs):
+        self.year = year
+        self.month = kwargs.get('month')
+        self.day = kwargs.get('day')
+        self.from_time = kwargs.get('from_time')
+        self.to_time = kwargs.get('to_time')
+        self.delta = kwargs.get('delta')
+        self.week = kwargs.get('week')
+        self.event_list = kwargs.get('event_list')
+
+    def format_month(self, event_list=None):
+        cal = calendar.HTMLCalendar()
+        '''Create an empty calendar table as a base'''
+        body = ['<div class="cal">', '<header class="cal">', '<button class="cal">«</button>', '<h2 class="cal">', calendar.month_name[self.month], ' ', str(self.year), '</h2>', '<button class="cal">»</button>', '</header>', '<table class="cal">']
+        body.append('<tr class="thead">')
+        for weekday in calendar.day_abbr:
+            body.append('<th class="cal">{}</th>'.format(weekday))
+        body.append('</tr>')
+        for week in cal.monthdatescalendar(self.year, self.month):
+            body.append('<tr class="cal">')
+            for day in week:
+                body.append('<td class="cal"><a href="{}">{}</a></td>'.format(reverse('events:event_daily', kwargs={'day':str(day.day).zfill(2), 'month':str(self.month).zfill(2), 'year':self.year}), day.day))
+        #return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
+            body.append('</tr>')
+        body.append('</table>')
+        body.append('</div>')
+        html_body = ''.join(body)
+        return html_body
+
+    def format_day(self, event_list=None):
+        cal_date = date(self.year, self.month, self.day)
+        cal = calendar.HTMLCalendar()
+        weekday = calendar.day_name[cal_date.weekday()]
+        '''Create an empty calendar table as a base'''
+        body = ['<div class="cal">', '<header class="cal">', 
+                '<button class="cal">«</button>', '<h2 class="cal">', 
+                cal_date.strftime(settings.LONG_DATE_FORMAT), '</h2>', 
+                '<button class="cal">»</button>', '</header>', '<table class="fam_list">']
+        body.append('<tr class="thead">')
+        body.append('<th class="cal">Events</th>')
+        body.append('</tr>')
+        for time in self.time_iterator(self.year, self.month, self.day, self.from_time, self.to_time, self.delta):
+            body.append('<tr>')
+            body.append('<td>{}</td>'.format(time.strftime(settings.TIME_FORMAT)))
+            body.append('</tr>')
+        body.append('</table>')
+        body.append('</div>')
+        html_body = ''.join(body)
+        return html_body
 
 
+    def time_iterator(self, year, month, day, from_time='8:00', to_time='21:00', delta=30):
+        delta = timedelta(minutes=delta)
+        from_hour, from_minute = from_time.split(':')
+        to_hour, to_minute = to_time.split(':')
+        from_time = datetime(year, month, day, int(from_hour), int(from_minute))
+        to_time = datetime(year, month, day, int(to_hour), int(to_minute))
+        while to_time is None or from_time <= to_time:
+        	yield from_time
+        	from_time = from_time + delta
+        return
+    
+'''
 class EventCalendar(calendar.HTMLCalendar):
     """
     Overload Python's calendar.HTMLCalendar to add the appropriate events to
@@ -144,38 +272,18 @@ class EventCalendar(calendar.HTMLCalendar):
     def day_cell(self, cssclass, body):
         return '<td class="%s">%s</td>' % (cssclass, body)
 
+'''
 
-class EmptyCalendar:
-    def __init__(self, month, year):
-        self.month = month
-        self.year = year
-    def format_month(self, month, year):
-        cal = calendar.HTMLCalendar()
-        '''Create an empty calendar table as a base'''
-        body = ['<div class="cal">', '<header class="cal">', '<button class="cal">«</button>', '<h2 class="cal">', calendar.month_name[self.month], ' ', str(self.year), '</h2>', '<button class="cal">»</button>', '</header>', '<table class="cal">']
-        body.append('<tr class="thead">')
-        for weekday in calendar.day_abbr:
-            body.append('<th class="cal">{}</th>'.format(weekday))
-        body.append('</tr>')
-        for week in cal.monthdatescalendar(self.year, self.month):
-            body.append('<tr class="cal">')
-            for day in week:
-                body.append('<td class="cal"><a href="{}">{}</a></td>'.format(reverse_lazy('events:event_daily', kwargs={'day':str(day.day).zfill(2), 'month':str(self.month).zfill(2), 'year':self.year}), day.day))
-        #return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
-            body.append('</tr>')
-        body.append('</table>')
-        body.append('</div>')
-        html_body = ''.join(body)
-        return html_body
-
+register.tag("monthly_calendar", do_monthly_calendar)
+register.tag("daily_calendar", do_daily_calendar)
 
 # Register the template tag so it is available to templates
-register.tag("event_calendar", do_empty_calendar)
 
 ##### Here's code for the view to look up the event objects for to put in 
 # the context for the template. It goes in your app's views.py file (or 
 # wherever you put your views).
 #####
+
 
 def named_month(month_number):
     """

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
 
@@ -18,7 +19,7 @@ class EventYearlyListView(ListView):
 class EventMonthlyListView(ListView):
     model = models.SimpleEvent
     context_object_name = 'events'
-    template_name = "events/event_list.html"
+    template_name = "events/monthly_calendar.html"
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -42,15 +43,17 @@ class EventWeeklyListView(ListView):
 class EventDailyListView(ListView):
     model = models.SimpleEvent
     context_object_name = 'events'
-    template_name = "events/event_list.html"
+    template_name = "events/daily_events.html"
 
     def get_context_data(self):
         context = super().get_context_data()
-        context['year'] = self.kwargs['year']
-        context['month'] = self.kwargs['month']
-        context['day'] = self.kwargs['day']
+        context['calyear'] = self.kwargs['year']
+        context['calmonth'] = self.kwargs['month']
+        context['calday'] = self.kwargs['day']
+        context['from_time'] = settings.DEFAULT_DAY_BEGIN
+        context['to_time'] = settings.DEFAULT_DAY_END
+        context['delta'] = settings.DEFAULT_TIME_INTERVAL
         return context
-
 
 class EventDetailView(DeleteView):
     model = models.SimpleEvent
