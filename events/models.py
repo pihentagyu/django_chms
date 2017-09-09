@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from families.models import Member
@@ -16,10 +17,20 @@ class Event(models.Model):
     description = models.CharField(max_length=255)
     creator = models.ForeignKey(Member)
 
+    def get_duration(self):
+        from events.templatetags.event_extras import duration_calc
+        return duration_calc(self.begin_time, self.end_time)
+
+    def get_absolute_url(self):
+        return reverse('events:event_detail', kwargs={
+            'pk': self.id,
+            })
+
 
 class SimpleEvent(Event):
     '''Event with a begin time and end time not associated with a group'''
-    pass
+    def __str__(self):
+        return self.name
 
 class SimpleGroupEvent(Event):
     '''Event with a begin time and end time with one group'''

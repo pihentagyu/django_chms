@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Prefetch, Q
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
 
@@ -54,6 +55,15 @@ class EventDailyListView(ListView):
         context['to_time'] = settings.DEFAULT_DAY_END
         context['delta'] = settings.DEFAULT_TIME_INTERVAL
         return context
+
+    def get_queryset(self):
+        return self.model.objects.filter(Q(begin_time__year=self.kwargs['year'],
+            begin_time__month=self.kwargs['month'], 
+            begin_time__day=self.kwargs['day'])
+            |(Q(end_time__year=self.kwargs['year'],
+            end_time__month=self.kwargs['month'], 
+            end_time__day=self.kwargs['day']))
+            )
 
 class EventDetailView(DeleteView):
     model = models.SimpleEvent

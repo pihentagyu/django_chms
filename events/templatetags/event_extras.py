@@ -2,18 +2,27 @@
 ##### Here is the template tag code. It goes in a file named 
 # "event_tags.py" in a subdirectory of your app called "templatetags".
 #####
-
 import calendar
+from datetime import date, datetime, timedelta
 from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import Q
 from django.urls import reverse
-from datetime import date, datetime, timedelta
-from itertools import groupby
-
 from django.utils.html import conditional_escape as esc
+from itertools import groupby
+import math
+import pytz
+
 
 register = template.Library()
+
+@register.filter('duration_calc')
+def duration_calc(begin_time, end_time):
+    '''Get duration in minutes from event begin and end times'''
+    if begin_time and end_time:
+        delta = end_time - begin_time
+        return delta.seconds/60
 
 def do_monthly_calendar(parser, token):
     """
@@ -34,6 +43,7 @@ def do_daily_calendar(parser, token):
     The template tag's syntax is {% monthly_calendar year month event_list %}
     """
 
+    event_list = None
     try:
         tag_name, year, month, day, from_time, to_time, delta, event_list = token.split_contents()
     except ValueError:
@@ -41,7 +51,11 @@ def do_daily_calendar(parser, token):
             tag_name, year, month, day, from_time, to_time, delta = token.split_contents()
         except ValueError:
             raise template.TemplateSyntaxError("%r tag requires six arguments" % token.contents.split()[0])
-    return EventCalendarNode('daily', year, month=month, day=day, from_time=from_time, to_time=to_time, delta=delta)
+    if event_list:
+        return EventCalendarNode('daily', year, month=month, day=day, from_time=from_time, to_time=to_time, delta=delta, event_list=event_list)
+    else:
+        return EventCalendarNode('daily', year, month=month, day=day, from_time=from_time, to_time=to_time, delta=delta)
+    
 
 
 class EventCalendarNode(template.Node):
@@ -167,6 +181,8 @@ class EventCalendarNode(template.Node):
         except template.VariableDoesNotExist:
             return
 '''
+
+
 class EventCalendar:
     def __init__(self, cal_type, year, **kwargs):
         self.year = year
@@ -178,7 +194,18 @@ class EventCalendar:
         self.week = kwargs.get('week')
         self.event_list = kwargs.get('event_list')
 
-    def format_month(self, event_list=None):
+    def time_iterator(self, year, month, day, from_time='8:00', to_time='21:00', delta=30):
+        timezone = pytz.timezone(settings.TIME_ZONE)
+        from_hour, from_minute = from_time.split(':')
+        to_hour, to_minute = to_time.split(':')
+        from_time = timezone.localize(datetime(year, month, day, int(from_hour), int(from_minute)))
+        to_time = timezone.localize(datetime(year, month, day, int(to_hour), int(to_minute)))
+        while to_time is None or from_time <= to_time:
+        	yield from_time
+        	from_time = from_time + delta
+        return
+
+    def format_month(self):
         cal = calendar.HTMLCalendar()
         '''Create an empty calendar table as a base'''
         body = ['<div class="cal">', '<header class="cal">', '<button class="cal">«</button>', '<h2 class="cal">', calendar.month_name[self.month], ' ', str(self.year), '</h2>', '<button class="cal">»</button>', '</header>', '<table class="cal">']
@@ -197,7 +224,7 @@ class EventCalendar:
         html_body = ''.join(body)
         return html_body
 
-    def format_day(self, event_list=None):
+    def format_day(self):
         cal_date = date(self.year, self.month, self.day)
         cal = calendar.HTMLCalendar()
         weekday = calendar.day_name[cal_date.weekday()]
@@ -209,26 +236,26 @@ class EventCalendar:
         body.append('<tr class="thead">')
         body.append('<th class="cal">Events</th>')
         body.append('</tr>')
-        for time in self.time_iterator(self.year, self.month, self.day, self.from_time, self.to_time, self.delta):
+        if settings.DEFAULT_TIME_INTERVAL:
+            delta = timedelta(minutes=settings.DEFAULT_TIME_INTERVAL)
+        else: 
+            delta = timedelta(minutes=60)
+        for time in self.time_iterator(self.year, self.month, self.day, settings.DEFAULT_DAY_BEGIN, settings.DEFAULT_DAY_END, delta):
             body.append('<tr>')
             body.append('<td>{}</td>'.format(time.strftime(settings.TIME_FORMAT)))
+            if self.event_list:
+                for event, duration in self.get_time_events(time, delta):
+                    row_height = math.ceil(duration/(delta.seconds/60))
+                    body.append('<td rowspan="{}" bgcolor="#00FF00"><a href="{}">{}</a></td>'.format(row_height, event.get_absolute_url(), event.name))
             body.append('</tr>')
         body.append('</table>')
         body.append('</div>')
         html_body = ''.join(body)
         return html_body
 
-
-    def time_iterator(self, year, month, day, from_time='8:00', to_time='21:00', delta=30):
-        delta = timedelta(minutes=delta)
-        from_hour, from_minute = from_time.split(':')
-        to_hour, to_minute = to_time.split(':')
-        from_time = datetime(year, month, day, int(from_hour), int(from_minute))
-        to_time = datetime(year, month, day, int(to_hour), int(to_minute))
-        while to_time is None or from_time <= to_time:
-        	yield from_time
-        	from_time = from_time + delta
-        return
+    def get_time_events(self, time, delta):
+        return [[event, event.get_duration()] for event in self.event_list if event.begin_time >= time and event.begin_time < time + delta]
+        
     
 '''
 class EventCalendar(calendar.HTMLCalendar):

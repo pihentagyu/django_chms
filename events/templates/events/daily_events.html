@@ -17,8 +17,11 @@
 <p>day {{ calday }}</p>
 
 <div id="calendar">
-	{% if events.event_list %}
-	    {% daily_calendar calyear calmonth calday from_time to_time delta events.event_list %}
+	{% if events %}
+	    {% daily_calendar calyear calmonth calday from_time to_time delta events %}
+	    {% for event in events %}
+	    {{ event.name }}
+	    {% endfor %}
    {% else %} 
    	 {% daily_calendar calyear calmonth calday from_time to_time delta %}
    {% endif %}
