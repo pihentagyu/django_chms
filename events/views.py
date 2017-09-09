@@ -8,7 +8,7 @@ from . import models
 # Create your views here.
 
 class EventYearlyListView(ListView):
-    model = models.SimpleEvent
+    model = models.Occurrence
     context_object_name = 'events'
     template_name = "events/event_year_list.html"
 
@@ -18,7 +18,7 @@ class EventYearlyListView(ListView):
         return context
 
 class EventMonthlyListView(ListView):
-    model = models.SimpleEvent
+    model = models.Occurrence
     context_object_name = 'events'
     template_name = "events/monthly_calendar.html"
 
@@ -30,7 +30,7 @@ class EventMonthlyListView(ListView):
 
 
 class EventWeeklyListView(ListView):
-    model = models.SimpleEvent
+    model = models.Occurrence
     context_object_name = 'events'
     template_name = "events/event_list.html"
 
@@ -42,7 +42,7 @@ class EventWeeklyListView(ListView):
 
 
 class EventDailyListView(ListView):
-    model = models.SimpleEvent
+    model = models.Occurrence
     context_object_name = 'events'
     template_name = "events/daily_events.html"
 
@@ -66,7 +66,7 @@ class EventDailyListView(ListView):
             )
 
 class EventDetailView(DeleteView):
-    model = models.SimpleEvent
+    model = models.Event
     context_object_name = 'events'
     template_name = "events/event_list.html"
 

@@ -7,42 +7,43 @@ from groups.models import Group
 
 # Create your models here.
 
-class Event(models.Model):
-    class Meta:
-        abstract = True
-
+class Location(models.Model):
     name = models.CharField(max_length=35)
-    begin_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    description = models.CharField(max_length=255)
-    creator = models.ForeignKey(Member)
+    building = models.CharField(max_length=35)
+    description = models.CharField(blank=True, null=True, max_length=255)
 
-    def get_duration(self):
-        from events.templatetags.event_extras import duration_calc
-        return duration_calc(self.begin_time, self.end_time)
+class Event(models.Model):
+    name = models.CharField(max_length=35)
+    description = models.CharField(blank=True, null=True, max_length=255)
+    creator = models.ForeignKey(Member)
+    group = models.ForeignKey(Group, blank=True, null=True)
+    location = models.ForeignKey(Location, blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('events:event_detail', kwargs={
             'pk': self.id,
             })
 
-
-class SimpleEvent(Event):
-    '''Event with a begin time and end time not associated with a group'''
     def __str__(self):
         return self.name
 
-class SimpleGroupEvent(Event):
-    '''Event with a begin time and end time with one group'''
-    group = models.ForeignKey(Group)
+
+class Occurrence(models.Model):
+    event = models.ForeignKey(Event)
+    begin_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    def get_duration(self):
+        from events.templatetags.event_extras import duration_calc
+        return duration_calc(self.begin_time, self.end_time)
 
 
-class AllDayEvent(Event):
-    date = models.DateField()
-
-    def get_begin_time(self):
-        return datetime.combine(date, datetime.min.time())
-
-    def get_end_time(self):
-        return datetime.combine(date, datetime.max.time())
-
+#class AllDayEvent(Event):
+#    date = models.DateField()
+#
+#    def get_begin_time(self):
+#        return datetime.combine(date, datetime.min.time())
+#
+#    def get_end_time(self):
+#        return datetime.combine(date, datetime.max.time())
+#

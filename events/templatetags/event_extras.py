@@ -246,7 +246,7 @@ class EventCalendar:
             if self.event_list:
                 for event, duration in self.get_time_events(time, delta):
                     row_height = math.ceil(duration/(delta.seconds/60))
-                    body.append('<td rowspan="{}" bgcolor="#00FF00"><a href="{}">{}</a></td>'.format(row_height, event.get_absolute_url(), event.name))
+                    body.append('<td rowspan="{}" bgcolor="#00FF00"><a href="{}">{}</a></td>'.format(row_height, event.event.get_absolute_url(), event.event.name))
             body.append('</tr>')
         body.append('</table>')
         body.append('</div>')
