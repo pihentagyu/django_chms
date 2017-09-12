@@ -27,6 +27,35 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+    ## From django-swingtime
+    def add_occurrences(self, start_time, end_time, **rrule_params):
+        '''
+        Add one or more occurences to the event using a comparable API to 
+        ``dateutil.rrule``. 
+        
+        If ``rrule_params`` does not contain a ``freq``, one will be defaulted
+        to ``rrule.DAILY``.
+        
+        Because ``rrule.rrule`` returns an iterator that can essentially be
+        unbounded, we need to slightly alter the expected behavior here in order
+        to enforce a finite number of occurrence creation.
+        
+        If both ``count`` and ``until`` entries are missing from ``rrule_params``,
+        only a single ``Occurrence`` instance will be created using the exact
+        ``start_time`` and ``end_time`` values.
+        '''
+        count = rrule_params.get('count')
+        until = rrule_params.get('until')
+        if not (count or until):
+            self.occurrence_set.create(start_time=start_time, end_time=end_time)
+        else:
+            rrule_params.setdefault('freq', rrule.DAILY)
+            delta = end_time - start_time
+            occurrences = []
+            for ev in rrule.rrule(dtstart=start_time, **rrule_params):
+                occurrences.append(Occurrence(start_time=ev, end_time=ev + delta, event=self))
+            self.occurrence_set.bulk_create(occurrences)
+
 
 class Occurrence(models.Model):
     event = models.ForeignKey(Event)

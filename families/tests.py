@@ -4,7 +4,7 @@ from django.utils import timezone
 
 # Create your tests here.
 
-from .models import Family, Member
+from models import Family, Member, Adult, Child
 
 class FamilyModelTests(TestCase):
     def setUp(self):

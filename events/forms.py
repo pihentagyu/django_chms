@@ -10,6 +10,7 @@ class EventForm(forms.ModelForm):
         fields = ('name', 'location', 'group', 'description', 'creator')
 
 class OccurrenceForm(forms.ModelForm):
+
     class Meta:
         model = models.Occurrence
         fields = ('begin_time', 'end_time')
