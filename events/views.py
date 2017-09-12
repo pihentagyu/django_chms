@@ -92,16 +92,18 @@ class EventDetailView(DeleteView):
     template_name = "events/event_detail.html"
 
 
-class EventCreateView(LoginRequiredMixin, CreateView):
+class OccurrenceInline(InlineFormSet):
+    fields = ('begin_time', 'end_time')
+    max_num = 1
+    model = models.Occurrence
+
+
+class EventCreateView(LoginRequiredMixin, CreateWithInlinesView):
+    model = models.Event
     fields = ('name', 'location', 'group', 'description', 'creator')
     template_name = 'events/event_form.html'
     success_url = reverse_lazy('events:event_list')
-    model = models.Event
-
-
-class OccurrenceInline(InlineFormSet):
-    fields = ('begin_time', 'end_time')
-    model = models.Occurrence
+    inlines = (OccurrenceInline,)
 
 
 #class EventUpdateView(LoginRequiredMixin, UpdateView):
