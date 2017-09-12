@@ -1,0 +1,28 @@
+{% extends 'events/layout.html' %}
+{% load event_extras %}
+{% load bootstrap3 %}
+
+{% load staticfiles %}
+
+{% block title %} {{ form.instance.name|default:"New Event" }} {{ block.super }} {% endblock %}
+{% block content %}
+<div>
+    <h1>{{ form.instance.name|default:"Enter a new Event" }}</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+       {{ form.media }}
+        {% for formset in inlines %}
+        		{% for subform in formset.forms %}
+            	<table>
+            		{% csrf_token %}            	
+            		{{ subform.as_table }}
+            		{{ subform.media }}
+            	</table>
+        		{% endfor %}
+         {% endfor %}     
+        <input type="submit" class="button" value="Save"><a href="{% url 'events:event_list' %}">Cancel</a>
+
+    </form>
+</div>
+{% endblock %}

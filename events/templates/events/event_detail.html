@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ event.name }}{% endblock %}
+{% block content %}
+<article>
+		<h2>{{ event.name }}</h2>
+
+        <ul style="list-style-type:none">
+        		{% if event.location %}
+        			<li>{{ event.location }}</li>
+        		{% endif %}
+        		{% if event.group %}
+        			<li>{{ event.group }}</li>
+        			{% endif %}
+        			<li>{{ event.description }}</li>
+								</ul>
+
+
+    {% if user.is_authenticated %}
+            <a href="{% url 'events:event_edit' pk=event.pk %}"
+                class="button">Edit Event</a>
+			<br>
+            <a href="{% url 'events:event_delete' pk=event.pk %}"
+                class="button">Delete Event</a>
+        <hr>
+    {% endif %}
+
+
+</article>	
+
+{% endblock %}
