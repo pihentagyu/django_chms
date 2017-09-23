@@ -1,31 +1,73 @@
 from django import forms
+from django.contrib.admin import widgets                                       
 
-from . import models
+from dateutil.rrule import *
+from django.conf import settings
+from .models import *
 
-class EventForm(forms.ModelForm):
-    
-    class Meta:
-        model = models.Event
-
-        fields = ('name', 'location', 'group', 'description', 'creator')
-
-class OccurrenceForm(forms.ModelForm):
-
-    class Meta:
-        model = models.Occurrence
-        fields = ('begin_time', 'end_time')
-
-class OccurrenceFormset = forms.modelformset_factory(
-        models.Occurrence,
-        form = OccurrenceForm,
-        extra=1,
+FREQ_CHOICES = (
+        (YEARLY, 'Yearly'),
+        (MONTHLY, 'Monthly'),
+        (WEEKLY, 'Weekly'),
+        (DAILY, 'Daily'),
         )
 
+EVENT_TYPE_CHOICES = (
+        ('S', 'Simple'),
+        ('M', 'Multiple Occurrence'),
+        ('R', 'Recurring Event'),
+        )
 
-class EventInlineFormset = forms.inlineformset_factory(
-        models.Occurrence,
-        models.Event,
-        fields = ('name', 'location', 'group', 'description', 'creator',)
-        formset=OccurrenceFormset,
-        max_num=2,
+WEEK_START = settings.WEEK_START_DAY
+
+class EventForm(forms.ModelForm):
+    #event_type = forms.ChoiceField(
+    #        choices=EVENT_TYPE_CHOICES, 
+    #        widget=forms.Select(attrs = {
+    #            'onchange' : 'refresh();',
+    #        }
+    #        ),
+    #    )
+    #def __init__(self, *args, **kwargs):
+    #    super(EventForm, self).__init__(*args, **kwargs)
+    #    self.fields['event_type'].widget = forms.Select(attrs = {'onchange' : "alert('foo');"}, ) 
+    class Meta:
+        model = Event
+        fields = ['name', 'location', 'group', 'event_type', 'description', 'creator']
+        widgets = {'event_type': forms.Select(attrs = {'onchange' : 'javascript:selectEvent()', }) }
+        initial = {'event_type': 'S'}
+        choices = {'event_type': EVENT_TYPE_CHOICES}
+#'javascript:handleClick(this);',
+
+class OccurrenceForm(forms.ModelForm):
+    class Meta:
+        model = Occurrence
+        fields = ('begin_time', 'end_time')
+    def __init__(self, *args, **kwargs):
+        super(OccurrenceForm, self).__init__(*args, **kwargs)
+        self.fields['begin_time'].widget = widgets.AdminSplitDateTime()
+        self.fields['end_time'].widget = widgets.AdminSplitDateTime()
+
+OccurrenceFormset = forms.inlineformset_factory(
+        Event, Occurrence,
+        form=OccurrenceForm,
+        extra=1,
      )
+
+class MultipleOccurrenceForm(forms.Form):
+    freq = forms.ChoiceField(
+        required=False,
+        #widget=forms.Select(attrs = {
+        #    'onchange' : 'javascript:handleClick(this);',
+        #    }
+        #    ),
+        choices=FREQ_CHOICES,
+        label='Frequency',
+    )
+    begin_time = forms.TimeField(widget=widgets.AdminTimeWidget)
+    end_time = forms.TimeField(widget=widgets.AdminTimeWidget)
+    start_day = forms.DateField(widget=widgets.AdminDateWidget)
+    end_day = forms.DateField(widget=widgets.AdminDateWidget)
+
+
+

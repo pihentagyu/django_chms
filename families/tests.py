@@ -9,16 +9,16 @@ from models import Family, Member, Adult, Child
 class FamilyModelTests(TestCase):
     def setUp(self):
         self.family = Family.objects.create(
-                family_name = 'Doepp',
-                address1 = '945 Polo Place',
+                family_name = 'Doe',
+                address1 = '239 Main Street',
                 city = 'Chattanooga',
                 state = 'TN',
                 postal_code = '37405',
                 )
         self.member = Member.objects.create(
                 family = self.family,
-                first_name = 'James',
-                last_name = 'Doepp',
+                first_name = 'John',
+                last_name = 'Doe',
                 gender = 'M',
                 )
 
@@ -31,8 +31,8 @@ class FamilyModelTests(TestCase):
 class FamilyViewsTests(TestCase):
     def setUp(self):
         self.family = Family.objects.create(
-                family_name = 'Doepp',
-                address1 = '945 Polo Place',
+                family_name = 'Doe',
+                address1 = '239 Main Street',
                 city = 'Chattanooga',
                 state = 'TN',
                 postal_code = '37405',

@@ -8,6 +8,8 @@ from django.shortcuts import render
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
 from extra_views import InlineFormSet, CreateWithInlinesView, UpdateWithInlinesView
 from extra_views.generic import GenericInlineFormSet
+
+from . import forms
 from . import models
 
 # Create your views here.
@@ -98,12 +100,36 @@ class OccurrenceInline(InlineFormSet):
     model = models.Occurrence
 
 
-class EventCreateView(LoginRequiredMixin, CreateWithInlinesView):
-    model = models.Event
-    fields = ('name', 'location', 'group', 'description', 'creator')
+#class EventCreateView(LoginRequiredMixin, CreateWithInlinesView):
+class EventCreateView(LoginRequiredMixin, CreateView):
+    #model = models.Event
+    #fields = ('name', 'location', 'group', 'event_type', 'description', 'creator')
+    form_class = forms.EventForm
+ 
     template_name = 'events/event_form.html'
     success_url = reverse_lazy('events:event_list')
-    inlines = (OccurrenceInline,)
+    #inlines = (OccurrenceInline,)
+
+    def get_context_data(self, **kwargs):
+        context = super(EventCreateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            context['occurrences'] = forms.OccurrenceFormset(self.request.POST)
+            context['m_occurrences'] = forms.MultipleOccurrenceForm(self.request.POST)
+        else:
+            context['occurrences'] = forms.OccurrenceFormset()
+            context['m_occurrences'] = forms.MultipleOccurrenceForm()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        occurrences = context['occurrences']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if occurrences.is_valid():
+                occurrences.instance = self.object
+                occurrences.save()
+        return super(EventCreateView, self).form_valid(form)    
 
 
 #class EventUpdateView(LoginRequiredMixin, UpdateView):

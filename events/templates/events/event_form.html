@@ -11,18 +11,134 @@
     <form method="POST" action="">
         {% csrf_token %}
         {{ form.as_p }}
-       {{ form.media }}
-        {% for formset in inlines %}
-        		{% for subform in formset.forms %}
-            	<table>
-            		{% csrf_token %}            	
-            		{{ subform.as_table }}
-            		{{ subform.media }}
-            	</table>
-        		{% endfor %}
-         {% endfor %}     
-        <input type="submit" class="button" value="Save"><a href="{% url 'events:event_list' %}">Cancel</a>
+        <div id="Simple">
+            {% for form in occurrences.forms %}
+                {% csrf_token %}
+                {{ form.as_p }}
+            {% endfor %}
+        </div>
+        <div id="Multiple">
+            <table class="table">
+                {{ occurrences.management_form }}
 
-    </form>
+                {% for form in occurrences.forms %}
+                    {% if forloop.first %}
+                        <thead>
+                        <tr>
+                            {% for field in form.visible_fields %}
+                                <th>{{ field.label|capfirst }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                    {% endif %}
+                    <tr class="{% cycle row1 row2 %} formset_row">
+                        {% for field in form.visible_fields %}
+                            <td>
+                                {# Include the hidden fields in the form #}
+                                {% if forloop.first %}
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                {% endif %}
+                                <ul style="list-style:none">
+                                {{ field.errors.as_ul }}
+                                </ul>
+                                {{ field }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+            <input type="submit" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
+        </div>
+        
+        </form>
+{% if form.instance.event_type %}
+      {{form.instance.event_type}}
+{% else %}
+      {{form.data.event_type}}
+{% endif %}
+    </div>
+    <br>
+        <div id="Recurring" style="display:none;">
+            <table>
+                <tr><td>{% csrf_token %}</td></tr>
+        <tr id="test"><td>{{ m_occurrences.freq }}</td></tr>
+        <tr><td>{{ m_occurrences.begin_time }}</td></tr>
+        <tr><td>{{ m_occurrences.end_time }}</td></tr>
+        <tr></tr>
+        <tr><td>{{ m_occurrences.begin_date }}</td></tr>
+        <tr id="showOnClick"><td>{{ m_occurrences.end_date }}</td></tr>
+
+            </table>
+        <label for="cb"><input id="cb" type="checkbox" onclick="handleClick(this);">No End Date</label>
+        <p>
+        </p>
 </div>
-{% endblock %}
+    <script src="{% static 'js/jquery.formset.js' %}"></script>
+    <script src="{% static 'js/handle.click.js' %}"></script>
+    <script type="text/javascript" src="/my_admin/jsi18n/"></script>
+    <script type="text/javascript" src="/media/admin/js/core.js"></script>
+    <script type="text/javascript">
+        $('.formset_row').formset({
+            addText: 'Add occurrence',
+            deleteText: 'Remove',
+            prefix: 'occurrence_set'
+        });
+    </script>
+    <script>
+        ${document}.getElementById("id_event_type").onchange = function() {myFunction()};
+
+        function myFunction() {
+            ${alert}("foobar")
+        }
+    </script>
+
+    <link rel="stylesheet" type="text/css" 
+        href="{% static 'admin/css/forms.css' %} "/>
+    <link rel="stylesheet" type="text/css" 
+        href="{% static 'admin/css/base.css' %} "/>
+    <link rel="stylesheet" type="text/css" 
+        href="{% static 'admin/css/global.css' %}"/>
+    <link rel="stylesheet" type="text/css" 
+        href="{% static 'admin/css/widgets.css' %}"/>
+    
+    <script type="text/javascript">
+    function selectEvent() {
+    var eventVal=document.getElementById("id_event_type").value;  
+
+    if (eventVal == "S"){
+    $('#Simple').show();
+    $('#Multiple').hide();
+    $('#Recurring').hide();
+    } else if (eventVal == "M"){
+        $('#Simple').hide();
+        $('#Multiple').show();
+        $('#Recurring').hide();
+    } else
+        {
+        $('#Simple').hide();
+        $('#Multiple').hide();
+        $('#Recurring').show();
+    
+    }
+    }
+         </script>
+
+    <script type="text/javascript" 
+        src="/admin/jsi18n/"></script>
+    <script type="text/javascript" 
+        src="{% static 'admin/js/core.js' %}"></script>
+    <script type="text/javascript" 
+        src="{% static 'admin/js/admin/RelatedObjectLookups.js' %}"></script>
+    <script type="text/javascript" 
+        src="{% static 'admin/js/jquery.js' %}"></script>
+    <script type="text/javascript" 
+        src="{% static 'admin/js/jquery.init.js' %}"></script>
+    <script type="text/javascript" 
+        src="{% static 'admin/js/actions.js' %}"></script>
+    <script type="text/javascript" 
+        src="{% static 'admin/js/calendar.js' %}"></script>
+    <script type="text/javascript" 
+        src="{% static 'admin/js/admin/DateTimeShortcuts.js' %}"></script>
+    {% endblock %}

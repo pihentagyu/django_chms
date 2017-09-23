@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from dateutil.rrule import *
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -6,6 +7,12 @@ from families.models import Member
 from groups.models import Group
 
 # Create your models here.
+EVENT_TYPE_CHOICES = (
+        ('S', 'Simple'),
+        ('M', 'Multiple Occurrence'),
+        ('R', 'Recurring Event'),
+        )
+
 
 class Location(models.Model):
     name = models.CharField(max_length=35)
@@ -14,6 +21,7 @@ class Location(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length=35)
+    event_type = models.CharField(choices=EVENT_TYPE_CHOICES, max_length=1)
     description = models.CharField(blank=True, null=True, max_length=255)
     creator = models.ForeignKey(Member)
     group = models.ForeignKey(Group, blank=True, null=True)
