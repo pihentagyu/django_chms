@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'n4vqg2&4gvtm6n**4&nn$*f1&2g_^m5ornve6+p64oet%z33q='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
 
 ALLOWED_HOSTS = ['django-chms.herokuapp.com', 'localhost']
 
@@ -149,9 +149,9 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda x: True
-        }
+#DEBUG_TOOLBAR_CONFIG = {
+#        'SHOW_TOOLBAR_CALLBACK': lambda x: True
+#        }
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
