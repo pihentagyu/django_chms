@@ -4,6 +4,7 @@ from django.contrib.admin import widgets
 from dateutil.rrule import *
 from django.conf import settings
 from .models import *
+import pytz
 
 FREQ_CHOICES = (
         (YEARLY, 'Yearly'),
@@ -43,8 +44,16 @@ class OccurrenceForm(forms.ModelForm):
     class Meta:
         model = Occurrence
         fields = ('begin_time', 'end_time')
+        #initial = {'begin_time': begin_time, 'end_time': end_time}
     def __init__(self, *args, **kwargs):
+        self.begin_time = kwargs.pop('begin_time', None)
+        self.end_time = kwargs.pop('end_time', None)
         super(OccurrenceForm, self).__init__(*args, **kwargs)
+        if self.begin_time:
+            self.fields['begin_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.begin_time)
+        if self.end_time:
+            self.fields['end_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.end_time)
+
         self.fields['begin_time'].widget = widgets.AdminSplitDateTime()
         self.fields['end_time'].widget = widgets.AdminSplitDateTime()
 

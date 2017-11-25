@@ -8,6 +8,7 @@
 {% block content %}
 <div>
     <h1>{{ form.instance.name|default:"Enter a new Event" }}</h1>
+
     <form method="POST" action="">
         {% csrf_token %}
         {{ form.as_p }}
