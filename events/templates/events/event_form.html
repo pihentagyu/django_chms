@@ -6,18 +6,19 @@
 
 {% block title %} {{ form.instance.name|default:"New Event" }} {{ block.super }} {% endblock %}
 {% block content %}
+{% if form.instance.event_type %}
+      {{form.instance.event_type}}
+{% else %}
+      {{form.data.event_type}}
+{% endif %}
 <div>
     <h1>{{ form.instance.name|default:"Enter a new Event" }}</h1>
 
     <form method="POST" action="">
         {% csrf_token %}
         {{ form.as_p }}
-        <div id="Simple">
-            {% for form in occurrences.forms %}
-                {% csrf_token %}
-                {{ form.as_p }}
-            {% endfor %}
-        </div>
+
+        
         <div id="Multiple">
             <table class="table">
                 {{ occurrences.management_form }}
@@ -47,35 +48,48 @@
                                 {{ field }}
                             </td>
                         {% endfor %}
+                       <td>
+        				<input type="checkbox" value="All Day Event"/>
+					</td>
                     </tr>
                 {% endfor %}
+                
             </table>
             <input type="submit" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
         </div>
         
         </form>
-{% if form.instance.event_type %}
-      {{form.instance.event_type}}
-{% else %}
-      {{form.data.event_type}}
-{% endif %}
+
     </div>
     <br>
         <div id="Recurring" style="display:none;">
             <table>
-                <tr><td>{% csrf_token %}</td></tr>
-        <tr id="test"><td>{{ m_occurrences.freq }}</td></tr>
-        <tr><td>{{ m_occurrences.begin_time }}</td></tr>
-        <tr><td>{{ m_occurrences.end_time }}</td></tr>
-        <tr></tr>
-        <tr><td>{{ m_occurrences.begin_date }}</td></tr>
-        <tr id="showOnClick"><td>{{ m_occurrences.end_date }}</td></tr>
+            	<th>Recurring Event</th>
+            	<tr><td>{% csrf_token %}</td></tr>
+        			<tr id="test"><td>{{ recurring_events.freq }}</td>
+
+        			</tr>
+					<tr>
+						<td>Begin Date: {{ recurring_events.begin_date }}</td>
+						<td id="hideOnClick">End Date: {{ recurring_events.end_date }}</td>        								
+					</tr>
+					<tr>
+					<td></td>
+               <td>
+        				<label for="cb"><input id="cb" type="checkbox" onclick="handleClick(this);"/>No End Date</label>
+					</td>
+		        	</tr>
+ 					<tr><td>{{ recurring_events.begin_time }}</td></tr>
+        			<tr><td>{{ recurring_events.end_time }}</td></tr>
+        			<tr></tr>
+
+
 
             </table>
-        <label for="cb"><input id="cb" type="checkbox" onclick="handleClick(this);">No End Date</label>
+
         <p>
         </p>
-</div>
+		</div>
     <script src="{% static 'js/jquery.formset.js' %}"></script>
     <script src="{% static 'js/handle.click.js' %}"></script>
     <script type="text/javascript" src="/my_admin/jsi18n/"></script>
@@ -108,19 +122,14 @@
     function selectEvent() {
     var eventVal=document.getElementById("id_event_type").value;  
 
-    if (eventVal == "S"){
-    $('#Simple').show();
+    if (eventVal == "R"){
     $('#Multiple').hide();
-    $('#Recurring').hide();
-    } else if (eventVal == "M"){
-        $('#Simple').hide();
-        $('#Multiple').show();
-        $('#Recurring').hide();
+    $('#Recurring').show();
+
     } else
         {
-        $('#Simple').hide();
-        $('#Multiple').hide();
-        $('#Recurring').show();
+        $('#Multiple').show();
+        $('#Recurring').hide();
     
     }
     }

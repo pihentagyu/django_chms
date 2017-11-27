@@ -9,7 +9,6 @@ from groups.models import Group
 # Create your models here.
 EVENT_TYPE_CHOICES = (
         ('S', 'Simple'),
-        ('M', 'Multiple Occurrence'),
         ('R', 'Recurring Event'),
         )
 
@@ -64,15 +63,36 @@ class Event(models.Model):
                 occurrences.append(Occurrence(start_time=ev, end_time=ev + delta, event=self))
             self.occurrence_set.bulk_create(occurrences)
 
+    def get_occurrences(self, start_time, end_time, **kwargs):
+        occurrence_type = kwargs.pop('type', None)
+        if occurrence_type == 'recurring':
+            '''get recurring only'''
+            return 'recurring'
+        elif occurrence_type == 'simple':
+            '''get simple occurrences only'''
+            return 'simple'
+        else:
+            return 'all'
+
+        pass
+
+
+
 
 class Occurrence(models.Model):
     event = models.ForeignKey(Event)
     begin_time = models.DateTimeField()
     end_time = models.DateTimeField()
+    all_day = models.BooleanField()
 
     def get_duration(self):
         from events.templatetags.event_extras import duration_calc
         return duration_calc(self.begin_time, self.end_time)
+
+    def set_all_day_times(self):
+        if self.all_day == True:
+            self.begin_time = datetime.combine(begin_time, datetime.min.time())
+            self.end_time = datetime.combine(end_time, datetime.max.time())
 
 
 #class AllDayEvent(Event):

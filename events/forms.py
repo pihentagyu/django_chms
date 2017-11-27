@@ -15,7 +15,6 @@ FREQ_CHOICES = (
 
 EVENT_TYPE_CHOICES = (
         ('S', 'Simple'),
-        ('M', 'Multiple Occurrence'),
         ('R', 'Recurring Event'),
         )
 
@@ -36,8 +35,12 @@ class EventForm(forms.ModelForm):
         model = Event
         fields = ['name', 'location', 'group', 'event_type', 'description', 'creator']
         widgets = {'event_type': forms.Select(attrs = {'onchange' : 'javascript:selectEvent()', }) }
-        initial = {'event_type': 'S'}
+        #initial = {'event_type': 'S'}
         choices = {'event_type': EVENT_TYPE_CHOICES}
+    def __init__(self, *args, **kwargs):
+        super(EventForm, self).__init__(*args, **kwargs)
+        self.fields['event_type'].initial = 'S'
+
 #'javascript:handleClick(this);',
 
 class OccurrenceForm(forms.ModelForm):
@@ -63,7 +66,7 @@ OccurrenceFormset = forms.inlineformset_factory(
         extra=1,
      )
 
-class MultipleOccurrenceForm(forms.Form):
+class RecurringEventForm(forms.Form):
     freq = forms.ChoiceField(
         required=False,
         #widget=forms.Select(attrs = {
@@ -75,8 +78,8 @@ class MultipleOccurrenceForm(forms.Form):
     )
     begin_time = forms.TimeField(widget=widgets.AdminTimeWidget)
     end_time = forms.TimeField(widget=widgets.AdminTimeWidget)
-    start_day = forms.DateField(widget=widgets.AdminDateWidget)
-    end_day = forms.DateField(widget=widgets.AdminDateWidget)
+    begin_date = forms.DateField(widget=widgets.AdminDateWidget)
+    end_date = forms.DateField(widget=widgets.AdminDateWidget)
 
 
 
