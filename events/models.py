@@ -18,6 +18,7 @@ class Location(models.Model):
     building = models.CharField(max_length=35)
     description = models.CharField(blank=True, null=True, max_length=255)
 
+
 class Event(models.Model):
     name = models.CharField(max_length=35)
     event_type = models.CharField(choices=EVENT_TYPE_CHOICES, max_length=1)
