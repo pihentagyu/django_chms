@@ -20,12 +20,13 @@ gunicorn==19.7.1
 markdown2==2.3.3
 pilkit==2.0
 Pillow==2.6.1
+pkg-resources==0.0.0
 progressbar2==3.30.2
 psycopg2==2.7.3.1
 pypandoc==1.4
+python-dateutil==2.6.1
 python-utils==2.2.0
 pytz==2017.2
 six==1.10.0
 sqlparse==0.2.3
 Unidecode==0.4.21
-virtualenv==15.1.0
