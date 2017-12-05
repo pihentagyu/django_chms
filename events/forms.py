@@ -46,18 +46,18 @@ class EventForm(forms.ModelForm):
 class OccurrenceForm(forms.ModelForm):
     class Meta:
         model = Occurrence
-        fields = ('begin_time', 'end_time')
-        #initial = {'begin_time': begin_time, 'end_time': end_time}
+        fields = ('start_time', 'end_time')
+        #initial = {'start_time': start_time, 'end_time': end_time}
     def __init__(self, *args, **kwargs):
-        self.begin_time = kwargs.pop('begin_time', None)
+        self.start_time = kwargs.pop('start_time', None)
         self.end_time = kwargs.pop('end_time', None)
         super(OccurrenceForm, self).__init__(*args, **kwargs)
-        if self.begin_time:
-            self.fields['begin_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.begin_time)
+        if self.start_time:
+            self.fields['start_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.start_time)
         if self.end_time:
             self.fields['end_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.end_time)
 
-        self.fields['begin_time'].widget = widgets.AdminSplitDateTime()
+        self.fields['start_time'].widget = widgets.AdminSplitDateTime()
         self.fields['end_time'].widget = widgets.AdminSplitDateTime()
 
 OccurrenceFormset = forms.inlineformset_factory(
@@ -76,7 +76,7 @@ class RecurringEventForm(forms.Form):
         choices=FREQ_CHOICES,
         label='Frequency',
     )
-    begin_time = forms.TimeField(widget=widgets.AdminTimeWidget)
+    start_time = forms.TimeField(widget=widgets.AdminTimeWidget)
     end_time = forms.TimeField(widget=widgets.AdminTimeWidget)
     begin_date = forms.DateField(widget=widgets.AdminDateWidget)
     end_date = forms.DateField(widget=widgets.AdminDateWidget)

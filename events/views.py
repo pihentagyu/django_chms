@@ -18,7 +18,7 @@ class EventListView(PrefetchRelatedMixin, ListView):
     model = models.Occurrence
     template_name = 'events/event_list.html'
     context_object_name = 'events'
-    ordering = ['begin_time']
+    ordering = ['start_time']
     paginate_by = 10
 
     def get_context_data(self):
@@ -27,7 +27,7 @@ class EventListView(PrefetchRelatedMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.model.objects.filter(begin_time__date__gte=datetime.today())
+        return self.model.objects.filter(start_time__date__gte=datetime.today())
 
 
 class EventYearlyListView(ListView):
@@ -84,9 +84,9 @@ class EventDailyListView(ListView):
         ## 1. that begin on that day
         ## 2. that end on the day
         ## 3. (to do) that begin before and end after that day
-        return self.model.objects.filter(Q(begin_time__year=self.kwargs['year'],
-            begin_time__month=self.kwargs['month'], 
-            begin_time__day=self.kwargs['day'])
+        return self.model.objects.filter(Q(start_time__year=self.kwargs['year'],
+            start_time__month=self.kwargs['month'], 
+            start_time__day=self.kwargs['day'])
             |(Q(end_time__year=self.kwargs['year'],
             end_time__month=self.kwargs['month'], 
             end_time__day=self.kwargs['day']))
@@ -99,7 +99,7 @@ class EventDetailView(DeleteView):
 
 
 class OccurrenceInline(InlineFormSet):
-    fields = ('begin_time', 'end_time')
+    fields = ('start_time', 'end_time')
     max_num = 1
     model = models.Occurrence
 
@@ -116,20 +116,20 @@ class EventCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(EventCreateView, self).get_context_data(**kwargs)
-        self.begin_time = self.kwargs.pop('begin_time', 'none')
+        self.start_time = self.kwargs.pop('start_time', 'none')
         self.end_time = self.kwargs.pop('end_time', 'none')
-        if self.begin_time:
-            self.begin_time = datetime.strptime(self.begin_time, '%Y%m%d%H%M')
+        if self.start_time:
+            self.start_time = datetime.strptime(self.start_time, '%Y%m%d%H%M')
         if self.end_time:
             self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
-        context['begin_time'] = self.begin_time
+        context['start_time'] = self.start_time
         context['end_time'] = self.end_time
         if self.request.POST:
             context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
-                    form_kwargs={'begin_time': self.begin_time, 'end_time': self.end_time})
+                    form_kwargs={'start_time': self.start_time, 'end_time': self.end_time})
             context['recurring_events'] = forms.RecurringEventForm(self.request.POST)
         else:
-            context['occurrences'] = forms.OccurrenceFormset(form_kwargs={'begin_time': self.begin_time,
+            context['occurrences'] = forms.OccurrenceFormset(form_kwargs={'start_time': self.start_time,
                 'end_time': self.end_time})
             context['recurring_events'] = forms.RecurringEventForm()
         return context

@@ -11,7 +11,7 @@ class LocationModelTests(TestCase):
         self.location = Location.objects.create(
                 name = 'Room 101',
                 building = 'Main building',
-                self.description = 'No description necessary'
+                description = 'No description necessary'
                 )
         self.location.save()
 
