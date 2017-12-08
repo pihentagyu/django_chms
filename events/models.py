@@ -19,6 +19,11 @@ class Location(models.Model):
     building = models.CharField(max_length=35)
     description = models.CharField(blank=True, null=True, max_length=255)
 
+class EventManager(models.Manager):
+    def create_event(self, name, event_type, description, creator, group, location): #, start_time, end_time, event_type, **kwargs):
+        event = self.create(name=name, event_type=event_type, description=description, creator=creator, group=group, location=location)
+    #def add_event_occurrences(start
+    #    occurrences = self.add_occurrences(start_time, end_time, **kwargs)
 
 class Event(models.Model):
     name = models.CharField(max_length=35)
@@ -38,7 +43,6 @@ class Event(models.Model):
 
     ## From django-swingtime
     def add_occurrences(self, start_time, end_time, event_type, **kwargs):
-
 
         '''
         Add one or more occurences to the event using a comparable API to 

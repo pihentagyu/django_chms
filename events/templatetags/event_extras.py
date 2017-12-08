@@ -242,7 +242,7 @@ class EventCalendar:
             delta = timedelta(minutes=60)
         for from_time in self.time_iterator(self.year, self.month, self.day, settings.DEFAULT_DAY_BEGIN, settings.DEFAULT_DAY_END, delta):
             body.append('<tr>')
-            body.append('<td><a href="{}">{}</a></td>'.format(reverse('events:event_create', kwargs={'begin_time':from_time.strftime('%Y%m%d%H%M'), 'end_time':(from_time + delta).strftime('%Y%m%d%H%M')}), from_time.strftime(settings.TIME_FORMAT)))
+            body.append('<td><a href="{}">{}</a></td>'.format(reverse('events:event_create', kwargs={'start_time':from_time.strftime('%Y%m%d%H%M'), 'end_time':(from_time + delta).strftime('%Y%m%d%H%M')}), from_time.strftime(settings.TIME_FORMAT)))
             if self.event_list:
                 for event, duration in self.get_time_events(from_time, delta):
                     row_height = math.ceil(duration/(delta.seconds/60))

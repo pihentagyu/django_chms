@@ -3,6 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
+from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
@@ -106,7 +107,7 @@ class OccurrenceInline(InlineFormSet):
 
 #class EventCreateView(LoginRequiredMixin, CreateWithInlinesView):
 class EventCreateView(LoginRequiredMixin, CreateView):
-    #model = models.Event
+    model = models.Event
     #fields = ('name', 'location', 'group', 'event_type', 'description', 'creator')
     form_class = forms.EventForm
  
@@ -116,14 +117,12 @@ class EventCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(EventCreateView, self).get_context_data(**kwargs)
-        self.start_time = self.kwargs.pop('start_time', 'none')
-        self.end_time = self.kwargs.pop('end_time', 'none')
+        self.start_time = self.kwargs.get('start_time', 'none')
+        self.end_time = self.kwargs.get('end_time', 'none')
         if self.start_time:
             self.start_time = datetime.strptime(self.start_time, '%Y%m%d%H%M')
         if self.end_time:
             self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
-        context['start_time'] = self.start_time
-        context['end_time'] = self.end_time
         if self.request.POST:
             context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
                     form_kwargs={'start_time': self.start_time, 'end_time': self.end_time})
@@ -134,15 +133,27 @@ class EventCreateView(LoginRequiredMixin, CreateView):
             context['recurring_events'] = forms.RecurringEventForm()
         return context
 
+    #def get_initial(self):
+    #    initial = super().get_initial()
+    #    initial['start_time'] = self.start_time
+    #    initial['end_time'] = self.end_time
+    #    return initial
+
     def form_valid(self, form):
         context = self.get_context_data()
-        occurrences = context['occurrences']
+        occurrences = context.get('occurrences')
+        print(occurrences)
         with transaction.atomic():
             self.object = form.save()
-
             if occurrences.is_valid():
-                occurrences.instance = self.object
                 occurrences.save()
+            #for occurrence in context['occurrences']:
+            #    self.model.add_occurrences(occurrence['start_time'], occurrence['end_time'])
+            # if occurrences.is_valid():
+
+            #     #occurrences.instance = self.object
+            #     #occurrences.save()
+            #     for
         return super(EventCreateView, self).form_valid(form)    
 
 
