@@ -3,7 +3,7 @@
 # "event_tags.py" in a subdirectory of your app called "templatetags".
 #####
 import calendar
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
@@ -18,10 +18,10 @@ import pytz
 register = template.Library()
 
 @register.filter('duration_calc')
-def duration_calc(begin_time, end_time):
+def duration_calc(start_time, end_time):
     '''Get duration in minutes from event begin and end times'''
-    if begin_time and end_time:
-        delta = end_time - begin_time
+    if start_time and end_time:
+        delta = end_time - start_time
         return delta.seconds/60
 
 def do_monthly_calendar(parser, token):
@@ -29,6 +29,7 @@ def do_monthly_calendar(parser, token):
     The template tag's syntax is {% monthly_calendar year month event_list %}
     """
 
+    event_list = None
     try:
         tag_name, year, month, event_list = token.split_contents()
     except ValueError:
@@ -36,7 +37,7 @@ def do_monthly_calendar(parser, token):
             tag_name, year, month = token.split_contents()
         except ValueError:
             raise template.TemplateSyntaxError("%r tag requires two arguments" % token.contents.split()[0])
-    return EventCalendarNode('monthly', year, month=month)
+    return EventCalendarNode('monthly', year, month=month, event_list=event_list)
 
 def do_daily_calendar(parser, token):
     """
@@ -188,18 +189,24 @@ class EventCalendar:
         self.year = year
         self.month = kwargs.get('month')
         self.day = kwargs.get('day')
-        self.from_time = kwargs.get('from_time')
-        self.to_time = kwargs.get('to_time')
+        self.from_time = self.localize_time(kwargs.get('from_time'))
+        self.to_time = self.localize_time(kwargs.get('to_time'))
         self.delta = kwargs.get('delta')
         self.week = kwargs.get('week')
         self.event_list = kwargs.get('event_list')
 
+    def localize_time(self, dtime):
+        if dtime:
+            timezone = pytz.timezone(settings.TIME_ZONE)
+            return timezone.localize(dtime)
+        else:
+            return None
+
     def time_iterator(self, year, month, day, from_time='8:00', to_time='21:00', delta=30):
-        timezone = pytz.timezone(settings.TIME_ZONE)
         from_hour, from_minute = from_time.split(':')
         to_hour, to_minute = to_time.split(':')
-        from_time = timezone.localize(datetime(year, month, day, int(from_hour), int(from_minute)))
-        to_time = timezone.localize(datetime(year, month, day, int(to_hour), int(to_minute)))
+        from_time = datetime(year, month, day, int(from_hour), int(from_minute))
+        to_time = datetime(year, month, day, int(to_hour), int(to_minute))
         while to_time is None or from_time <= to_time:
         	yield from_time
         	from_time = from_time + delta
@@ -216,8 +223,15 @@ class EventCalendar:
         for week in cal.monthdatescalendar(self.year, self.month):
             body.append('<tr class="cal">')
             for day in week:
-                body.append('<td class="cal"><a href="{}">{}</a></td>'.format(reverse('events:event_daily', kwargs={'day':str(day.day).zfill(2), 'month':str(self.month).zfill(2), 'year':self.year}), day.day))
-        #return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
+                body.append('<td class="cal">')
+                body.append('<a href="{}">{}</a>'.format(reverse('events:event_daily', kwargs={'day':str(day.day).zfill(2), 'month':str(day.month).zfill(2), 'year':day.year}), day.day))
+                if self.event_list:
+                    body.append('<table>')
+                    for event, _ in self.get_time_events(self.localize_time(datetime.combine(day, time.min)), timedelta(days=1)):
+                        body.append('<tr><td>{}</td></tr>'.format(event.event.name))
+                    body.append('</table>')
+                body.append('</td>')
+            #return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
             body.append('</tr>')
         body.append('</table>')
         body.append('</div>')
@@ -254,7 +268,7 @@ class EventCalendar:
         return html_body
 
     def get_time_events(self, time, delta):
-        return [[event, event.get_duration()] for event in self.event_list if event.begin_time >= time and event.begin_time < time + delta]
+        return [[event, event.get_duration()] for event in self.event_list if event.start_time >= time and event.start_time < time + delta]
         
     
 '''

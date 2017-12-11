@@ -52,6 +52,15 @@ class EventMonthlyListView(ListView):
         context['calmonth'] = self.kwargs['month']
         return context
 
+    def get_queryset(self):
+        # Queries the events in the Occurrence table that fall on the given month
+        return self.model.objects.filter(Q(start_time__year=self.kwargs['year'],
+            start_time__month=self.kwargs['month'])
+            |(Q(end_time__year=self.kwargs['year'],
+            end_time__month=self.kwargs['month'])
+            )
+            )
+
 
 class EventWeeklyListView(ListView):
     model = models.Occurrence

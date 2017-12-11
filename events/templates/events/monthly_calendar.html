@@ -15,8 +15,8 @@
 <p> year {{ calyear }}</p>
 <p>month {{ calmonth }}</p>
 <div id="calendar">
-	{% if events.event_list %}
-    	{% monthly_calendar calyear calmonth events.event_list %}
+	{% if events %}
+    	{% monthly_calendar calyear calmonth events %}
    {% else %} 
    	 {% monthly_calendar calyear calmonth %}
    {% endif %}
