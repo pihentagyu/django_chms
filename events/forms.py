@@ -46,19 +46,25 @@ class EventForm(forms.ModelForm):
 class OccurrenceForm(forms.ModelForm):
     class Meta:
         model = Occurrence
-        fields = ('start_time', 'end_time')
+        fields = ('start_time', 'end_time', 'all_day')
         #initial = {'start_time': start_time, 'end_time': end_time}
     def __init__(self, *args, **kwargs):
         self.start_time = kwargs.pop('start_time', None)
         self.end_time = kwargs.pop('end_time', None)
+
+        if self.start_time:
+            self.start_time = datetime.strptime(self.start_time, '%Y%m%d%H%M')
+        if self.end_time:
+            self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
         super(OccurrenceForm, self).__init__(*args, **kwargs)
         if self.start_time:
             self.fields['start_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.start_time)
         if self.end_time:
             self.fields['end_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.end_time)
+        self.fields['start_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
+        self.fields['end_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
+        self.fields['all_day'].initial = False 
 
-        self.fields['start_time'].widget = widgets.AdminSplitDateTime()
-        self.fields['end_time'].widget = widgets.AdminSplitDateTime()
 
 OccurrenceFormset = forms.inlineformset_factory(
         Event, Occurrence,
@@ -78,8 +84,16 @@ class RecurringEventForm(forms.Form):
     )
     start_time = forms.TimeField(widget=widgets.AdminTimeWidget)
     end_time = forms.TimeField(widget=widgets.AdminTimeWidget)
-    begin_date = forms.DateField(widget=widgets.AdminDateWidget)
-    end_date = forms.DateField(widget=widgets.AdminDateWidget)
+    dtstart = forms.DateField(widget=widgets.AdminDateWidget)
+    until = forms.DateField(widget=widgets.AdminDateWidget)
+
+    def add_occurrences(self):
+        start_time = self.fields['start_time']
+        end_time = self.fields['end_time']
+        freq = self.fields['freq']
+        print('from recurrent event form'.format(start_time, end_time, freq))
+        Event.add_occurrences(self.fields['start_time'], self.fields['end_time'], freq=self.fields['freq'], 
+                dtstart=self.fields['begin_date'], until=self.fields['end_date'])
 
 
 

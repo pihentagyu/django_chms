@@ -105,59 +105,63 @@ class OccurrenceInline(InlineFormSet):
     model = models.Occurrence
 
 
-#class EventCreateView(LoginRequiredMixin, CreateWithInlinesView):
 class EventCreateView(LoginRequiredMixin, CreateView):
     model = models.Event
-    #fields = ('name', 'location', 'group', 'event_type', 'description', 'creator')
     form_class = forms.EventForm
  
     template_name = 'events/event_form.html'
     success_url = reverse_lazy('events:event_list')
-    #inlines = (OccurrenceInline,)
 
     def get_context_data(self, **kwargs):
         context = super(EventCreateView, self).get_context_data(**kwargs)
         self.start_time = self.kwargs.get('start_time', 'none')
         self.end_time = self.kwargs.get('end_time', 'none')
-        if self.start_time:
-            self.start_time = datetime.strptime(self.start_time, '%Y%m%d%H%M')
-        if self.end_time:
-            self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
         if self.request.POST:
+            #context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
             context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
                     form_kwargs={'start_time': self.start_time, 'end_time': self.end_time})
             context['recurring_events'] = forms.RecurringEventForm(self.request.POST)
         else:
             context['occurrences'] = forms.OccurrenceFormset(form_kwargs={'start_time': self.start_time,
-                'end_time': self.end_time})
+                 'end_time': self.end_time})
             context['recurring_events'] = forms.RecurringEventForm()
         return context
-
-    #def get_initial(self):
-    #    initial = super().get_initial()
-    #    initial['start_time'] = self.start_time
-    #    initial['end_time'] = self.end_time
-    #    return initial
 
     def form_valid(self, form):
         context = self.get_context_data()
         occurrences = context.get('occurrences')
-        print(occurrences)
+        recurring_events = context.get('recurring_events')
+        print('frequency from views {}'.format(recurring_events.fields['freq']))
+        print('event type: {}'.format(form.fields['event_type']))
+        print('fields: {}'.format(form.cleaned_data))
+        print('recurr fields: {}'.format(recurring_events.fields))
+        #print(recurring_events)
         with transaction.atomic():
+            #    #form.instance.created_by = self.request.user
+            #    #form.instance.updated_by = self.request.user
+            #    self.object = form.save()
+            #print(occurrences)
             self.object = form.save()
-            if occurrences.is_valid():
-                occurrences.save()
-            #for occurrence in context['occurrences']:
-            #    self.model.add_occurrences(occurrence['start_time'], occurrence['end_time'])
-            # if occurrences.is_valid():
+            #if occurrences.is_valid():
+            #    occurrences.instance = self.object
+            #    occurrences.save()
+            if recurring_events.is_valid():
+            #recurring_events.instance = self.object
+            #forms.RecurringEventForm().add_occurrences()
+                #recurring_events.instance = self.object
+                print(recurring_events.cleaned_data)
+                self.object.add_occurrences(**recurring_events.cleaned_data)
 
-            #     #occurrences.instance = self.object
-            #     #occurrences.save()
-            #     for
-        return super(EventCreateView, self).form_valid(form)    
 
+            else:
+                print('errors:')
+                for error in recurring_events.errors:
+                    print(error)
+            #    #context.update({'occurrences': occurrences})
+            #    #print('{} not valid'.format(occurrences))
 
-#class EventUpdateView(LoginRequiredMixin, UpdateView):
+        return super(EventCreateView, self).form_valid(form)
+
 class EventUpdateView(LoginRequiredMixin, UpdateWithInlinesView):
     model = models.Event
     template_name = 'events/event_form.html'

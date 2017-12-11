@@ -18,11 +18,17 @@
 	    <a href="{% url 'events:event_create' %}">New Event</a>
     </div>
     <table class="fam_list">
+        <tr>
+            <td>Time</td>
+            <td>Duration</td>
+            <td>Event Name</td>
+            <td>Event Group</td>
         {% for event in events %}
 	        <tr>
-            <th>{{ event.begin_time }}</th>
-            <td>{{ event.duration }}</td>
+            <td>{{ event.start_time }}</td>
+            <td>{{ event.get_duration }}</td>
             <td><a href="{% url 'events:event_detail' pk=event.event.pk %}">{{ event.event.name }}</a></td>
+            <td>{{ event.event.group }}</td>
 	 </tr>
     {% endfor %}
     </table>

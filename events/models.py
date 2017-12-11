@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from dateutil import rrule
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -19,11 +19,11 @@ class Location(models.Model):
     building = models.CharField(max_length=35)
     description = models.CharField(blank=True, null=True, max_length=255)
 
-class EventManager(models.Manager):
-    def create_event(self, name, event_type, description, creator, group, location): #, start_time, end_time, event_type, **kwargs):
-        event = self.create(name=name, event_type=event_type, description=description, creator=creator, group=group, location=location)
-    #def add_event_occurrences(start
-    #    occurrences = self.add_occurrences(start_time, end_time, **kwargs)
+#class EventManager(models.Manager):
+#    def create_event(self, name, event_type, description, creator, group, location): #, start_time, end_time, event_type, **kwargs):
+#        event = self.create(name=name, event_type=event_type, description=description, creator=creator, group=group, location=location)
+#    #def add_event_occurrences(start
+#    #    occurrences = self.add_occurrences(start_time, end_time, **kwargs)
 
 class Event(models.Model):
     name = models.CharField(max_length=35)
@@ -42,7 +42,7 @@ class Event(models.Model):
         return self.name
 
     ## From django-swingtime
-    def add_occurrences(self, start_time, end_time, event_type, **kwargs):
+    def add_occurrences(self, **kwargs):
 
         '''
         Add one or more occurences to the event using a comparable API to 
@@ -74,16 +74,29 @@ class Event(models.Model):
         # byeaster = kwarg.pop('byeaster', None)
         # start_time = kwarg.pop('start_time', None)
         # end_time = kwarg.pop('end_time', None)
-        # count = kwarg.pop('count', None)
-        # until = kwarg.pop('until', None)
+        start_time = kwargs.pop('start_time', None)
+        end_time = kwargs.pop('end_time', None)
+        all_day = kwargs.pop('all_day', False)
+        kwargs['freq'] = int(kwargs['freq'])
+        freq = kwargs['freq']
+        start_datetime = datetime.combine(kwargs['dtstart'], start_time)
+        end_datetime = datetime.combine(kwargs['dtstart'], end_time) ## This only works for begin and end times on the same day!
+
+        delta = end_datetime - start_datetime
         if all_day == True:
             start_time, end_time = Occurrence.set_all_day_times(start_time)
 
-        if event_type == 'S':
+        if self.event_type == 'S':
             self.occurrence_set.create(event=self, start_time=start_time, end_time=end_time, **kwargs)
 
 
-        if not (kwargs.get(count) and not kwargs.get(until)):
+        if (kwargs.get('count') or kwargs.get('until')):
+            kwargs.setdefault('freq', rrule.DAILY)
+            occurrences = []
+            for ev in rrule.rrule(**kwargs):
+                occurrences.append(Occurrence(event=self, start_time=ev, end_time=ev+delta, notes=None, all_day=all_day))
+            self.occurrence_set.bulk_create(occurrences)
+        else:
             year = timedelta(365)
             if freq == rrule.YEARLY:
                 kwargs['until'] = kwargs['dtstart'] + 25 * year # Add 25 years in occurrence table
@@ -94,20 +107,13 @@ class Event(models.Model):
             elif freq == rrule.DAILY:
                 kwargs['until'] = kwargs['dtstart'] + 10 * year # Add 25 years in occurrence table
 
-            occurrences = [[Occurrence(event=self, start_time=occurrence, end_time=occurrence+delta, notes=None, all_day=all_day)] for occurrence in rrule.rrule(**rrule_kwargs)]
+            occurrences = [[Occurrence(event=self, start_time=occurrence, end_time=occurrence+delta, notes=None, all_day=all_day)] for occurrence in rrule.rrule(**kwargs)]
             self.occurrence_set.bulk_create(occurrences)
 
             dtstart = until
             until = None
             self.calculatedoccurrence_set.create(event=self, start_time=start_time, end_time=end_time, **kwargs)
                 
-        else:
-            rrule_params.setdefault('freq', rrule.DAILY)
-            delta = end_time - start_time
-            occurrences = []
-            for ev in rrule.rrule(dtstart=start_time, **rrule_params):
-                occurrences.append(Occurrence(start_time=ev, end_time=ev + delta, event=self))
-            self.occurrence_set.bulk_create(occurrences)
 
     def get_occurrences(self, start_time, end_time, **kwargs):
         occurrence_type = kwargs.pop('type', None)
@@ -147,7 +153,7 @@ cache   If given, it must be a boolean value specifying to enable or disable cac
 dtstart The recurrence start. Besides being the base for the recurrence, missing parameters in the final recurrence instances will also be extracted from this date. If not given, datetime.now() will be used instead. 
 interval The interval between each freq iteration. For example, when using YEARLY, an interval of 2 means once every two years, but with HOURLY, it means once every two hours. The default interval is 1. 
 wkst The week start day. Must be one of the MO, TU, WE constants, or an integer, specifying the first day of the week. This will affect recurrences based on weekly periods. The default week start is got from calendar.firstweekday(), and may be modified by calendar.setfirstweekday(). 
-count How many occurrences will be generated. 
+wount How many occurrences will be generated. 
 until If given, this must be a datetime instance, that will specify the limit of the recurrence. If a recurrence instance happens to be the same as the datetime instance given in the until keyword, this will be the last occurrence. 
 bysetpos If given, it must be either an integer, or a sequence of integers, positive or negative. Each given integer will specify an occurrence number, corresponding to the nth occurrence of the rule inside the frequency period. For example, a bysetpos of -1 if combined with a MONTHLY frequency, and a byweekday of (MO, TU, WE, TH, FR), will result in the last work day of every month. 
 bymonth If given, it must be either an integer, or a sequence of integers, meaning the months to apply the recurrence to. 
