@@ -57,11 +57,11 @@ class OccurrenceForm(forms.ModelForm):
         #if self.end_time:
         #    self.end_time = pytz.timezone(settings.TIME_ZONE).localize(self.end_time)
         super(OccurrenceForm, self).__init__(*args, **kwargs)
+        self.fields['start_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
+        self.fields['end_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
         self.fields['start_time'].initial = self.start_time
         self.fields['end_time'].initial = self.end_time
         self.fields['all_day'].initial = False 
-        self.fields['start_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
-        self.fields['end_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
 
 
 OccurrenceFormset = forms.inlineformset_factory(
@@ -80,18 +80,18 @@ class RecurringEventForm(forms.Form):
         choices=FREQ_CHOICES,
         label='Frequency',
     )
-    start_time = forms.TimeField(widget=widgets.AdminTimeWidget)
-    end_time = forms.TimeField(widget=widgets.AdminTimeWidget)
+    tstart = forms.TimeField(widget=widgets.AdminTimeWidget)
+    tend = forms.TimeField(widget=widgets.AdminTimeWidget)
     dtstart = forms.DateField(widget=widgets.AdminDateWidget)
     until = forms.DateField(widget=widgets.AdminDateWidget)
 
     def add_occurrences(self):
-        start_time = self.fields['start_time']
-        end_time = self.fields['end_time']
+        start_time = self.fields['tstart']
+        end_time = self.fields['tend']
         freq = self.fields['freq']
         print('from recurrent event form'.format(start_time, end_time, freq))
-        Event.add_occurrences(self.fields['start_time'], self.fields['end_time'], freq=self.fields['freq'], 
-                dtstart=self.fields['begin_date'], until=self.fields['end_date'])
+        Event.add_occurrences(self.fields['tstart'], self.fields['tend'], freq=self.fields['freq'], 
+                dtstart=self.fields['dtstart'], until=self.fields['until'])
 
 
 

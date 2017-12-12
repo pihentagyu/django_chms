@@ -122,14 +122,15 @@ class EventCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('events:event_list')
 
     def get_context_data(self, **kwargs):
+        context = super(EventCreateView, self).get_context_data(**kwargs)
         self.start_time = self.kwargs.get('start_time', 'none')
         self.end_time = self.kwargs.get('end_time', 'none')
         if self.start_time:
             self.start_time = datetime.strptime(self.start_time, '%Y%m%d%H%M')
         if self.end_time:
             self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
+        context['recurring_events'] = None
         
-        context = super(EventCreateView, self).get_context_data(**kwargs)
         if self.request.POST:
             context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
                     form_kwargs={'start_time': self.start_time, 'end_time': self.end_time})
@@ -142,23 +143,25 @@ class EventCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         context = self.get_context_data()
+        #print(context)
         occurrences = context['occurrences']
         recurring_events = context.get('recurring_events')
-        print(occurrences)
-        print(recurring_events)
         with transaction.atomic():
             self.object = form.save()
             if occurrences.is_valid():
-                print(occurrences)
+                #print(occurrences)
+                occurrences.save()
                 #self.object.add_occurrences(**occurrences.cleaned_data)
-            else:
-                print('errors:')
-                for error in occurrences.errors:
-                    print(error)
-
-            if recurring_events.is_valid():
+            elif recurring_events.is_valid():
                 print(recurring_events.cleaned_data)
                 self.object.add_occurrences(**recurring_events.cleaned_data)
+            else:
+                print('recurring_events errors:')
+                for error in recurring_events.errors:
+                    print(error)
+                print('occurence errors:')
+                for error in occurrences.errors:
+                    print(error)
 
 
             ##    #context.update({'occurrences': occurrences})

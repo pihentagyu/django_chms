@@ -13,12 +13,12 @@
 {% endif %}
 <div>
     <h1>{{ form.instance.name|default:"Enter a new Event" }}</h1>
-
-    <form method="POST" action="">
+        <form method="POST" action="">
         {% csrf_token %}
         {{ form.as_p }}
-
+        <input type="submit" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
         <div id="Recurring" style="display:none;">
+
             <table>
             	<th>Recurring Event</th>
         			<tr id="test"><td>{{ recurring_events.freq }}</td>
@@ -34,33 +34,35 @@
         				<label for="cb"><input id="cb" type="checkbox" onclick="handleClick(this);"/>No End Date</label>
 					</td>
 		        	</tr>
- 					<tr><td>{{ recurring_events.start_time }}</td></tr>
-        			<tr><td>{{ recurring_events.end_time }}</td></tr>
+ 					<tr><td>{{ recurring_events.tstart }}</td></tr>
+        			<tr><td>{{ recurring_events.tend }}</td></tr>
         			<tr></tr>
             </table>
 
 		</div>
 
         <div id="Multiple">
+
             <table class="table">
                 {{ occurrences.management_form }}
+            
 
-                {% for form in occurrences.forms %}
+                {% for oform in occurrences.forms %}
                     {% if forloop.first %}
                         <thead>
                         <tr>
-                            {% for field in form.visible_fields %}
+                            {% for field in oform.visible_fields %}
                                 <th>{{ field.label|capfirst }}</th>
                             {% endfor %}
                         </tr>
                         </thead>
                     {% endif %}
                     <tr class="{% cycle row1 row2 %} formset_row">
-                        {% for field in form.visible_fields %}
+                        {% for field in oform.visible_fields %}
                             <td>
                                 {# Include the hidden fields in the form #}
                                 {% if forloop.first %}
-                                    {% for hidden in form.hidden_fields %}
+                                    {% for hidden in oform.hidden_fields %}
                                         {{ hidden }}
                                     {% endfor %}
                                 {% endif %}
@@ -77,11 +79,12 @@
                 {% endfor %}
                 
             </table>
+
+    </form>
         </div>
         
     <br>
-        <input type="submit" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
-    </form>
+
 		</div>
     <script src="{% static 'js/jquery.formset.js' %}"></script>
     <script src="{% static 'js/handle.click.js' %}"></script>
