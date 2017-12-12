@@ -18,6 +18,29 @@
         {% csrf_token %}
         {{ form.as_p }}
 
+        <div id="Recurring" style="display:none;">
+            <table>
+            	<th>Recurring Event</th>
+        			<tr id="test"><td>{{ recurring_events.freq }}</td>
+
+        			</tr>
+					<tr>
+						<td>Begin Date: {{ recurring_events.dtstart }}</td>
+						<td id="hideOnClick">End Date: {{ recurring_events.until }}</td>        								
+					</tr>
+					<tr>
+					<td></td>
+               <td>
+        				<label for="cb"><input id="cb" type="checkbox" onclick="handleClick(this);"/>No End Date</label>
+					</td>
+		        	</tr>
+ 					<tr><td>{{ recurring_events.start_time }}</td></tr>
+        			<tr><td>{{ recurring_events.end_time }}</td></tr>
+        			<tr></tr>
+            </table>
+
+		</div>
+
         <div id="Multiple">
             <table class="table">
                 {{ occurrences.management_form }}
@@ -55,33 +78,9 @@
                 
             </table>
         </div>
-            <input type="submit" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
         
-
-    </div>
     <br>
-        <div id="Recurring" style="display:none;">
-            <table>
-            	<th>Recurring Event</th>
-        			<tr id="test"><td>{{ recurring_events.freq }}</td>
-
-        			</tr>
-					<tr>
-						<td>Begin Date: {{ recurring_events.dtstart }}</td>
-						<td id="hideOnClick">End Date: {{ recurring_events.until }}</td>        								
-					</tr>
-					<tr>
-					<td></td>
-               <td>
-        				<label for="cb"><input id="cb" type="checkbox" onclick="handleClick(this);"/>No End Date</label>
-					</td>
-		        	</tr>
- 					<tr><td>{{ recurring_events.start_time }}</td></tr>
-        			<tr><td>{{ recurring_events.end_time }}</td></tr>
-        			<tr></tr>
-            </table>
-
-		</div>
+        <input type="submit" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
     </form>
 		</div>
     <script src="{% static 'js/jquery.formset.js' %}"></script>

@@ -49,21 +49,19 @@ class OccurrenceForm(forms.ModelForm):
         fields = ('start_time', 'end_time', 'all_day')
         #initial = {'start_time': start_time, 'end_time': end_time}
     def __init__(self, *args, **kwargs):
-        self.start_time = kwargs.pop('start_time', None)
-        self.end_time = kwargs.pop('end_time', None)
-
-        if self.start_time:
-            self.start_time = datetime.strptime(self.start_time, '%Y%m%d%H%M')
-        if self.end_time:
-            self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
+        self.start_time = kwargs.pop('start_time')
+        self.end_time = kwargs.pop('end_time')
+        print(self.start_time)
+        #if self.start_time:
+        #    self.start_time = pytz.timezone(settings.TIME_ZONE).localize(self.start_time)
+        #if self.end_time:
+        #    self.end_time = pytz.timezone(settings.TIME_ZONE).localize(self.end_time)
         super(OccurrenceForm, self).__init__(*args, **kwargs)
-        if self.start_time:
-            self.fields['start_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.start_time)
-        if self.end_time:
-            self.fields['end_time'].initial = pytz.timezone(settings.TIME_ZONE).localize(self.end_time)
+        self.fields['start_time'].initial = self.start_time
+        self.fields['end_time'].initial = self.end_time
+        self.fields['all_day'].initial = False 
         self.fields['start_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
         self.fields['end_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
-        self.fields['all_day'].initial = False 
 
 
 OccurrenceFormset = forms.inlineformset_factory(

@@ -189,8 +189,8 @@ class EventCalendar:
         self.year = year
         self.month = kwargs.get('month')
         self.day = kwargs.get('day')
-        self.from_time = self.localize_time(kwargs.get('from_time'))
-        self.to_time = self.localize_time(kwargs.get('to_time'))
+        self.from_time = kwargs.get('from_time')
+        self.to_time = kwargs.get('to_time')
         self.delta = kwargs.get('delta')
         self.week = kwargs.get('week')
         self.event_list = kwargs.get('event_list')
@@ -205,8 +205,8 @@ class EventCalendar:
     def time_iterator(self, year, month, day, from_time='8:00', to_time='21:00', delta=30):
         from_hour, from_minute = from_time.split(':')
         to_hour, to_minute = to_time.split(':')
-        from_time = datetime(year, month, day, int(from_hour), int(from_minute))
-        to_time = datetime(year, month, day, int(to_hour), int(to_minute))
+        from_time = self.localize_time(datetime(year, month, day, int(from_hour), int(from_minute)))
+        to_time = self.localize_time(datetime(year, month, day, int(to_hour), int(to_minute)))
         while to_time is None or from_time <= to_time:
         	yield from_time
         	from_time = from_time + delta
