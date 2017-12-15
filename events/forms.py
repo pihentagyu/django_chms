@@ -94,4 +94,8 @@ class RecurringEventForm(forms.Form):
                 dtstart=self.fields['dtstart'], until=self.fields['until'])
 
 
+RecurringFormset = forms.modelformset_factory(
+        Event,
+        form=RecurringEventForm,
+     )
 

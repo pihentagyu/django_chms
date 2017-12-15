@@ -129,16 +129,16 @@ class EventCreateView(LoginRequiredMixin, CreateView):
             self.start_time = datetime.strptime(self.start_time, '%Y%m%d%H%M')
         if self.end_time:
             self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
-        context['recurring_events'] = None
         
-        if self.request.POST:
+        if 'post_occurrences' in self.request.POST:
             context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
                     form_kwargs={'start_time': self.start_time, 'end_time': self.end_time})
-            context['recurring_events'] = forms.RecurringEventForm(self.request.POST)
+        elif 'post_recurrent' in self.request.POST:
+            context['recurring_events'] = forms.RecurringFormset(self.request.POST)
         else:
             context['occurrences'] = forms.OccurrenceFormset(form_kwargs={'start_time': self.start_time,
                  'end_time': self.end_time})
-            context['recurring_events'] = forms.RecurringEventForm()
+            context['recurring_events'] = forms.RecurringFormset()
         return context
 
     def form_valid(self, form):
