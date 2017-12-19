@@ -74,8 +74,8 @@ class Event(models.Model):
         # byeaster = kwarg.pop('byeaster', None)
         # start_time = kwarg.pop('start_time', None)
         # end_time = kwarg.pop('end_time', None)
-        start_time = kwargs.pop('start_time', None)
-        end_time = kwargs.pop('end_time', None)
+        start_time = kwargs.pop('tstart', None)
+        end_time = kwargs.pop('tend', None)
         all_day = kwargs.pop('all_day', False)
         kwargs['freq'] = int(kwargs['freq'])
         freq = kwargs['freq']

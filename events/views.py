@@ -122,7 +122,6 @@ class EventCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('events:event_list')
 
     def get_context_data(self, **kwargs):
-        context = super(EventCreateView, self).get_context_data(**kwargs)
         self.start_time = self.kwargs.get('start_time', 'none')
         self.end_time = self.kwargs.get('end_time', 'none')
         if self.start_time:
@@ -130,29 +129,42 @@ class EventCreateView(LoginRequiredMixin, CreateView):
         if self.end_time:
             self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
         
+        context = super(EventCreateView, self).get_context_data(**kwargs)
         if 'post_occurrences' in self.request.POST:
-            context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
-                    form_kwargs={'start_time': self.start_time, 'end_time': self.end_time})
+            #context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
+            #       form_kwargs={'start_time': self.start_time, 'end_time': self.end_time})
+            context['occurrences'] = forms.OccurrenceFormset(self.request.POST)
+            #context['occurrences'].fields['start_time'].required = True
+            #context['occurrences'].fields['end_time'].required = True
+            #context['occurrences'].fields['all_day'].required = True
         elif 'post_recurrent' in self.request.POST:
-            context['recurring_events'] = forms.RecurringFormset(self.request.POST)
+            context['recurring_events'] = forms.RecurringEventForm(self.request.POST)
+            context['recurring_events'].fields['freq'].required = True
+            context['recurring_events'].fields['dtstart'].required = True
+            context['recurring_events'].fields['tstart'].required = True
+            context['recurring_events'].fields['tend'].required = True
+            context['recurring_events'].fields['until'].required = True
+
         else:
             context['occurrences'] = forms.OccurrenceFormset(form_kwargs={'start_time': self.start_time,
                  'end_time': self.end_time})
-            context['recurring_events'] = forms.RecurringFormset()
+            context['recurring_events'] = forms.RecurringEventForm()
         return context
 
     def form_valid(self, form):
         context = self.get_context_data()
         #print(context)
-        occurrences = context['occurrences']
-        recurring_events = context.get('recurring_events')
+        occurrences = context.get('occurrences', None)
+        recurring_events = context.get('recurring_events', None)
+        self.object = form.save()
         with transaction.atomic():
-            self.object = form.save()
-            if occurrences.is_valid():
-                #print(occurrences)
+            if occurrences and occurrences.is_valid():
+                occurrences.instance = self.object
+                print(occurrences)
                 occurrences.save()
                 #self.object.add_occurrences(**occurrences.cleaned_data)
-            elif recurring_events.is_valid():
+            elif recurring_events and recurring_events.is_valid():
+                self.object = form.save()
                 print(recurring_events.cleaned_data)
                 self.object.add_occurrences(**recurring_events.cleaned_data)
             else:
