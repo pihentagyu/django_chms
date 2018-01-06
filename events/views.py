@@ -168,12 +168,14 @@ class EventCreateView(LoginRequiredMixin, CreateView):
                 print(recurring_events.cleaned_data)
                 self.object.add_occurrences(**recurring_events.cleaned_data)
             else:
-                print('recurring_events errors:')
-                for error in recurring_events.errors:
-                    print(error)
-                print('occurence errors:')
-                for error in occurrences.errors:
-                    print(error)
+                if recurring_events:
+                    print('recurring_events errors:')
+                    for error in recurring_events.errors:
+                        print(error)
+                if occurrences:
+                    print('occurence errors:')
+                    for error in occurrences.errors:
+                        print(error)
 
 
             ##    #context.update({'occurrences': occurrences})

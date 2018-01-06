@@ -81,6 +81,8 @@ class Event(models.Model):
         freq = kwargs['freq']
         start_datetime = datetime.combine(kwargs['dtstart'], start_time)
         end_datetime = datetime.combine(kwargs['dtstart'], end_time) ## This only works for begin and end times on the same day!
+        kwargs['dtstart'] = start_datetime
+        kwargs['until'] = datetime.combine(kwargs['until'], end_time)
 
         delta = end_datetime - start_datetime
         if all_day == True:

@@ -6,8 +6,7 @@
 {% this_month as month %}
 <html>
   <head>
-      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js" type="text/javascript"></script>
-      <script type="text/javascript" src="/static/js/handle.click.js"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 	  <title>{% block title %} {% endblock %}</title>
       <link rel="stylesheet" href="{% static 'css/layout.css' %}">
       {% block static %}{% endblock %}

@@ -98,6 +98,7 @@ accounts/migrations
 families/migrations
 groups/migrations
 events/migrations
+assets/
 
 
 django_chms/media/

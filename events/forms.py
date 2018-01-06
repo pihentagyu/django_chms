@@ -1,3 +1,4 @@
+from bootstrap3_datetime.widgets import DateTimePicker
 from django import forms
 from django.contrib.admin import widgets                                       
 
@@ -47,7 +48,13 @@ class OccurrenceForm(forms.ModelForm):
     class Meta:
         model = Occurrence
         fields = ('start_time', 'end_time', 'all_day')
+        widgets = {'start_time': DateTimePicker(options={'format' : "YYYY-MM-DD HH:mm", 'stepping': 15, 'inline': True }), 
+                'end_time': DateTimePicker(options = {'format' : "YYYY-MM-DD HH:mm", 'stepping': 15, 'inline': True, 'sideBySide': False }), 
+                }
         #initial = {'start_time': start_time, 'end_time': end_time}
+        #widgets = {'start_time': forms.widgets.DateTimeInput(attrs={'class':'timepicker'}), 
+        #        'end_time': forms.widgets.DateTimeInput(attrs={'class':'timepicker'})
+        #        }
     def __init__(self, *args, **kwargs):
         self.start_time = kwargs.pop('start_time', None)
         self.end_time = kwargs.pop('end_time', None)
@@ -56,8 +63,11 @@ class OccurrenceForm(forms.ModelForm):
         if self.end_time:
             self.end_time = pytz.timezone(settings.TIME_ZONE).localize(self.end_time)
         super(OccurrenceForm, self).__init__(*args, **kwargs)
-        self.fields['start_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
-        self.fields['end_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
+        #self.fields['start_time'] = forms.DateTimeField(required=False, widget=DateTimePicker(options={"format": "YYYY-MM-DD HH:mm", "pickSeconds": False}))
+        #self.fields['end_time'] = forms.DateTimeField(required=False, widget=DateTimePicker(options={"format": "YYYY-MM-DD HH:mm", "pickSeconds": False}))
+        #self.fields['start_time'] = forms.SplitDateTimeField(widget=widgets.AdminSplitDateTime)
+        #self.fields['start_time'] = forms.SplitDateTimeField(widget=forms.widgets.SplitDateTimeWidget)
+        #self.fields['end_time'] = forms.SplitDateTimeField(widget=forms.widgets.SplitDateTimeWidget)
         self.fields['start_time'].initial = self.start_time
         self.fields['end_time'].initial = self.end_time
         self.fields['all_day'].initial = False 
@@ -121,10 +131,12 @@ class RecurringEventForm(forms.Form):
         choices=FREQ_CHOICES,
         label='Frequency',
     )
-    tstart = forms.TimeField(widget=widgets.AdminTimeWidget)
-    tend = forms.TimeField(widget=widgets.AdminTimeWidget)
-    dtstart = forms.DateField(widget=widgets.AdminDateWidget)
-    until = forms.DateField(widget=widgets.AdminDateWidget)
+    tstart = forms.TimeField(widget=DateTimePicker(options={'format' : "HH:mm", 'stepping': 15, 'inline': False }))
+    tend = forms.TimeField(widget=DateTimePicker(options={'format' : "HH:mm", 'stepping': 15, 'inline': False }))
+    dtstart = forms.DateField(widget=DateTimePicker(options={'format' : "YYYY-MM-DD"}))
+    until = forms.DateField(widget=DateTimePicker(options={'format' : "YYYY-MM-DD" }))
+    #dtstart = forms.DateField(widget=widgets.AdminDateWidget)
+    #until = forms.DateField(widget=widgets.AdminDateWidget)
 
     def __init__(self, *args, **kwargs):
         super(RecurringEventForm, self).__init__(*args, **kwargs)

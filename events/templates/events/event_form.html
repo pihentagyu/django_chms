@@ -1,11 +1,51 @@
 {% extends 'events/layout.html' %}
 {% load event_extras %}
-{% load bootstrap3 %}
-
 {% load staticfiles %}
 
 {% block title %} {{ form.instance.name|default:"New Event" }} {{ block.super }} {% endblock %}
+{% block static %}
+    <script type="text/javascript" src="{% static 'js/handle.click.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/moment.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/collapse.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/transition.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap3/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/bootstrap3/bootstrap.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" />
+    <script src="{% static 'js/jquery.formset.js' %}"></script>
+    <script src="{% static 'js/handle.click.js' %}"></script>
+    <script type="text/javascript">
+    $(function addTimePicker() {
+        $('.timepicker').datetimepicker()
+    })
+    </script>
+    <script type="text/javascript">
+    $(function() {
+        $('.formset_row').formset({
+                addText: 'Add occurrence',
+                deleteText: 'Remove',
+                prefix: 'occurrence_set',
+            });
+        })
+         </script>
+
+    <script type="text/javascript">
+        function selectEvent() {
+        var eventVal=document.getElementById("id_event_type").value;  
+
+        if (eventVal == "R"){
+            $('#Multiple').hide();
+            $('#Recurring').show();
+        } else
+            {
+            $('#Multiple').show();
+            $('#Recurring').hide();
+            }
+        }
+         </script>
+{% endblock %}
 {% block content %}
+
 {% if form.instance.event_type %}
       {{form.instance.event_type}}
 {% else %}
@@ -13,33 +53,33 @@
 {% endif %}
 <div>
     <h1>{{ form.instance.name|default:"Enter a new Event" }}</h1>
-        <form method="POST" action="">
+        <form id="events_form" method="POST" action="">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.as_ul }}
 
         <div id="Multiple">
 
         {% csrf_token %}
-        <input type="submit" name="post_occurrences" value="Save1"/> <a href="{% url 'events:event_list' %}">Cancel</a>
-            <table class="table">
+        <input type="submit" name="post_occurrences" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
 
-                {{ occurrences.management_form }}
-                {% for oform in occurrences.forms %}
+            <table class="table">
+                {% for occur_form in occurrences.forms %}
                     {% if forloop.first %}
                         <thead>
                         <tr>
-                            {% for field in oform.visible_fields %}
+                            {% for field in occur_form.visible_fields %}
                                 <th>{{ field.label|capfirst }}</th>
                             {% endfor %}
                         </tr>
                         </thead>
                     {% endif %}
+                    <div style="position: relative"></div>
                     <tr class="{% cycle row1 row2 %} formset_row">
-                        {% for field in oform.visible_fields %}
+                        {% for field in occur_form.visible_fields %}
                             <td>
                                 {# Include the hidden fields in the form #}
                                 {% if forloop.first %}
-                                    {% for hidden in oform.hidden_fields %}
+                                    {% for hidden in occur_form.hidden_fields %}
                                         {{ hidden }}
                                     {% endfor %}
                                 {% endif %}
@@ -49,17 +89,17 @@
                                 {{ field }}
                             </td>
                         {% endfor %}
-                       <td>
-        				<input type="checkbox" value="All Day Event"/>
-					</td>
+                           {#	<input type="checkbox" value="All Day Event"/> #}
                     </tr>
+					</div>
                 {% endfor %}
                 
             </table>
+                {{ occurrences.management_form }}
 
         </div>
         <div id="Recurring" style="display:none;">
-        <input type="submit" name="post_recurrent" value="Save2"/> <a href="{% url 'events:event_list' %}">Cancel</a>
+        <input type="submit" name="post_recurrent" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
 
             <table>
             	<th>Recurring Event</th>
@@ -86,65 +126,6 @@
 
     </form>
 </div>
-    <script src="{% static 'js/jquery.formset.js' %}"></script>
-    <script src="{% static 'js/handle.click.js' %}"></script>
-    <script type="text/javascript" src="/my_admin/jsi18n/"></script>
-    <script type="text/javascript" src="/media/admin/js/core.js"></script>
-    <script type="text/javascript">
-        $('.formset_row').formset({
-            addText: 'Add occurrence',
-            deleteText: 'Remove',
-            prefix: 'occurrence_set'
-        });
-    </script>
-    <script>
-        ${document}.getElementById("id_event_type").onchange = function() {myFunction()};
 
-        function myFunction() {
-            ${alert}("foobar")
-        }
-    </script>
 
-    <link rel="stylesheet" type="text/css" 
-        href="{% static 'admin/css/forms.css' %} "/>
-    <link rel="stylesheet" type="text/css" 
-        href="{% static 'admin/css/base.css' %} "/>
-    <link rel="stylesheet" type="text/css" 
-        href="{% static 'admin/css/global.css' %}"/>
-    <link rel="stylesheet" type="text/css" 
-        href="{% static 'admin/css/widgets.css' %}"/>
-    
-    <script type="text/javascript">
-    function selectEvent() {
-    var eventVal=document.getElementById("id_event_type").value;  
-
-    if (eventVal == "R"){
-    $('#Multiple').hide();
-    $('#Recurring').show();
-
-    } else
-        {
-        $('#Multiple').show();
-        $('#Recurring').hide();
-    
-    }
-    }
-         </script>
-
-    <script type="text/javascript" 
-        src="/admin/jsi18n/"></script>
-    <script type="text/javascript" 
-        src="{% static 'admin/js/core.js' %}"></script>
-    <script type="text/javascript" 
-        src="{% static 'admin/js/admin/RelatedObjectLookups.js' %}"></script>
-    <script type="text/javascript" 
-        src="{% static 'admin/js/jquery.js' %}"></script>
-    <script type="text/javascript" 
-        src="{% static 'admin/js/jquery.init.js' %}"></script>
-    <script type="text/javascript" 
-        src="{% static 'admin/js/actions.js' %}"></script>
-    <script type="text/javascript" 
-        src="{% static 'admin/js/calendar.js' %}"></script>
-    <script type="text/javascript" 
-        src="{% static 'admin/js/admin/DateTimeShortcuts.js' %}"></script>
     {% endblock %}

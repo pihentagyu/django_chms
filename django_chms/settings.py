@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_static_jquery',
     'django.contrib.humanize',
     'bootstrap3',
+    'bootstrapform',
     'debug_toolbar',
     'accounts',
     'families',
