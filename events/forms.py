@@ -8,10 +8,10 @@ from .models import *
 import pytz
 
 FREQ_CHOICES = (
-        (YEARLY, 'Yearly'),
-        (MONTHLY, 'Monthly'),
-        (WEEKLY, 'Weekly'),
         (DAILY, 'Daily'),
+        (WEEKLY, 'Weekly'),
+        (MONTHLY, 'Monthly'),
+        (YEARLY, 'Yearly'),
         )
 
 EVENT_TYPE_CHOICES = (
