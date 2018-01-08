@@ -4,6 +4,7 @@
 #####
 import calendar
 from datetime import date, datetime, timedelta, time
+from dateutil.relativedelta import relativedelta
 from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
@@ -215,7 +216,27 @@ class EventCalendar:
     def format_month(self):
         '''Create an empty calendar table as a base'''
         cal = calendar.HTMLCalendar()
-        body = ['<div class="cal">', '<header class="cal">', '<button class="cal">«</button>', '<h2 class="cal">', calendar.month_name[self.month], ' ', str(self.year), '</h2>', '<button class="cal">»</button>', '</header>', '<table class="cal">']
+        first_day = date(self.year, self.month, 1)
+        prev_month = first_day - relativedelta(months=1)
+        next_month = first_day + relativedelta(months=1)
+        body = ['<div class="cal">', 
+                '<header class="cal">', 
+                '<button class="cal"></button>', 
+                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">«</button>'.format(reverse('events:event_monthly', 
+                    kwargs={'year':prev_month.year,
+                        'month': str(prev_month.month).zfill(2)}
+                    )),
+                '<h2 class="cal">',
+                calendar.month_name[self.month],
+                ' ', 
+                str(self.year), 
+                '</h2>', 
+                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">»</button>'.format(reverse('events:event_monthly', 
+                    kwargs={'year':next_month.year,
+                        'month': str(next_month.month).zfill(2)}
+                    )),
+                '</header>', 
+                '<table class="cal">']
         body.append('<tr class="thead">')
         for weekday in calendar.day_abbr:
             body.append('<th class="cal">{}</th>'.format(weekday))
