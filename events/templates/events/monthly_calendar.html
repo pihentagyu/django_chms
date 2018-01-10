@@ -8,12 +8,13 @@
 {% bootstrap_messages %}
 
 {% block title %}Calendar{% endblock %}
+{% block static %}
+<script type="text/javascript" src="{% static 'js/handle.click.js' %}"></script>
+{% endblock %}
 {% block content %}
 {{ block.super }}
 
 
-<p> year {{ calyear }}</p>
-<p>month {{ calmonth }}</p>
 <div id="calendar">
 	{% if events %}
     	{% monthly_calendar calyear calmonth events %}
@@ -21,5 +22,6 @@
    	 {% monthly_calendar calyear calmonth %}
    {% endif %}
 </div>
+
 
 {% endblock %}

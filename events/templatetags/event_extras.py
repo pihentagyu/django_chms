@@ -245,25 +245,45 @@ class EventCalendar:
             body.append('<tr class="cal">')
             for day in week:
                 body.append('<td class="cal">')
-                body.append('<a href="{}">{}</a>'.format(reverse('events:event_daily', kwargs={'day':str(day.day).zfill(2), 'month':str(day.month).zfill(2), 'year':day.year}), day.day))
+                body.append('<a href="{}">{}</a>'.format(reverse('events:event_daily',
+                    kwargs={'day':str(day.day).zfill(2),
+                        'month':str(day.month).zfill(2),
+                        'year':day.year}), day.day))
                 if self.event_list:
+                    # To do: add multi-day events
                     all_day_events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), all_day=True)
+                    events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), delta=timedelta(days=1)) 
+                    max_event_ct = 8 - len(all_day_events) if len(all_day_events) <= 2 else 5
                     if all_day_events:
                         body.append('<div class="all_day">')
-                        body.append('<table>')
+                        body.append('<table id="all_day">')
                         for event in all_day_events[:2]: # display up to 2 all day events
-                            body.append('<tr><td>{}</td></tr>'.format(event.event.name))
+                            body.append('<tr><td><a class="a" href="{}">{}</a></td></tr>'.format(event.event.get_absolute_url(), event.event.name))
                         if len(all_day_events) > 2:
-                            body.append('<tr><td>...</td></tr>')
+                            body.append('<tr cal_date={}><td><a>...</a></td></tr>'.format(day.isoformat()))
+                            body.append('<div class="hidden">')
+                            for event in all_day_events[2:]: # the reset is hidden
+                                body.append('<tr><td><a class="a" href="{}">{}</a></td></tr>'.format(event.event.get_absolute_url(), event.event.name))
+                            body.append('</div>')
                         body.append('</table>')
                         body.append('</div>')
-                    events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), delta=timedelta(days=1)) 
                     if events:
-                        body.append('<table>')
-                        for event, _ in events[:5]:
-                            body.append('<tr><td>{} {}</td></tr>'.format(event.start_time.strftime('%H:%M'), event.event.name))
+                        body.append('<table id="events">')
+                        for event, _ in events[:max_event_ct]:
+                            body.append('<tr><td><a class="a" href="{}">{} {}</a></td></tr>'.format(event.event.get_absolute_url(), 
+                                event.start_time.strftime('%H:%M'),
+                                event.event.name))
                         if len(events) > 5:
-                            body.append('<tr><td>...</td></tr>')
+                            body.append('<tr><td><a class="more" href="{}">...</a></td></tr>'.format(reverse('events:event_daily',
+                                kwargs={'day':str(day.day).zfill(2),
+                                'month':str(day.month).zfill(2),
+                                'year':day.year}), day.day))
+                            body.append('<tr><td><table class="hidden">')
+                            for event, _ in events[max_event_ct:]: # the reset is hidden
+                                body.append('<tr><td><a class="a" href="{}">{} {}</a></td></tr>'.format(event.event.get_absolute_url(), 
+                                event.start_time.strftime('%H:%M'),
+                                event.event.name))
+                            body.append('</table></td></tr>')
                         body.append('</table>')
                 body.append('</td>')
             #return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
@@ -275,13 +295,27 @@ class EventCalendar:
 
     def format_day(self):
         cal_date = date(self.year, self.month, self.day)
+        prev_day = cal_date - timedelta(days=1)
+        next_day = cal_date + timedelta(days=1)
         cal = calendar.HTMLCalendar()
         weekday = calendar.day_name[cal_date.weekday()]
         '''Create an empty calendar table as a base'''
         body = ['<div class="cal">', '<header class="cal">', 
-                '<button class="cal">«</button>', '<h2 class="cal">', 
+                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">«</button>'.format(reverse('events:event_daily', 
+                    kwargs={'year':prev_day.year,
+                        'month': str(prev_day.month).zfill(2),
+                        'day': str(prev_day.day).zfill(2)}
+                    )),
+                '<h2 class="cal">', 
                 cal_date.strftime(settings.LONG_DATE_FORMAT), '</h2>', 
-                '<button class="cal">»</button>', '</header>', '<table class="cal">']
+                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">»</button>'.format(reverse('events:event_daily', 
+                    kwargs={'year':next_day.year,
+                        'month': str(next_day.month).zfill(2),
+                        'day': str(next_day.day).zfill(2)}
+                    )),
+
+                '</header>', '<table class="day">']
+
         body.append('<tr class="thead">')
         body.append('<th class="cal">Events</th>')
         body.append('</tr>')
@@ -300,7 +334,7 @@ class EventCalendar:
                 ## TO DO: Add all day events
                 for event, duration in self.get_time_events(from_time, delta=delta):
                     row_height = math.ceil(duration/(delta.seconds/60))
-                    body.append('<td rowspan="{}" bgcolor="#00FF00"><a href="{}">{}</a></td>'.format(row_height, event.event.get_absolute_url(), event.event.name))
+                    body.append('<td class="event" rowspan="{}"><a href="{}">{}</a></td>'.format(row_height, event.event.get_absolute_url(), event.event.name))
             body.append('</tr>')
         body.append('</table>')
         body.append('</div>')
@@ -315,7 +349,7 @@ class EventCalendar:
         elif delta:
             return [[event, event.get_duration()] for event in self.event_list if event.start_time >= time and event.start_time < time + delta and event.all_day==False]
         else:
-            return None
+            return []
 
         
     

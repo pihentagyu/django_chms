@@ -47,6 +47,17 @@ button.cal:last-child {
       right: 0;
     }
 
+
+table.hidden {
+    display: none;
+}
+
+table.day {
+    border-collapse: collapse;
+    width: 100%;
+    padding: 8px;
+    }
+
 table.cal {
       background: #fff;
       border-collapse: collapse;
@@ -56,7 +67,17 @@ table.cal {
       width: 100%;
     }
 
+table.fam_list {
+    border-collapse: collapse;
+    width: 100%;
+}
 
+table.fam_list th, table.fam_list td {
+    text-align: left;
+    padding: 8px;
+}
+
+table.fam_list tr:nth-child(even){background-color: #eaecf2}
 
 td.cal {
       border: 1px solid #ccc;
@@ -64,6 +85,11 @@ td.cal {
       text-align: left;
       vertical-align: top;
     }
+
+td.event {
+    background-color: #c0c0d3;
+}
+
 tr.cal {
      	height: 150px;
     }  
@@ -103,17 +129,6 @@ div.right {
 div.center {
     float: center;
 }
-table.fam_list {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-table.fam_list th, table.fam_list td {
-    text-align: left;
-    padding: 8px;
-}
-
-table.fam_list tr:nth-child(even){background-color: #eaecf2}
 
 ul.nav {
     list-style-type: none;
