@@ -19,8 +19,10 @@ class EventListView(PrefetchRelatedMixin, ListView):
     model = models.Occurrence
     template_name = 'events/event_list.html'
     context_object_name = 'events'
-    ordering = ['start_time']
     paginate_by = 10
+
+    class Meta:
+        ordering = ['start_time']
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -102,17 +104,11 @@ class EventDailyListView(ListView):
             end_time__day=self.kwargs['day']))
             )
 
-class EventDetailView(DeleteView):
+
+class EventDetailView(DetailView, ):
     model = models.Event
     context_object_name = 'event'
     template_name = "events/event_detail.html"
-
-
-class OccurrenceInline(InlineFormSet):
-    fields = ('start_time', 'end_time')
-    max_num = 1
-    model = models.Occurrence
-
 
 class EventCreateView(LoginRequiredMixin, CreateView):
     model = models.Event
@@ -181,6 +177,11 @@ class EventCreateView(LoginRequiredMixin, CreateView):
             ##    #context.update({'occurrences': occurrences})
 
         return super(EventCreateView, self).form_valid(form)
+
+class OccurrenceInline(InlineFormSet):
+    fields = ('start_time', 'end_time', 'all_day')
+    max_num = 1
+    model = models.Occurrence
 
 class EventUpdateView(LoginRequiredMixin, UpdateWithInlinesView):
     model = models.Event

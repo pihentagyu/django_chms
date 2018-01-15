@@ -12,10 +12,6 @@
 {{ block.super }}
 
 
-<p> year {{ calyear }}</p>
-<p>month {{ calmonth}}</p>
-<p>day {{ calday }}</p>
-
 <div id="calendar">
 	{% if events %}
 	    {% daily_calendar calyear calmonth calday from_time to_time delta events %}

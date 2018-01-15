@@ -45,22 +45,28 @@
 {% endblock %}
 {% block content %}
 
-{% if form.instance.event_type %}
-      {{form.instance.event_type}}
-{% else %}
-      {{form.data.event_type}}
-{% endif %}
 <div>
     <h1>{{ form.instance.name|default:"Enter a new Event" }}</h1>
         <form id="events_form" method="POST" action="">
         {% csrf_token %}
         {{ form.as_ul }}
+        <input type="submit" name="post_occurrences" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
 
         <div id="Multiple">
 
-        {% csrf_token %}
-        <input type="submit" name="post_occurrences" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
-
+        {% if form.instance.event_type == "R" %}
+        <p>Recurring</p>
+        {% elif form.instance.event_type == "S" %}
+        <p>Simple</p>
+        {% endif %}
+        {% for formset in inlines %}
+            {{ formset.management_form }}
+            {% for subform in formset %}
+                <div class="subform">
+                    {{ subform }}
+                </div>
+            {% endfor %}
+        {% endfor %}
             <table class="table">
                 {% for occur_form in occurrences.forms %}
                     {% if forloop.first %}
