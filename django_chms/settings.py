@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'events',
     'cities_light',
     'cities_local',
+    'jsonify',
 ]
 CITIES_LIGHT_APP_NAME = 'cities_local'
 

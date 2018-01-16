@@ -7,23 +7,37 @@ from datetime import date, datetime, timedelta, time
 from dateutil.relativedelta import relativedelta
 from django import template
 from django.conf import settings
+from django.core.serializers import serialize
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import conditional_escape as esc
 from itertools import groupby
+import json
 import math
 import pytz
 
-
 register = template.Library()
 
+def humanize_time(secs):
+    mins, secs = divmod(secs, 60)
+    hours, mins = divmod(mins, 60)
+    return '%02d:%02d' % (hours, mins)
+
 @register.filter('duration_calc')
-def duration_calc(start_time, end_time):
+def duration_calc(start_time, end_time, **kwargs):
     '''Get duration in minutes from event begin and end times'''
     if start_time and end_time:
         delta = end_time - start_time
-        return delta.seconds/60
+        if kwargs.get('humanized'):
+            return humanize_time(delta.seconds)
+        else:
+            return delta.seconds/60
+
+@register.filter('create_list')
+def create_list(events):
+    '''Create a list of events compliant with fullcalendar'''
+    return json.dumps([{"title":event.event.name, "start":event.start_time.isoformat(), "end":event.end_time.isoformat(), "url":event.event.get_absolute_url()} for event in events if event.all_day == False])
 
 def do_monthly_calendar(parser, token):
     """
@@ -251,9 +265,17 @@ class EventCalendar:
                         'year':day.year}), day.day))
                 if self.event_list:
                     # To do: add multi-day events
+                    multi_day_events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), multi_day=True)
                     all_day_events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), all_day=True)
                     events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), delta=timedelta(days=1)) 
                     max_event_ct = 8 - len(all_day_events) if len(all_day_events) <= 2 else 5
+                    if multi_day_events:
+                        body.append('<div class="all_day">')
+                        body.append('<table id="all_day">')
+                        for event in multi_day_events[:2]: # display up to 2 all day events
+                            body.append('<tr><td colspan="2"><a class="a" href="{}">{}</a></td></tr>'.format(event.event.get_absolute_url(), event.event.name))
+                        body.append('</table>')
+                        body.append('</div>')
                     if all_day_events:
                         body.append('<div class="all_day">')
                         body.append('<table id="all_day">')

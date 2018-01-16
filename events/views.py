@@ -20,9 +20,8 @@ class EventListView(PrefetchRelatedMixin, ListView):
     template_name = 'events/event_list.html'
     context_object_name = 'events'
     paginate_by = 10
+    #ordering = ['start_time',]
 
-    class Meta:
-        ordering = ['start_time']
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -30,7 +29,7 @@ class EventListView(PrefetchRelatedMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.model.objects.filter(start_time__date__gte=datetime.today())
+        return self.model.objects.filter(start_time__date__gte=datetime.today()).order_by('start_time')
 
 
 class EventYearlyListView(ListView):
@@ -68,6 +67,9 @@ class EventWeeklyListView(ListView):
     model = models.Occurrence
     context_object_name = 'events'
     template_name = "events/event_list.html"
+
+    class Meta:
+        ordering = ['start_time']
 
     def get_context_data(self):
         context = super().get_context_data()

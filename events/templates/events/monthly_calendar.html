@@ -2,6 +2,7 @@
 {% load event_extras %}
 {% load bootstrap3 %}
 {% load static from staticfiles %}
+{% load jsonify %}
 {# Load CSS and JavaScript #}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
@@ -10,18 +11,42 @@
 {% block title %}Calendar{% endblock %}
 {% block static %}
 <script type="text/javascript" src="{% static 'js/handle.click.js' %}"></script>
+<link rel='stylesheet' href="{% static 'css/fullcalendar.min.css' %}" />
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/moment.js' %}"></script>
+<script src="{% static 'js/fullcalendar.min.js' %}"></script>
 {% endblock %}
 {% block content %}
 {{ block.super }}
+<script type="text/javascript">
+$(document).ready(function() {
+
+    // page is now ready, initialize the calendar...
+
+    $('#calendar').fullCalendar({
+        // put your options and callbacks here
+      header: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'month,basicWeek,basicDay'
+      },
+      navLinks: true, // can click day/week names to navigate views
+      editable: true,
+      eventLimit: true, // allow "more" link when too many events
+      events: {{ events|create_list|safe}}
+    });
+
+});
+</script>
+<div id='calendar'></div>
 
 
-<div id="calendar">
+<!-- <div id="calendar">
 	{% if events %}
     	{% monthly_calendar calyear calmonth events %}
    {% else %} 
    	 {% monthly_calendar calyear calmonth %}
    {% endif %}
 </div>
-
-
+-->
 {% endblock %}

@@ -3,6 +3,7 @@ from dateutil import rrule
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from events.templatetags.event_extras import duration_calc
 from families.models import Member
 from groups.models import Group
 
@@ -137,10 +138,13 @@ class Occurrence(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     all_day = models.BooleanField()
+    multi_day = models.BooleanField()
 
-    def get_duration(self):
-        from events.templatetags.event_extras import duration_calc
+    def get_duration(self): # return min as float
         return duration_calc(self.start_time, self.end_time)
+
+    def get_duration_hm(self): #return h:m
+        return duration_calc(self.start_time, self.end_time, humanized=True)
 
     def set_all_day_times(self, start_time):
         if self.all_day == True:

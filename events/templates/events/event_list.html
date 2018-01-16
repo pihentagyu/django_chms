@@ -13,7 +13,7 @@
 
 {% block content %}
 {{ block.super }}
-    <h1>Event List</h1>
+    <h1>Upcoming Events</h1>
     <div class="right">
 	    <a href="{% url 'events:event_create' %}">New Event</a>
     </div>
@@ -26,7 +26,7 @@
         {% for event in events %}
 	        <tr>
             <td>{{ event.start_time }}</td>
-            <td>{{ event.get_duration }}</td>
+            <td>{{ event.get_duration_hm }}</td>
             <td><a href="{% url 'events:event_detail' pk=event.event.pk %}">{{ event.event.name }}</a></td>
             <td>{{ event.event.group }}</td>
 	 </tr>
