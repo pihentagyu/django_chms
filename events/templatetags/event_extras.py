@@ -34,10 +34,26 @@ def duration_calc(start_time, end_time, **kwargs):
         else:
             return delta.seconds/60
 
+def extend_if_exists(list1, list2):
+    if list1 and list2:
+        print('both {} and {}'.format(list1, list2))
+        list1.extend(list2)
+        return list1
+        print('combined {}'.format(combined))
+    elif list1:
+        print('list1 {}'.format(list1))
+        return list1
+    else:
+        print('list2 {}'.format(list2))
+        return list2
+
 @register.filter('create_list')
 def create_list(events):
     '''Create a list of events compliant with fullcalendar'''
-    return json.dumps([{"title":event.event.name, "start":event.start_time.isoformat(), "end":event.end_time.isoformat(), "url":event.event.get_absolute_url()} for event in events if event.all_day == False])
+    normal_events =  [{"title":event.event.name, "start":event.start_time.isoformat(), "end":event.end_time.isoformat(), "url":event.event.get_absolute_url()} for event in events if event.all_day == False and event.multi_day == False]
+    all_day_events =  [{"title":event.event.name, "start":event.start_time.date().isoformat(), "url":event.event.get_absolute_url()} for event in events if event.all_day == True and event.multi_day == False]
+    multi_day_events =  [{"title":event.event.name, "start":event.start_time.date().isoformat(), "end":event.end_time.date().isoformat(), "url":event.event.get_absolute_url()} for event in events if event.multi_day == True]
+    return extend_if_exists(extend_if_exists(normal_events, all_day_events), multi_day_events)
 
 def do_monthly_calendar(parser, token):
     """
