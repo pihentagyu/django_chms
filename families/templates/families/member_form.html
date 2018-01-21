@@ -7,11 +7,7 @@
 
 {% block content %}
     <div class="row">
-        {% if  member_type  == "a" %}
-            <h1>{{ form.instance.first_name }} {{ form.instance.last_name|default:"Add a New Adult Member" }}</h1>
-        {% else %}
-            <h1>{{ form.instance.first_name }} {{ form.instance.last_name|default:"Add a New Child Member" }}</h1>
-        {% endif %}
+        <h1>{{ form.instance.first_name }} {{ form.instance.last_name|default:"Add a New Member" }}</h1>
         <form method="POST" action="">
             {% csrf_token %}
             {% bootstrap_form form %}

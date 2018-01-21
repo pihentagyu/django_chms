@@ -8,7 +8,7 @@
         <h2>{{ member.family.family_name }}</h2>
         <h3>{{ member.first_name }} {{ member.last_name }}</h3>
         <h4>{{ member.birth_date }}</h3>
-        {% if member_type == 'd' and age %}
+        {% if age %}
             <p>Age: {{ age }}</p>
         {% endif %}
     </article>
@@ -19,11 +19,7 @@
 <ul class="nav">
     <li><a href="{% url 'families:family_list' %}">Browse Families</a></li>
     <li><a href="{{ member.family.get_absolute_url }}">{{ member.family }} Family</a></li>
-    {% if member_type == 'd' %}
-        <li><a href="{% url 'families:child_edit' member_pk=member_pk family_pk=family_pk %}">Edit Family Member</a></li>
-    {% else %}
-        <li><a href="{% url 'families:adult_edit' member_pk=member.pk family_pk=family_pk %}">Edit Family Member</a></li>
-    {% endif %}
+    <li><a href="{% url 'families:member_edit' member_pk=member_pk family_pk=family_pk %}">Edit Family Member</a></li>
 </ul>
 					
 {% endblock %}

@@ -4,12 +4,12 @@ from django.contrib import admin
 from . import models
 from . import forms
 
-class AdultInline(admin.StackedInline):
-    model = models.Adult
+class MemberInline(admin.StackedInline):
+    model = models.Member
     max_num = 2
     fieldsets = (
             (None,
-                {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','marital_status','membership_status','date_joined','occupation', 'workplace','work_address')}
+                {'fields':('family','title','first_name','middle_name','last_name','suffix','gender', 'fam_member_type','birth_date','marital_status','membership_status','date_joined','occupation', 'workplace','work_address', 'school')}
                 ),
             ('Notes',
                 {'fields': ('notes',),
@@ -17,32 +17,20 @@ class AdultInline(admin.StackedInline):
                 )
             )
 
-class ChildInline(admin.StackedInline):
-    model = models.Child
-    fieldsets = (
-        (None,
-            {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','membership_status','date_joined','school')}
-            ),
-        ('Notes',
-            {'fields': ('notes',),
-            'classes': ('collapse',)}
-            )
-        )
-
 class YearJoinedListFilter(admin.SimpleListFilter):
     title = 'year joined'
     parameter_name = 'year'
 
     def lookups(self, request, model_admin):
         return [
-                [d.year, d.year] for d in models.Adult.objects.dates('date_joined', 'year')
+                [d.year, d.year] for d in models.Member.objects.dates('date_joined', 'year')
                 ]
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(date_joined__year=self.value())
 
 class FamilyAdmin(admin.ModelAdmin):
-    inlines = [AdultInline, ChildInline,]
+    inlines = [MemberInline,]
     search_fields = ['family_name']
     form = forms.FamilyForm
     #list_filter = ['family_name','city']
@@ -59,13 +47,13 @@ class FamilyAdmin(admin.ModelAdmin):
     #list_display = ['family_name', 'city', 'time_to_complete']
     #list_editable = ['city']
 
-class AdultAdmin(admin.ModelAdmin):
+class MemberAdmin(admin.ModelAdmin):
     #fields = ['family','title','first_name','middle_name','last_name',
     #        'suffix','gender','birth_date','marital_status','membership_status','date_joined',
     #        'occupation', 'workplace','work_address', 'notes']
     fieldsets = (
             (None,
-                {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','marital_status','membership_status','date_joined','occupation', 'workplace','work_address')}
+                {'fields':('family','title','first_name','middle_name','last_name','suffix','gender', 'fam_member_type', 'birth_date','marital_status','membership_status','date_joined','occupation', 'workplace','work_address', 'school',)}
                 ),
             ('Notes',
                 {'fields': ('notes',),
@@ -77,25 +65,6 @@ class AdultAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'family','last_name', 'birth_date', 'date_joined', 'gender']
     radio_fields = {'gender': admin.VERTICAL}
 
-class ChildAdmin(admin.ModelAdmin):
-    #fields = ['family','title','first_name','middle_name','last_name','suffix',
-    #        'gender','birth_date','membership_status','date_joined','school','notes']
-    fieldsets = (
-        (None,
-            {'fields':('family','title','first_name','middle_name','last_name','suffix','gender','birth_date','membership_status','date_joined','school')}
-            ),
-        ('Notes',
-            {'fields': ('notes',),
-            'classes': ('collapse',)}
-            )
-        )
-    search_fields = ['first_name','last_name']
-    list_filter = ['gender','last_name']
-    list_display = ['first_name','family', 'last_name', 'age']
-    radio_fields = {'gender': admin.VERTICAL}
-
 
 admin.site.register(models.Family, FamilyAdmin)
-#admin.site.register(models.Adult, models.Child)
-admin.site.register(models.Adult, AdultAdmin)
-admin.site.register(models.Child, ChildAdmin)
+admin.site.register(models.Member, MemberAdmin)

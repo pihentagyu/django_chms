@@ -42,9 +42,10 @@ class FamilyListView(PrefetchRelatedMixin, ListView):
 
 def family_list_as_pdf(request):
     families = models.Family.objects.all()
+    families_member_related = families.prefetch_related('families_member_related')
 
     template = get_template('families/addressbook.tex')
-    rendered_tpl = template.render({'families':families, 'adult_set': families_adult_related, 'child_set': families_child_related, 'media_root': settings.MEDIA_ROOT, 'church_name': settings.CHURCH_NAME}).encode('utf-8')
+    rendered_tpl = template.render({'families':families, 'member_set': families_member_related, 'media_root': settings.MEDIA_ROOT, 'church_name': settings.CHURCH_NAME}).encode('utf-8')
     # Python3 only. For python2 check out the docs!
     with tempfile.TemporaryDirectory() as tempdir:  
         # Create subprocess, supress output with PIPE and
@@ -66,10 +67,18 @@ def family_list_as_pdf(request):
     return r
 
 class FamilyDetailView(PrefetchRelatedMixin, DetailView):
-    #prefetch_related = ('families_adult_related', 'families_child_related')
+    context_object_name = 'family'
     prefetch_related = ('member_set',)
     model = models.Family
     template_name = 'families/family_detail.html'
+
+
+    #def get_context_data(self, **kwargs):
+    #    context = super(FamilyDetailView, self).get_context_data(**kwargs)
+    #    #context['children'] = [member for member in prefetch_related['member_set'] if member.child == True]
+    #    #context['adults'] = [member for member in prefetch_related['member_set'] if member.child == False]
+    #    return context
+
 
 
 class FamilyCreateView(LoginRequiredMixin, CreateView):
@@ -139,108 +148,69 @@ class MemberListView(ListView):
 
 
 class MemberDetailView(DetailView, SingleObjectMixin):
+    model = models.Member
     context_object_name = 'member'
     template_name = 'families/member_detail.html'
     pk_url_kwarg = 'member_pk'
 
     def get_queryset(self):
-        if self.kwargs['member_type'] == 'a':
-            return models.Adult.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
-        else:
-            return models.Child.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
+        return models.Member.objects.select_related('family').filter(family_id=self.kwargs['family_pk'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['member_type'] = self.kwargs['member_type']
+        member = self.model.objects.get(pk=self.kwargs['member_pk'])
         context['member_pk'] = self.kwargs['member_pk']
         context['family_pk'] = self.kwargs['family_pk']
-        if self.kwargs['member_type'] == 'd':
-            context['age'] = self.get_queryset().get(pk=self.kwargs['member_pk']).age()
+        context['age'] = member.age()
+        return context
+
+
+class MemberCreateView(LoginRequiredMixin, CreateView):
+    model = models.Member
+    fields = ('title', 'first_name', 'last_name', 'suffix', 'fam_member_type', 'gender', 'birth_date', 
+            'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address', 'school', 'notes')
+    template_name = 'families/member_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['user'] = self.request.user.pk
+        initial['last_name'] = models.Family.objects.get(pk=self.kwargs['family_pk']).family_name
+        return initial
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['family_pk'] = self.kwargs['family_pk']
+        return context
+
+    def form_valid(self, form):
+        form.instance.family_id = self.kwargs['family_pk']
+        return super(MemberCreateView, self).form_valid(form)
+
+class MemberDeleteView(DeleteView):
+    model = models.Member
+    def get_success_url(self):
+        return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
+
+    def get_queryset(self):
+        if not self.request.user.is_superuser:
+            return self.model.objects.filter(user=self.request.user)
         else:
-            context['age'] = None
-        return context
+            return self.model.objects.all()
 
 
-class AdultCreateView(LoginRequiredMixin, CreateView):
-    model = models.Adult
-    fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address','notes')
-    template_name = 'families/member_form.html'
-
-    def get_success_url(self):
-        return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
-
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['user'] = self.request.user.pk
-        initial['last_name'] = models.Family.objects.get(pk=self.kwargs['family_pk']).family_name
-        return initial
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context['member_type'] = 'a'
-        context['family_pk'] = self.kwargs['family_pk']
-        return context
-
-    def form_valid(self, form):
-        form.instance.family_id = self.kwargs['family_pk']
-        return super(AdultCreateView, self).form_valid(form)
-
-
-class ChildCreateView(LoginRequiredMixin, CreateView):
-    model = models.Child
-    fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'date_joined', 'school','notes')
-    template_name = 'families/member_form.html'
-    #success_url = reverse_lazy('families:family_detail', kwargs={'pk': model.family.pk})
-
-    def get_success_url(self):
-        return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})
-
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['user'] = self.request.user.pk
-        initial['last_name'] = models.Family.objects.get(pk=self.kwargs['family_pk']).family_name
-        return initial
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context['member_type'] = 'd'
-        context['family_pk'] = self.kwargs['family_pk']
-        return context
-
-    def form_valid(self, form):
-        form.instance.family_id = self.kwargs['family_pk']
-        return super(ChildCreateView, self).form_valid(form)
-
-
-class AdultUpdateView(LoginRequiredMixin, UpdateView):
+class MemberUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'families/member_form.html' 
-    model = models.Adult
-    fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address','notes')
+    model = models.Member
+    fields = ('title', 'first_name', 'last_name', 'suffix', 'fam_member_type', 'gender', 'birth_date', 'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address', 'school', 'notes')
     pk_url_kwarg = 'member_pk'
 
     def get_success_url(self):
-        return reverse_lazy('families:member_detail', kwargs={'family_pk': self.kwargs['family_pk'], 'member_pk': self.kwargs['member_pk'], 'member_type': 'a'})
+        return reverse_lazy('families:member_detail', kwargs={'family_pk': self.kwargs['family_pk'], 'member_pk': self.kwargs['member_pk'] })
 
     def get_context_data(self):
         context = super().get_context_data()
-        context['member_type'] = 'a'
         context['family_pk'] = self.kwargs['family_pk']
-        context['member_pk'] = self.kwargs['member_pk']
-        return context
-
-
-class ChildUpdateView(LoginRequiredMixin, UpdateView):
-    template_name = 'families/member_form.html' 
-    model = models.Child
-    fields = ('title', 'first_name', 'last_name', 'suffix', 'gender', 'birth_date', 'date_joined', 'school','notes')
-    pk_url_kwarg = 'member_pk'
-
-    #def get_success_url(self):
-    #    return reverse_lazy('families:member_detail', kwargs={'family_pk': self.kwargs['family_pk'], 'member_pk': self.kwargs['pk'], 'member_type': 'd'})
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context['member_type'] = 'd'
-        context['family_pk'] = self.kwargs['family_pk']
-        context['member_pk'] = self.kwargs['member_pk']
         return context

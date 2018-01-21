@@ -32,46 +32,30 @@ class FamilyForm(forms.ModelForm):
                 'image',
                 ]
 
-class AdultMemberForm(forms.ModelForm):
+class MemberForm(forms.ModelForm):
     class Meta:
-        model = models.Adult
+        model = models.Member
         fields = [
                 'title',
                 'first_name',
                 'middle_name',
                 'last_name',
                 'suffix',
+                'fam_member_type',
                 'gender',
                 'occupation',
+                'school',
                 ]
 
-class ChildMemberForm(forms.ModelForm):
-    class Meta:
-        model = models.Child
-        fields = [
-                'title',
-                'first_name',
-                'middle_name',
-                'last_name',
-                'suffix',
-                'gender',
-                ]
-
-ChildMemberFormset = forms.modelformset_factory(
-        models.Child,
-        form = ChildMemberForm,
-        extra=2,
-        )
-
-AdultMemberFormset = forms.modelformset_factory(
-        models.Adult,
-        form = AdultMemberForm,
+MemberFormset = forms.modelformset_factory(
+        models.Member,
+        form = MemberForm,
         extra=2,
         )
 
 FamilyMemberInlineFormset = forms.inlineformset_factory(
         models.Family,
-        models.Adult,
+        models.Member,
         fields = (
                 'title',
                 'first_name',
@@ -79,7 +63,8 @@ FamilyMemberInlineFormset = forms.inlineformset_factory(
                 'last_name',
                 'suffix',
                 'gender',
+                'fam_member_type',
         ),
-        formset=AdultMemberFormset,
+        formset=MemberFormset,
         max_num=2,
      )

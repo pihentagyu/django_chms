@@ -38,13 +38,13 @@ class Family(models.Model):
 
     def get_adults(self):
         #return [member for member in self.member_set.all() if hasattr(member, 'adult')]
-        return [member for member in self.member_set.all() if hasattr(member, 'adult')]
+        return [member for member in self.member_set.all().order_by('-gender') if member.fam_member_type == 'a']
 
     def get_children(self):
-        return [member for member in self.member_set.all() if hasattr(member, 'child')]
+        return [member for member in self.member_set.all().order_by('birth_date') if member.fam_member_type == 'c']
     
     def get_children_names(self):
-        return [member.first_name for member in self.member_set.all() if hasattr(member, 'child')]
+        return [member.first_name for member in self.member_set.all() if member.fam_member_type == 'c']
    
     def __str__(self):
         return self.family_name
@@ -58,6 +58,10 @@ class Member(models.Model):
     GENDER_CHOICES = (
         ('M', 'Male'),
         ('F', 'Female')
+    )
+    FMEMBER_TYPE_CHOICES = (
+        ('c', 'Child'),
+        ('a', 'Adult')
     )
     #class Meta:
     #    abstract = True
@@ -73,43 +77,27 @@ class Member(models.Model):
     membership_status = models.CharField(max_length=2, choices=settings.MEMBERSHIP_TYPES, default='FM')
     date_joined = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True)
+    fam_member_type = models.CharField(max_length=1, default='a', choices=FMEMBER_TYPE_CHOICES)
+    occupation = models.CharField(blank=True, max_length=255)
+    workplace = models.CharField(blank=True, max_length=255)
+    work_address = models.CharField(blank=True, max_length=255)
+    marital_status = models.CharField(blank=True, max_length=20)
+    school = models.CharField(blank=True, max_length=255)
     def __str__(self):
         return '%s, %s' % (self.last_name, self.first_name)
 
-    def get_member_type(self):
-        if hasattr(self, 'adult'):
-            return 'a'
-        else:
-            return 'd'
-
     def get_absolute_url(self):
-        member_type = self.get_member_type()
         return reverse('families:member_detail', kwargs={
             'family_pk': self.family_id,
-            'member_type': member_type,
             'member_pk': self.id,
             })
     #def save(self, *args, **kwargs):
     #    self.last_name = self.family.family_name
     #    super(Member, self).save(*args, **kwargs)
 
-
-class Adult(Member):
-    occupation = models.CharField(blank=True, max_length=255)
-    workplace = models.CharField(blank=True, max_length=255)
-    work_address = models.CharField(blank=True, max_length=255)
-    marital_status = models.CharField(blank=True, max_length=20)
-
     class Meta:
-        ordering = ['id',]
+        ordering = ['fam_member_type',]
 
-
-class Child(Member):
-    school = models.CharField(blank=True, max_length=255)
-
-    class Meta:
-        verbose_name_plural = 'Children'
-        ordering = ['birth_date', 'id']
 
     def age(self):
         from families.templatetags.family_extras import age_calc

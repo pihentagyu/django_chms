@@ -37,26 +37,43 @@
         <hr>
     {% endif %}
 
-		<section>
-				{% for member in family.member_set.all %}
-
-                    <h3> <a href="{{ member.get_absolute_url }}">{{ member.first_name }} </a> 
-                    {% if member.last_name != family.family_name %}
-					    {{ member.last_name }}
+		<table>
+				{% for adult in family.get_adults %}
+                <tr>
+                <td>
+                    <h3>
+                    <a href="{{ adult.get_absolute_url }}">{{ adult.first_name }}</a> 
+                    {% if adult.last_name != family.family_name %}
+					    {{ adult.last_name }}
                     {% endif %}
-                        </h3>
-
+                    </h3>
+                </td> 
+                <td> <a href="{% url 'families:member_edit' member_pk=adult.pk family_pk=family.pk %}">Edit</a> </td>
+                <td> <a href="{% url 'families:member_delete' pk=adult.pk family_pk=family.pk %}">Remove</a> </td>
+                </tr>
 				{% endfor %}
-		</section>
+		</table>
+		<table>
+				{% for child in family.get_children %}
+                <tr>
+                    <td>
+                    <h3>
+                        <a href="{{ child.get_absolute_url }}">{{ child.first_name }} </a> 
+                    {% if child.last_name != family.family_name %}
+					    {{ child.last_name }}
+                    {% endif %}
+                    </h3>
+                        </td>
+                <td> <a href="{% url 'families:member_edit' member_pk=child.pk family_pk=family.pk %}">Edit</a></li> </td>
+                <td> <a href="{% url 'families:member_delete' pk=child.pk family_pk=family.pk %}">Remove</a></li> </td>
+                </tr>
+				{% endfor %}
+		</table>
 
 
     </article>
     {% if user.is_authenticated %}
-    {% if family.get_adults|length  < 2 %}
-            <a href="{% url 'families:adult_create' family_pk=family.pk %}" class="button">New Adult</a>
-            <br>
-    {% endif %}
-            <a href="{% url 'families:child_create' family_pk=family.pk %}" class="button">Add Child</a>
+            <a href="{% url 'families:member_create' family_pk=family.pk %}" class="button">Add Member</a>
 	<br>
     {% endif %}
 	<a href="{% url 'families:family_list' %}">Back to list</a>
