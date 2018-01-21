@@ -86,6 +86,9 @@ td.cal {
       vertical-align: top;
     }
 
+td.right {
+    text-align: right;
+}
 td.event {
     background-color: #c0c0d3;
 }

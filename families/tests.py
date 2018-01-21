@@ -48,49 +48,53 @@ class FamilyModelTests(TestCase):
 class FamilyViewsTests(TestCase):
     def setUp(self):
         self.country = Country(
-            name = 'United States')
+                name = 'United States')
         self.country.save()
-
         self.region = Region(
-            name = 'Tennessee',
-            country = self.country)
+                name = 'New York',
+                country = self.country)
         self.region.save()
 
         self.city = City.objects.create(
                 country = self.country,
                 region = self.region,
-                name = 'Chattanooga')
+                name = 'New York')
         self.city.save()
 
         self.family = Family.objects.create(
-                family_name = 'Doe',
-                address1 = '239 Main Street',
+                family_name = 'Jenkins',
+                address1 = '2042 Farnum Road',
                 city = self.city,
                 region = self.region,
                 country = self.country,
-                postal_code = '37405',
+                postal_code = '10013',
                 )
         self.family.save()
+        self.member = Member.objects.create(
+                family = self.family,
+                first_name = 'John',
+                gender = 'M',
+                birth_date = '1950-12-31'
+                )
+        self.member.save()
         self.family2 = Family.objects.create(
-                family_name = 'Matzko',
-                address1 = '1945 Main Street',
+                family_name = 'Singh',
+                address1 = '87 Shady Pines Drive',
                 city = self.city,
                 region = self.region,
                 country = self.country,
-                postal_code = '37505',
+                postal_code = '24251',
                 )
         self.family2.save()
         self.adult = Adult.objects.create(
                 family = self.family,
-                first_name = 'James',
-                last_name = 'Doepp',
+                first_name = 'Robert',
                 gender = 'M',
                 )
         self.adult.save()
         self.child = Child.objects.create(
                 family = self.family,
-                first_name = 'Alexander',
-                last_name = 'Doepp',
+                first_name = 'Jonathan',
                 gender = 'M',
                 )
         self.child.save()
@@ -115,114 +119,15 @@ class FamilyViewsTests(TestCase):
             'family_pk': self.family.pk,
             'member_pk': self.adult.pk,
             }))
-        self.assertEqual(resp.status_code, 200) self.assertEqual(self.adult, resp.context['member']) self.assertTemplateUsed(resp, 'families/member_detail.html') self.assertContains(resp, self.adult.last_name) def test_child_detail_view(self): resp = self.client.get(reverse('families:member_detail', kwargs={ 'family_pk': self.family.pk, 'member_pk': self.child.pk })) self.assertEqual(resp.status_code, 200) self.assertEqual(self.child, resp.context['member'])
+        self.assertEqual(resp.status_code, 200) 
+        self.assertEqual(self.adult, resp.context['member']) 
+        self.assertTemplateUsed(resp, 'families/member_detail.html') 
+        self.assertContains(resp, self.adult.last_name) 
+        
+    def test_child_detail_view(self): 
+        resp = self.client.get(reverse('families:member_detail', kwargs={ 'family_pk': self.family.pk,
+            'member_pk': self.child.pk })) self.assertEqual(resp.status_code, 200) 
+        self.assertEqual(self.child, resp.context['member'])
         self.assertTemplateUsed(resp, 'families/member_detail.html')
         self.assertContains(resp, self.child.last_name)
-
-
-
-Curious what John means? Click here to find out!
-
-Mother's maiden name
-    Howlett
-
-SSN
-    134-34-8245
-    You should click here to find out if your SSN is online.
-
-Geo coordinates
-    40.769538, -73.996658
-
-Phone
-
-Phone
-    
-
-Country code
-    1
-
-Birthday
-
-Birthday
-    
-
-Age
-    212-334-7551
-
-Tropical zodiac
-    Virgo
-
-Online
-
-Email Address
-    JohnEJenkins@rhyta.com
-    This is a real email address. Click here to activate it!
-
-Username
-    Glit1950
-
-Password
-    oob0Zeinae
-
-Website
-    caemail.com
-
-Browser user agent
-    Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36
-
-Finance
-
-MasterCard
-    5179 1429 2198 9327
-
-Expires
-    3/2022
-
-CVC2
-    976
-
-Employment
-
-Company
-    E.J. Korvette
-
-Occupation
-    Director
-
-Physical characteristics
-
-Height
-    5' 10" (177 centimeters)
-
-Weight
-    189.9 pounds (86.3 kilograms)
-
-Blood type
-    A+
-
-Tracking numbers
-
-UPS tracking number
-    1Z 404 719 14 4961 878 7
-
-Western Union MTCN
-    8626212282
-
-MoneyGram MTCN
-    01997816
-
-Other
-
-Favorite color
-    Green
-
-Vehicle
-    2011 BMW 328
-
-GUID
-    5365232b-d536-4f0d-a1e3-24d601e48259
-
-QR Code
-    Click to view the QR code for this identity
-
 

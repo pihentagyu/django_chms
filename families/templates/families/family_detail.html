@@ -37,7 +37,7 @@
         <hr>
     {% endif %}
 
-		<table>
+		        <table class="fam_list">
 				{% for adult in family.get_adults %}
                 <tr>
                 <td>
@@ -48,12 +48,9 @@
                     {% endif %}
                     </h3>
                 </td> 
-                <td> <a href="{% url 'families:member_edit' member_pk=adult.pk family_pk=family.pk %}">Edit</a> </td>
-                <td> <a href="{% url 'families:member_delete' pk=adult.pk family_pk=family.pk %}">Remove</a> </td>
+                <td class="right"><a href="{% url 'families:member_edit' member_pk=adult.pk family_pk=family.pk %}">Edit</a>  <a href="{% url 'families:member_delete' pk=adult.pk family_pk=family.pk %}">Remove</a> </td>
                 </tr>
 				{% endfor %}
-		</table>
-		<table>
 				{% for child in family.get_children %}
                 <tr>
                     <td>
@@ -64,11 +61,10 @@
                     {% endif %}
                     </h3>
                         </td>
-                <td> <a href="{% url 'families:member_edit' member_pk=child.pk family_pk=family.pk %}">Edit</a></li> </td>
-                <td> <a href="{% url 'families:member_delete' pk=child.pk family_pk=family.pk %}">Remove</a></li> </td>
+                <td class="right"><a href="{% url 'families:member_edit' member_pk=child.pk family_pk=family.pk %}">Edit</a>  <a href="{% url 'families:member_delete' pk=child.pk family_pk=family.pk %}">Remove</a> </td>
                 </tr>
 				{% endfor %}
-		</table>
+		        </table>
 
 
     </article>
