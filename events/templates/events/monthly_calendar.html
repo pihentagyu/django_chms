@@ -27,12 +27,18 @@ $(document).ready(function() {
       header: {
         left: 'prev,next today',
         center: 'title',
-        right: 'month,basicWeek,basicDay'
+        right: 'month,agendaWeek,agendaDay'
       },
       navLinks: true, // can click day/week names to navigate views
       editable: true,
       eventLimit: true, // allow "more" link when too many events
-      events: {{ events|create_list|safe}}
+      events: {{ events|create_list|safe}},
+      dayClick: function(date, jsEvent, view, resourceObj) {
+
+        //alert('Date: ' + date.format());
+        //alert('Resource ID: ' + resourceObj.id);
+          window.location = "{% url 'events:event_create' %}" + date.format()
+    }
     });
 
 });
@@ -40,12 +46,4 @@ $(document).ready(function() {
 <div id='calendar'></div>
 
 
-<!-- <div id="calendar">
-	{% if events %}
-    	{% monthly_calendar calyear calmonth events %}
-   {% else %} 
-   	 {% monthly_calendar calyear calmonth %}
-   {% endif %}
-</div>
--->
 {% endblock %}

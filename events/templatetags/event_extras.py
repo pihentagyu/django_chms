@@ -364,8 +364,7 @@ class EventCalendar:
         for from_time in self.time_iterator(self.year, self.month, self.day, settings.DEFAULT_DAY_BEGIN, settings.DEFAULT_DAY_END, delta):
             body.append('<tr>')
             body.append('<td width="10%"><a href="{}">{}</a></td>'.format(reverse('events:event_create', 
-                        kwargs={'start_time':from_time.strftime('%Y%m%d%H%M'), 
-                        'end_time':(from_time + delta).strftime('%Y%m%d%H%M')}),
+                kwargs={'start_time':from_time.strftime('%Y-%m-%dT%H:%M:%S')}),
                         from_time.strftime(settings.TIME_FORMAT)))
             if self.event_list:
                 all_day_events = self.get_time_events(from_time, all_day=True)

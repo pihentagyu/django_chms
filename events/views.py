@@ -1,5 +1,5 @@
 from braces.views import PrefetchRelatedMixin
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
@@ -120,12 +120,15 @@ class EventCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('events:event_list')
 
     def get_context_data(self, **kwargs):
-        self.start_time = self.kwargs.get('start_time', 'none')
-        self.end_time = self.kwargs.get('end_time', 'none')
+        self.start_time = self.kwargs.get('start_time', None)
+        self.end_time = self.kwargs.get('end_time', None)
+        self.date = self.kwargs.get('date', None)
         if self.start_time:
-            self.start_time = datetime.strptime(self.start_time, '%Y%m%d%H%M')
-        if self.end_time:
-            self.end_time = datetime.strptime(self.end_time, '%Y%m%d%H%M')
+            self.start_time = datetime.strptime(self.start_time, '%Y-%m-%dT%H:%M:%S')
+        elif self.date:
+            self.start_time = datetime.strptime(self.date, '%Y-%m-%d')
+        self.end_time = self.start_time + timedelta(hours=1)
+
         
         context = super(EventCreateView, self).get_context_data(**kwargs)
         if 'post_occurrences' in self.request.POST:
