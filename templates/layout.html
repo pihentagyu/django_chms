@@ -19,6 +19,12 @@
 			 <li class="nav"><a class="nav" href="{% url 'families:family_list' %}">Families</a></li>
 			 <li class="nav"><a class="nav" href="{% url 'groups:group_list' %}">Groups</a></li>
 			 <li class="nav"><a class="nav" href="{% url 'events:event_monthly' year=year month=month %}">Events</a></li>
+             {% if not user.is_authenticated %}
+			 <li class="nav-right"><a class="nav" href="{% url 'accounts:login' %}">Login</a></li>
+             {% else %}
+             <li class="nav-right"><a class="nav" href="{% url 'accounts:profile' %}">{{ user.username }}</a></li>
+             <li class="nav-right"><a class="nav" href="{% url 'accounts:logout' %}">Logout</a></li>
+             {% endif %}
 			</ul>
 			
 		</nav>

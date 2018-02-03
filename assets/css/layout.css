@@ -141,11 +141,16 @@ ul.nav {
     background-color: #D4AF37;
 }
 
-ul.nav li {
+li.nav {
     float: left;
+    display: table-cell;
 }
 
-ul.nav li a {
+li.nav-right {
+    float: right;
+    display: table-cell;
+}
+ul.nav  li  a {
     display: block;
     color: white;
     text-align: center;

@@ -11,7 +11,7 @@ from . import forms
 
 class LoginView(FormView):
     form_class = AuthenticationForm
-    success_url = reverse_lazy("families:list")
+    success_url = reverse_lazy("families:family_list")
     template_name = 'accounts/login.html'
 
     def get_form(self, form_class=None):
@@ -35,7 +35,7 @@ class LogoutView(RedirectView):
 class SignUpView(CreateView):
     #form_class = UserCreationForm
     form_class = forms.UserSignUpForm 
-    success_url = 'accounts/login.html'
+    success_url = reverse_lazy('accounts:login')
     template_name = 'accounts/signup.html'
 
     def form_valid(self, form):
