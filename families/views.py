@@ -2,7 +2,7 @@ from braces.views import PrefetchRelatedMixin
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.forms.models import modelform_factory
@@ -81,8 +81,9 @@ class FamilyDetailView(PrefetchRelatedMixin, DetailView):
 
 
 
-class FamilyCreateView(LoginRequiredMixin, CreateView):
+class FamilyCreateView(PermissionRequiredMixin, CreateView):
     #fields = ('user', 'family_name', 'address1', 'address2', 'city', 'postal_code', 'region', 'country', 'notes')
+    permission_required = 'is_staff'
     template_name = 'families/family_form.html'
     form_class = forms.FamilyForm
     success_url = reverse_lazy('families:family_list')
@@ -106,7 +107,8 @@ class FamilyCreateView(LoginRequiredMixin, CreateView):
         return initial
 
 
-class FamilyDeleteView(DeleteView):
+class FamilyDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = 'is_staff'
     model = models.Family
     success_url = reverse_lazy('families:family_list')
 
@@ -121,6 +123,8 @@ class FamilyUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Family
     #fields = ('user', 'family_name', 'address1', 'address2', 'postal_code', 'country', 'region', 'city', 'notes'),
     form_class = forms.FamilyForm
+    def get_object(self):
+        return self.request.user
 
 class FamilySearchView(PrefetchRelatedMixin, ListView):
     prefetch_related = ('member_set',)
@@ -132,6 +136,7 @@ class FamilySearchView(PrefetchRelatedMixin, ListView):
     def get_queryset(self):
         term = self.request.GET.get('q')
         return self.model.objects.filter(Q(family_name__icontains=term)|Q(member__first_name__icontains=term)).distinct()
+
 
 
 class MemberListView(ListView):
