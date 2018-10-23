@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from families.models import Member
 
 # Create your models here.
@@ -11,7 +11,7 @@ class GroupType(models.Model):
 
 class Group(models.Model):
     group_name = models.CharField(max_length=100)
-    group_type = models.ForeignKey(GroupType, blank=True, null=True)
+    group_type = models.ForeignKey(GroupType, blank=True, null=True, on_delete=models.PROTECT)
     group_description = models.CharField(blank=True, max_length=255)
     group_members = models.ManyToManyField(Member, through='GroupMember')
 
@@ -19,7 +19,7 @@ class Group(models.Model):
         return self.group_name
 
     def get_absolute_url(self):
-        return reverse('groups:group_detail', kwargs={
+        return reverse_lazy('groups:group_detail', kwargs={
             'pk': self.id,
             })
 
@@ -31,10 +31,10 @@ class MemRole(models.Model):
         return self.mem_role
 
 class GroupMember(models.Model):
-    member = models.ForeignKey(Member)
-    group = models.ForeignKey(Group)
+    member = models.ForeignKey(Member, on_delete=models.PROTECT)
+    group = models.ForeignKey(Group, on_delete=models.PROTECT)
     leader = models.BooleanField(default=False)
-    member_role = models.ForeignKey(MemRole, blank=True, null=True)
+    member_role = models.ForeignKey(MemRole, blank=True, null=True, on_delete=models.PROTECT)
 
     def __str__(self):
         return '%s: %s (%s)' % (self.group, self.member, self.member_role)

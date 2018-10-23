@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from dateutil import rrule
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.db import models
 
 from events.templatetags.event_extras import duration_calc
@@ -30,12 +30,12 @@ class Event(models.Model):
     name = models.CharField(max_length=35)
     event_type = models.CharField(choices=EVENT_TYPE_CHOICES, max_length=1)
     description = models.CharField(blank=True, null=True, max_length=255)
-    creator = models.ForeignKey(Member)
-    group = models.ForeignKey(Group, blank=True, null=True)
-    location = models.ForeignKey(Location, blank=True, null=True)
+    creator = models.ForeignKey(Member, on_delete=models.PROTECT)
+    group = models.ForeignKey(Group, blank=True, null=True, on_delete=models.PROTECT)
+    location = models.ForeignKey(Location, blank=True, null=True, on_delete=models.PROTECT)
 
     def get_absolute_url(self):
-        return reverse('events:event_detail', kwargs={
+        return reverse_lazy('events:event_detail', kwargs={
             'pk': self.id,
             })
 
@@ -133,7 +133,7 @@ class Event(models.Model):
 
 
 class Occurrence(models.Model):
-    event = models.ForeignKey(Event)
+    event = models.ForeignKey(Event, on_delete=models.PROTECT)
     notes = models.CharField(blank=True, null=True, max_length=255)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -175,7 +175,7 @@ byeaster If given, it must be either an integer, or a sequence of integers, posi
 '''
 
 class CalculatedOccurrence(models.Model):
-    event = models.ForeignKey(Event)
+    event = models.ForeignKey(Event, on_delete=models.PROTECT)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     freq = models.IntegerField()

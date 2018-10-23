@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 from django import template
 from django.conf import settings
 from django.core.serializers import serialize
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import conditional_escape as esc

@@ -2,7 +2,7 @@ from braces.views import PrefetchRelatedMixin
 from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.conf import settings

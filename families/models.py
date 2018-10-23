@@ -1,6 +1,6 @@
 from django.conf import settings
 #from django.core.urlresolvers import reverse
-from django.urls import reverse
+from django.urls import reverse_lazy
 from django.db import models
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
@@ -20,14 +20,14 @@ class Family(models.Model):
     class Meta:
         verbose_name_plural = 'Families'
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.OneToOneField(User, blank=True, null=True, on_delete=models.SET_NULL)
+    user = models.OneToOneField(User, blank=True, null=True, on_delete=models.PROTECT)
     family_name = models.CharField(max_length=50)
     address1 = models.CharField(blank=True, max_length=255)
     address2 = models.CharField(blank=True, max_length=255)
     postal_code = models.CharField(blank=True, max_length=15)
-    country = models.ForeignKey(Country, blank=True, null=True)
-    region = models.ForeignKey(Region, blank=True, null=True)
-    city = models.ForeignKey(City, blank=True, null=True)
+    country = models.ForeignKey(Country, blank=True, null=True, on_delete=models.PROTECT)
+    region = models.ForeignKey(Region, blank=True, null=True, on_delete=models.PROTECT)
+    city = models.ForeignKey(City, blank=True, null=True, on_delete=models.PROTECT)
 
     membership_status = models.CharField(max_length=2, choices=settings.MEMBERSHIP_TYPES, default='FM')
     notes = models.TextField(blank=True)
@@ -66,7 +66,7 @@ class Member(models.Model):
     )
     #class Meta:
     #    abstract = True
-    family = models.ForeignKey(Family) 
+    family = models.ForeignKey(Family, on_delete=models.PROTECT) 
     objects = InheritanceManager()
     title = models.CharField(blank=True, max_length=15)
     first_name = models.CharField(max_length=50)

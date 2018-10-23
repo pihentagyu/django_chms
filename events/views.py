@@ -2,7 +2,7 @@ from braces.views import PrefetchRelatedMixin
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.shortcuts import render
