@@ -24,6 +24,15 @@ h2.cal {
       text-align: center;
     }
 
+a.button {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+
+    text-decoration: none;
+    color: initial;
+}
+
 a.rbutton {
     -webkit-appearance: button;
     -moz-appearance: button;
@@ -181,6 +190,10 @@ ul.nav2 li a {
     text-decoration: none;
 }
 
+ul.formlist {
+    list-style-type: none;
+
+}
 ul.pagination {
     list-style-type: none;
     margin: 0;

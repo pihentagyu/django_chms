@@ -9,10 +9,17 @@
 <div>
     <h1>{{ form.instance.group_name|default:"Enter a new group" }}</h1>
     <form method="POST" action="">
+    <table class="formtable">
         {% csrf_token %}
-        {{ form.as_p }}
+        <tr><td>{{ form.group_name.label }}</td><td>{{ form.group_name }}</td><td></td></tr>
+        <tr><td>{{ form.group_type.label }}</td><td>{{ form.group_type }}</td><td><a href="{% url 'groups:grouptype_create' %}">New Group Type</a></td></tr>
+        <tr><td>{{ form.group_description.label }}</td><td>{{ form.group_description }}</td><td></td></tr>
         {{ form.media }}
-        <input type="submit" class="button" value="Save"><a href="{% url 'groups:group_list' %}">Cancel</a>
+        <tr><td>
+        <input type="submit" class="button" value="Save"></td><td><a class="button" href="{% url 'groups:group_list' %}">Cancel</a></td>
+        </td><td></td>
+        </tr>
+    </table>
     </form>
 </div>
 {% endblock %}
