@@ -112,3 +112,5 @@ staticfiles
 .env
 *.html~
 *.css~
+
+media/*

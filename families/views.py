@@ -121,10 +121,20 @@ class FamilyDeleteView(PermissionRequiredMixin, DeleteView):
 
 class FamilyUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Family
-    #fields = ('user', 'family_name', 'address1', 'address2', 'postal_code', 'country', 'region', 'city', 'notes'),
+    template_name = 'families/family_form.html'
+    #fields = ('user', 'family_name', 'address1', 'address2', 'postal_code', 'country', 'region', 'city', 'notes')
     form_class = forms.FamilyForm
-    def get_object(self):
-        return self.request.user
+    #def get_object(self):
+    #    return self.request.user
+    #pk_url_kwarg = 'pk'
+
+    def get_success_url(self):
+        return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['pk'] })
+
+    #def get_context_data(self):
+    #    context = super().get_context_data()
+    #    context['pk'] = self.kwargs['pk']
+    #    return context
 
 class FamilySearchView(PrefetchRelatedMixin, ListView):
     prefetch_related = ('member_set',)
@@ -136,7 +146,6 @@ class FamilySearchView(PrefetchRelatedMixin, ListView):
     def get_queryset(self):
         term = self.request.GET.get('q')
         return self.model.objects.filter(Q(family_name__icontains=term)|Q(member__first_name__icontains=term)).distinct()
-
 
 
 class MemberListView(ListView):
@@ -172,9 +181,8 @@ class MemberDetailView(DetailView, SingleObjectMixin):
 
 class MemberCreateView(LoginRequiredMixin, CreateView):
     model = models.Member
-    fields = ('title', 'first_name', 'last_name', 'suffix', 'fam_member_type', 'gender', 'birth_date', 
-            'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address', 'school', 'notes')
     template_name = 'families/member_form.html'
+    form_class = forms.MemberForm
 
     def get_success_url(self):
         return reverse_lazy('families:family_detail', kwargs={'pk': self.kwargs['family_pk']})

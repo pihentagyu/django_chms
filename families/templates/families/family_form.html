@@ -4,16 +4,18 @@
 
 {% load staticfiles %}
 
-{% block title %} {{ form.instance.family_name|default:"New Family" }} {{ block.super }} {% endblock %}
+{% block title %} 
+{{ family }} {{ form.instance.family_name|default:"New Family" }} {{ block.super }} 
+{% endblock %}
 {% block content %}
 <div>
     <h1>{{ form.instance.family_name|default:"Enter a new family" }}</h1>
-    <form method="POST" action="">
+    <form method="POST" enctype="multipart/form-data" action="">
         {% csrf_token %}
         {% if request.user.is_staff %}
         {{ form.user }}
         {% endif %}
-        {{ form.as_table }}
+        {{ form.as_p }}
         {{ form.media }}
         <input type="submit" class="button" value="Save"><a href="{% url 'families:family_list' %}">Cancel</a>
     </form>

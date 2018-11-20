@@ -20,10 +20,10 @@
 						</div>
 				</td>
 						<td>
-								{% if family.image %}
-							<img src="{{ family.image.url }}" alt="{{ family.family_name }} Family Photo" width="500">
+								{% if family.image_sm %}
+							<img src="{{ family.image_sm.url }}" alt="{{ family.family_name }} Family Photo" width="300">
 								{% else %}
-							<img src="/media/photos/family.png" alt="{{ family.family_name }} Family Photo" width="500">
+							<img src="media/photos/family.png" alt="{{ family.family_name }} Family Photo" width="300">
 								{% endif %}
 						</td>
 			</table>

@@ -17,6 +17,11 @@ class Family(models.Model):
     def get_image_path(instance, filename):
         return os.path.join('photos', str(instance.id), filename)
 
+    #def user_directory_path(instance, filename):
+    #    filename = os.path.split(filename)[1]
+    #    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    #    return 'photos_{0}/{1}'.format(instance.id, filename)
+
     class Meta:
         verbose_name_plural = 'Families'
     created_at = models.DateTimeField(auto_now_add=True)
@@ -51,7 +56,7 @@ class Family(models.Model):
         return self.family_name
 
     def get_absolute_url(self):
-        return reverse('families:family_detail', kwargs={
+        return reverse_lazy('families:family_detail', kwargs={
             'pk': self.id,
             })
 
@@ -63,6 +68,12 @@ class Member(models.Model):
     FMEMBER_TYPE_CHOICES = (
         ('c', 'Child'),
         ('a', 'Adult')
+    )
+    MARITAL_STATUS_CHOICES = (
+        ('s', 'Single'),
+        ('m', 'Married'),
+        ('d', 'Divorced'),
+        ('w', 'Widowed'),
     )
     #class Meta:
     #    abstract = True
@@ -82,13 +93,13 @@ class Member(models.Model):
     occupation = models.CharField(blank=True, max_length=255)
     workplace = models.CharField(blank=True, max_length=255)
     work_address = models.CharField(blank=True, max_length=255)
-    marital_status = models.CharField(blank=True, max_length=20)
+    marital_status = models.CharField(blank=True, max_length=1, default='s', choices=MARITAL_STATUS_CHOICES)
     school = models.CharField(blank=True, max_length=255)
     def __str__(self):
         return '%s, %s' % (self.last_name, self.first_name)
 
     def get_absolute_url(self):
-        return reverse('families:member_detail', kwargs={
+        return reverse_lazy('families:member_detail', kwargs={
             'family_pk': self.family_id,
             'member_pk': self.id,
             })

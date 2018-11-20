@@ -1,4 +1,5 @@
 from dal import autocomplete
+from datetime import date
 from django import forms
 
 from . import models
@@ -31,6 +32,7 @@ class FamilyForm(forms.ModelForm):
                 'notes',
                 'image',
                 ]
+        widgets = {'image': forms.widgets.ClearableFileInput}
 
 class MemberForm(forms.ModelForm):
     class Meta:
@@ -43,10 +45,19 @@ class MemberForm(forms.ModelForm):
                 'suffix',
                 'fam_member_type',
                 'gender',
+                'birth_date', 
+                'marital_status', 
+                'date_joined', 
                 'occupation',
+                'workplace', 
                 'school',
+                'work_address', 
+                'notes'
                 ]
 
+        widgets = {'birth_date': forms.widgets.SelectDateWidget(years=[y for y in range(date.today().year, date.today().year-110, -1)]), 'date_joined': forms.widgets.SelectDateWidget(years=[y for y in range(date.today().year, date.today().year-110, -1)])}
+        #fields = ('title', 'first_name', 'last_name', 'suffix', 'fam_member_type', 'gender', 'birth_date', 
+        #        'marital_status', 'date_joined', 'occupation', 'workplace', 'work_address', 'school', 'notes')
 MemberFormset = forms.modelformset_factory(
         models.Member,
         form = MemberForm,
