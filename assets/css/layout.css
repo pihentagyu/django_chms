@@ -1,3 +1,11 @@
+html {
+  font-family: serif;
+}
+body {
+  margin: 0;
+  font-family: serif;
+  line-height: 1.5;
+}
 body.cal {
       line-height: 1;
       margin: 50px;
@@ -143,11 +151,15 @@ div.center {
 }
 
 ul.nav {
+    display: block;
     list-style-type: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #D4AF37;
+}
+.nav {
+  display: block;
 }
 
 li.nav {

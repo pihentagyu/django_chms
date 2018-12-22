@@ -1,23 +1,21 @@
-{% extends 'events/layout.html' %}
-{% load event_extras %}
-{% load staticfiles %}
-
+{% extends "events/layout.html" %}
 {% block title %} {{ form.instance.name|default:"New Event" }} {{ block.super }} {% endblock %}
+
 {% block static %}
+{% load event_extras %}
+{% load humanize event_extras %}
+{% load staticfiles %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+{# Load CSS and JavaScript #}
+    <script type="text/javascript" src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.formset.js' %}"></script>
+
     <script type="text/javascript" src="{% static 'js/handle.click.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/moment.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/collapse.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/transition.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/bootstrap3/bootstrap.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/bootstrap3/bootstrap.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" />
-    <script src="{% static 'js/jquery.formset.js' %}"></script>
-    <script type="text/javascript">
-    $(function addTimePicker() {
-        $('.timepicker').datetimepicker()
-    })
-    </script>
+    
     <script type="text/javascript">
     $(function() {
         $('.formset_row').formset({
@@ -43,32 +41,27 @@
         }
          </script>
 
-
 {% endblock %}
 {% block content %}
+
+{{ recurring_events.media }}
+{{ occurrences.media }}
+<link rel="stylesheet" href="{% static 'css/layout.css' %}">
 
 <div>
     <h1>{{ form.instance.name|default:"Enter a new Event" }}</h1>
         <form id="events_form" method="POST" action="">
+        {{ occurrences.management_form }}
         {% csrf_token %}
-        {{ form.as_ul }}
-        <input type="submit" name="post_occurrences" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
-
+        {% bootstrap_form form %}
         <div id="Multiple">
+        <input type="submit" name="post_occurrences" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
 
         {% if form.instance.event_type == "R" %}
         <p>Recurring</p>
         {% elif form.instance.event_type == "S" %}
         <p>Simple</p>
         {% endif %}
-        {% for formset in inlines %}
-            {{ formset.management_form }}
-            {% for subform in formset %}
-                <div class="subform">
-                    {{ subform }}
-                </div>
-            {% endfor %}
-        {% endfor %}
             <table class="table">
                 {% for occur_form in occurrences.forms %}
                     {% if forloop.first %}
@@ -100,21 +93,20 @@
                     </tr>
 					</div>
                 {% endfor %}
+
                 
             </table>
-                {{ occurrences.management_form }}
 
         </div>
         <div id="Recurring" style="display:none;">
-        <input type="submit" name="post_recurrent" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
+        <input type="submit" name="post_recurring" value="Save"/> <a href="{% url 'events:event_list' %}">Cancel</a>
 
             <table>
             	<th>Recurring Event</th>
         			<tr id="test"><td>{{ recurring_events.freq }}</td>
-
         			</tr>
 					<tr>
-						<td>Begin Date: {{ recurring_events.dtstart }}</td>
+						<td>Begin Date: {{ recurring_events.start_time }}</td>
 						<td id="hideOnClick">End Date: {{ recurring_events.until }}</td>        								
 					</tr>
 					<tr>
@@ -123,8 +115,7 @@
         				<label for="cb"><input id="cb" type="checkbox" onclick="handleClick(this);"/>No End Date</label>
 					</td>
 		        	</tr>
- 					<tr><td>{{ recurring_events.tstart }}</td></tr>
-        			<tr><td>{{ recurring_events.tend }}</td></tr>
+        			<tr><td>Duration: {{ recurring_events.duration }}</td></tr>
         			<tr></tr>
             </table>
 

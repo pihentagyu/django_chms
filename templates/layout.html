@@ -1,15 +1,13 @@
 {% load static from staticfiles %}
 {% load humanize event_extras %}
-
 <!doctype html>
 {% this_year as year %}
 {% this_month as month %}
 <html>
   <head>
-    <script type="text/javascript" src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 	  <title>{% block title %} {% endblock %}</title>
       <link rel="stylesheet" href="{% static 'css/layout.css' %}">
-      {% block static %}{% endblock %}
+      {% block static %} {% endblock %}
   </head>
   <body>
   <div class="site-container">
@@ -20,10 +18,10 @@
 			 <li class="nav"><a class="nav" href="{% url 'groups:group_list' %}">Groups</a></li>
 			 <li class="nav"><a class="nav" href="{% url 'events:event_monthly' year=year month=month %}">Events</a></li>
              {% if not user.is_authenticated %}
-			 <li class="nav-right"><a class="nav" href="{% url 'accounts:login' %}">Login</a></li>
+			 <li class="nav-right"><a href="{% url 'accounts:login' %}">Login</a></li>
              {% else %}
-             <li class="nav-right"><a class="nav" href="{% url 'accounts:profile' %}">{{ user.username }}</a></li>
-             <li class="nav-right"><a class="nav" href="{% url 'accounts:logout' %}">Logout</a></li>
+             <li class="nav-right"><a href="{% url 'accounts:profile' %}">{{ user.username }}</a></li>
+             <li class="nav-right"><a href="{% url 'accounts:logout' %}">Logout</a></li>
              {% endif %}
 			</ul>
 			

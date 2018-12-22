@@ -60,46 +60,37 @@ class Event(models.Model):
         only a single ``Occurrence`` instance will be created using the exact
         ``start_time`` and ``end_time`` values.
         '''
-        # freq = kwarg.pop('freq', None)
-        # dtstart = kwarg.pop('dtstart', None)
-        # interval = kwarg.pop('interval', None)
-        # wkst = kwarg.pop('wkst', None)
-        # count = kwarg.pop('count', None)
-        # until = kwarg.pop('until', None)
-        # bysetpos = kwarg.pop('bysetpos', None)
-        # bymonth = kwarg.pop('bymonth', None)
-        # bymonthday = kwarg.pop('bymonthday', None)
-        # byyearday = kwarg.pop('byyearday', None)
-        # byweekno = kwarg.pop('byweekno', None)
-        # byweekday = kwarg.pop('byweekday', None)
-        # byeaster = kwarg.pop('byeaster', None)
-        # start_time = kwarg.pop('start_time', None)
-        # end_time = kwarg.pop('end_time', None)
-        start_time = kwargs.pop('tstart', None)
-        end_time = kwargs.pop('tend', None)
+
+        # freq 
+        # dtstart 
+        # interval 
+        # wkst 
+        # count 
+        # until 
+        # bysetpos 
+        # bymonth 
+        # bymonthday 
+        # byyearday 
+        # byweekno 
+        # byweekday 
+        # byeaster 
+
+        freq = int(kwargs.pop('freq'))
         all_day = kwargs.pop('all_day', False)
-        kwargs['freq'] = int(kwargs['freq'])
-        freq = kwargs['freq']
-        start_datetime = datetime.combine(kwargs['dtstart'], start_time)
-        end_datetime = datetime.combine(kwargs['dtstart'], end_time) ## This only works for begin and end times on the same day!
-        kwargs['dtstart'] = start_datetime
-        kwargs['until'] = datetime.combine(kwargs['until'], end_time)
-
-        delta = end_datetime - start_datetime
+        duration = kwargs.pop('duration')
+        start_time = kwargs.pop('start_time')
+        end_time = start_time + duration
         if all_day == True:
-            start_time, end_time = Occurrence.set_all_day_times(start_time)
+            #duration = Occurrence.set_all_day_times(start_time)
+            duration = timedelta(days=1)
 
-        if self.event_type == 'S':
-            self.occurrence_set.create(event=self, start_time=start_time, end_time=end_time, **kwargs)
-
-
-        if (kwargs.get('count') or kwargs.get('until')):
-            kwargs.setdefault('freq', rrule.DAILY)
-            occurrences = []
-            for ev in rrule.rrule(**kwargs):
-                occurrences.append(Occurrence(event=self, start_time=ev, end_time=ev+delta, notes=None, all_day=all_day))
-            self.occurrence_set.bulk_create(occurrences)
-        else:
+        #if (kwargs.get('count') or kwargs.get('until')):
+        #    kwargs.setdefault('freq', rrule.DAILY)
+        #    #occurrences = []
+        #    #for ev in rrule.rrule(**kwargs):
+        #    #    occurrences.append(Occurrence(event=self, start_time=ev, duration=duration, notes=None, all_day=all_day))
+        #    #self.occurrence_set.bulk_create(occurrences)
+        if kwargs.get('until', None) == None:
             year = timedelta(365)
             if freq == rrule.YEARLY:
                 kwargs['until'] = kwargs['dtstart'] + 25 * year # Add 25 years in occurrence table
@@ -109,16 +100,12 @@ class Event(models.Model):
                 kwargs['until'] = kwargs['dtstart'] + 15 * year # Add 25 years in occurrence table
             elif freq == rrule.DAILY:
                 kwargs['until'] = kwargs['dtstart'] + 10 * year # Add 25 years in occurrence table
+            #self.calculatedoccurrence_set.create(event=self, start_time=start_time, end_time=end_time, **kwargs)
 
-            occurrences = [[Occurrence(event=self, start_time=occurrence, end_time=occurrence+delta, notes=None, all_day=all_day)] for occurrence in rrule.rrule(**kwargs)]
-            self.occurrence_set.bulk_create(occurrences)
+        occurrences = [Occurrence(event=self, start_time=occurrence, end_time=end_time, notes=None, all_day=all_day, multi_day=False) for occurrence in rrule.rrule(freq, **kwargs)]
+        self.occurrence_set.bulk_create(occurrences)
 
-            dtstart = until
-            until = None
-            self.calculatedoccurrence_set.create(event=self, start_time=start_time, end_time=end_time, **kwargs)
-                
-
-    def get_occurrences(self, start_time, end_time, **kwargs):
+    def get_occurrences(self, duration, **kwargs):
         occurrence_type = kwargs.pop('type', None)
         if occurrence_type == 'recurring':
             '''get recurring only'''
@@ -129,8 +116,6 @@ class Event(models.Model):
         else:
             return 'all'
 
-        pass
-
 
 class Occurrence(models.Model):
     event = models.ForeignKey(Event, on_delete=models.PROTECT)
@@ -140,17 +125,21 @@ class Occurrence(models.Model):
     all_day = models.BooleanField()
     multi_day = models.BooleanField()
 
-    def get_duration(self): # return min as float
-        return duration_calc(self.start_time, self.end_time)
+    @property
+    def duration(self):
+        duration = end_time - start_time
 
-    def get_duration_hm(self): #return h:m
-        return duration_calc(self.start_time, self.end_time, humanized=True)
+    #def get_duration(self): # return min as float
+    #    return duration_calc(self.start_time, self.end_time)
 
-    def set_all_day_times(self, start_time):
-        if self.all_day == True:
-            start_time = datetime.combine(start_time, datetime.min.time())
-            end_time = datetime.combine(start_time, datetime.max.time())
-            return start_time, end_time
+    #def get_duration_hm(self): #return h:m
+    #    return duration_calc(self.start_time, self.end_time, humanized=True)
+
+    #def set_all_day_times(self, start_time):
+    #    if self.all_day == True:
+    #        start_time = datetime.combine(start_time, datetime.min.time())
+    #        end_time = datetime.combine(start_time, datetime.max.time())
+    #        return start_time, end_time
 
 '''
 rrule parameters from documentation:

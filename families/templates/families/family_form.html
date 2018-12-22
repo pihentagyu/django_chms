@@ -1,8 +1,5 @@
 {% extends 'families/layout.html' %}
 {% load family_extras %}
-{% load bootstrap3 %}
-
-{% load staticfiles %}
 
 {% block title %} 
 {{ family }} {{ form.instance.family_name|default:"New Family" }} {{ block.super }} 

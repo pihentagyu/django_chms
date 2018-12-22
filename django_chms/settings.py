@@ -26,7 +26,7 @@ SECRET_KEY = 'n4vqg2&4gvtm6n**4&nn$*f1&2g_^m5ornve6+p64oet%z33q='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['django-chms.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['django-chms.herokuapp.com', 'localhost', 'testserver']
 
 
 # Application definition
@@ -41,10 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_static_jquery',
     'django.contrib.humanize',
-    'bootstrap3',
-    'bootstrapform',
+    'jquery',
+    'bootstrap4',
+    'bootstrap_datepicker_plus',
+    'formset_bootstrap',
     'debug_toolbar',
     'accounts',
     'families',
@@ -54,7 +55,13 @@ INSTALLED_APPS = [
     'cities_local',
     'jsonify',
 ]
+INSTALLED_APPS += (
+)
 CITIES_LIGHT_APP_NAME = 'cities_local'
+
+BOOTSTRAP4 = {
+    'include_jquery': True,
+}
 
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -149,7 +156,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
-#DEBUG_TOOLBAR_PATCH_SETTINGS = False
+DEBUG_TOOLBAR_PATCH_SETTINGS = True
 
 DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': lambda x: True

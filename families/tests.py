@@ -1,10 +1,10 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
 
 # Create your tests here.
 
-from .models import Family, Member, Adult, Child
+from .models import Family, Member
 from cities_local.models import Country, Region, City
 
 class FamilyModelTests(TestCase):
@@ -74,7 +74,8 @@ class FamilyViewsTests(TestCase):
                 family = self.family,
                 first_name = 'John',
                 gender = 'M',
-                birth_date = '1950-12-31'
+                birth_date = '1950-12-31',
+                fam_member_type = 'a',
                 )
         self.member.save()
         self.family2 = Family.objects.create(
@@ -86,18 +87,6 @@ class FamilyViewsTests(TestCase):
                 postal_code = '24251',
                 )
         self.family2.save()
-        self.adult = Adult.objects.create(
-                family = self.family,
-                first_name = 'Robert',
-                gender = 'M',
-                )
-        self.adult.save()
-        self.child = Child.objects.create(
-                family = self.family,
-                first_name = 'Jonathan',
-                gender = 'M',
-                )
-        self.child.save()
     def test_family_list_view(self):
         resp = self.client.get(reverse('families:family_list'))
         self.assertEqual(resp.status_code, 200)
@@ -113,21 +102,13 @@ class FamilyViewsTests(TestCase):
         self.assertEqual(self.family, resp.context['family'])
         self.assertTemplateUsed(resp, 'families/family_detail.html')
         self.assertContains(resp, self.family.family_name)
-    
-    def test_adult_detail_view(self):
+
+    def test_member_detail_view(self):
         resp = self.client.get(reverse('families:member_detail', kwargs={
             'family_pk': self.family.pk,
-            'member_pk': self.adult.pk,
+            'member_pk': self.member.pk,
             }))
         self.assertEqual(resp.status_code, 200) 
-        self.assertEqual(self.adult, resp.context['member']) 
         self.assertTemplateUsed(resp, 'families/member_detail.html') 
-        self.assertContains(resp, self.adult.last_name) 
+        self.assertContains(resp, self.member.last_name) 
         
-    def test_child_detail_view(self): 
-        resp = self.client.get(reverse('families:member_detail', kwargs={ 'family_pk': self.family.pk,
-            'member_pk': self.child.pk })) self.assertEqual(resp.status_code, 200) 
-        self.assertEqual(self.child, resp.context['member'])
-        self.assertTemplateUsed(resp, 'families/member_detail.html')
-        self.assertContains(resp, self.child.last_name)
-

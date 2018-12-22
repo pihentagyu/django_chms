@@ -57,9 +57,8 @@ class EventMonthlyListView(ListView):
         # Queries the events in the Occurrence table that fall on the given month
         return self.model.objects.filter(Q(start_time__year=self.kwargs['year'],
             start_time__month=self.kwargs['month'])
-            |(Q(end_time__year=self.kwargs['year'],
-            end_time__month=self.kwargs['month'])
-            )
+            #|(Q(end_time__year=self.kwargs['year'],
+            #end_time__month=self.kwargs['month']))
             )
 
 
@@ -101,9 +100,9 @@ class EventDailyListView(ListView):
         return self.model.objects.filter(Q(start_time__year=self.kwargs['year'],
             start_time__month=self.kwargs['month'], 
             start_time__day=self.kwargs['day'])
-            |(Q(end_time__year=self.kwargs['year'],
-            end_time__month=self.kwargs['month'], 
-            end_time__day=self.kwargs['day']))
+            #|(Q(end_time__year=self.kwargs['year'],
+            #end_time__month=self.kwargs['month'], 
+            #end_time__day=self.kwargs['day']))
             )
 
 
@@ -121,34 +120,32 @@ class EventCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         self.start_time = self.kwargs.get('start_time', None)
-        self.end_time = self.kwargs.get('end_time', None)
+        self.duration = self.kwargs.get('duration', None)
         self.date = self.kwargs.get('date', None)
         if self.start_time:
             self.start_time = datetime.strptime(self.start_time, '%Y-%m-%dT%H:%M:%S')
         elif self.date:
             self.start_time = datetime.strptime(self.date, '%Y-%m-%d')
-        self.end_time = self.start_time + timedelta(hours=1)
-
         
         context = super(EventCreateView, self).get_context_data(**kwargs)
         if 'post_occurrences' in self.request.POST:
             #context['occurrences'] = forms.OccurrenceFormset(self.request.POST,
             #       form_kwargs={'start_time': self.start_time, 'end_time': self.end_time})
             context['occurrences'] = forms.OccurrenceFormset(self.request.POST)
+            context['recurring_events'] = None
             #context['occurrences'].fields['start_time'].required = True
             #context['occurrences'].fields['end_time'].required = True
             #context['occurrences'].fields['all_day'].required = True
-        elif 'post_recurrent' in self.request.POST:
+        elif 'post_recurring' in self.request.POST:
             context['recurring_events'] = forms.RecurringEventForm(self.request.POST)
             context['recurring_events'].fields['freq'].required = True
-            context['recurring_events'].fields['dtstart'].required = True
-            context['recurring_events'].fields['tstart'].required = True
-            context['recurring_events'].fields['tend'].required = True
+            context['recurring_events'].fields['start_time'].required = True
+            context['recurring_events'].fields['duration'].required = True
             context['recurring_events'].fields['until'].required = True
-
+            context['occurrences'] = None
         else:
             context['occurrences'] = forms.OccurrenceFormset(form_kwargs={'start_time': self.start_time,
-                 'end_time': self.end_time})
+                 'end_time': self.start_time + timedelta(minutes=30)})
             context['recurring_events'] = forms.RecurringEventForm()
         return context
 
@@ -159,23 +156,24 @@ class EventCreateView(LoginRequiredMixin, CreateView):
         recurring_events = context.get('recurring_events', None)
         self.object = form.save()
         with transaction.atomic():
-            if occurrences and occurrences.is_valid():
-                occurrences.instance = self.object
-                print(occurrences)
-                occurrences.save()
-                #self.object.add_occurrences(**occurrences.cleaned_data)
-            elif recurring_events and recurring_events.is_valid():
-                self.object = form.save()
-                print(recurring_events.cleaned_data)
-                self.object.add_occurrences(**recurring_events.cleaned_data)
-            else:
-                if recurring_events:
-                    print('recurring_events errors:')
-                    for error in recurring_events.errors:
-                        print(error)
-                if occurrences:
+            if occurrences != None:
+                if occurrences.is_valid():
+                    occurrences.instance = self.object
+                    print(occurrences)
+                    occurrences.save()
+                    #self.object.add_occurrences(**occurrences.cleaned_data)
+                else:
                     print('occurence errors:')
                     for error in occurrences.errors:
+                        print(error)
+            elif recurring_events != None:
+                if recurring_events.is_valid():
+                    #self.object = form.save()
+                    print(recurring_events.cleaned_data)
+                    self.object.add_occurrences(**recurring_events.cleaned_data)
+                else:
+                    print('recurring_events errors:')
+                    for error in recurring_events.errors:
                         print(error)
 
 
@@ -184,8 +182,8 @@ class EventCreateView(LoginRequiredMixin, CreateView):
         return super(EventCreateView, self).form_valid(form)
 
 class OccurrenceInline(InlineFormSet):
-    fields = ('start_time', 'end_time', 'all_day')
-    max_num = 1
+    fields = ('start_time', 'duration', 'notes', 'all_day', 'multi_day')
+    #max_num = 1
     model = models.Occurrence
 
 class EventUpdateView(LoginRequiredMixin, UpdateWithInlinesView):

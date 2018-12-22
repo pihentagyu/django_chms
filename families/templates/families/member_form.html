@@ -1,5 +1,4 @@
 {% extends 'layout.html' %}
-{% load bootstrap3 %}
 
 {% block title %} 
     {{ family }} {{ form.instance.first_name|default:"New Member" }} {{ block.super }} 
@@ -8,11 +7,12 @@
 {% block content %}
     <div class="row">
         <h1>{{ form.instance.first_name }} {{ form.instance.last_name|default:"Add a New Member" }}</h1>
+    <div>
         <form method="POST" action="">
             {% csrf_token %}
-            <!--{% bootstrap_form form %}-->
             {{ form.as_p }}
             <input type="submit" class="button" value="Save"><a href="{% url 'families:family_detail' pk=family_pk %}">Cancel</a>
         </form>
+    </div>
     </div>
 {% endblock %}

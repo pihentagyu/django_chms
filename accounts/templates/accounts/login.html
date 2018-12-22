@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
-{% load bootstrap3 %}
+{% load static from staticfiles %}
+{% load humanize event_extras %}
+{% load bootstrap4 %}
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
 
 {% block title%}Login | {{ block.super }}{% endblock %}
 
