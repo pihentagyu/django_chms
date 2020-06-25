@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm#, UserCreationForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse_lazy
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.views.generic import FormView, RedirectView, DetailView, CreateView
 
 from families.models import Family
@@ -26,7 +26,7 @@ class LoginView(FormView):
 
 class LogoutView(RedirectView):
     url = reverse_lazy("home")
-    
+
     def get(self, request, *args, **kwargs):
         logout(request)
         return super().get(request, *args, **kwargs)
@@ -34,7 +34,7 @@ class LogoutView(RedirectView):
 
 class SignUpView(CreateView):
     #form_class = UserCreationForm
-    form_class = forms.UserSignUpForm 
+    form_class = forms.UserSignUpForm
     success_url = reverse_lazy('accounts:login')
     template_name = 'accounts/signup.html'
 
@@ -56,6 +56,6 @@ def profile_view(request):
     except ObjectDoesNotExist:
         family = None
     if family:
-        return render_to_response('accounts/profile.html', {'user': request.user, 'family_pk':family.pk})
+        return render(request, 'accounts/profile.html', {'user': request.user, 'family_pk':family.pk})
     else:
-        return render_to_response('accounts/profile.html', {'user': request.user, 'family_pk':None})
+        return render(request, 'accounts/profile.html', {'user': request.user, 'family_pk':None})
