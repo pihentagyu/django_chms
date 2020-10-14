@@ -18,7 +18,7 @@ connect_default_signals(Region)
 class SubRegion(AbstractSubRegion):
     pass
 
-connect_default_signals(SubRegion)
+#connect_default_signals(SubRegion)
 
 class City(AbstractCity):
     pass
