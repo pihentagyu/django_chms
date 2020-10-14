@@ -21,13 +21,16 @@ CALENDAR_TYPE_CHOICES = (
 
 class Calendar(models.Model):
     calendar_type = models.CharField(choices=CALENDAR_TYPE_CHOICES, max_length=1)
-    begin_date = models.DateField()
+    year = models.IntegerField()
+    month = models.CharField(max_length=2, blank=True, null=True)
+    week = models.IntegerField(blank=True, null=True)
 
     def get_events():
-        nonlocal begin_date
+        nonlocal year
+        nonlocal month
+        nonlocal week
         nonlocal calendar_type
-        end_date = calculate_end_date(calendar_type=calendar_type)
-
+        events = get_events(calendar_type=calendar_type)
 
 
 class Location(models.Model):
