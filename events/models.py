@@ -30,7 +30,7 @@ class Calendar(models.Model):
         nonlocal month
         nonlocal week
         nonlocal calendar_type
-        events = get_events(calendar_type=calendar_type)
+        events = get_events_for_calendar(calendar_type=calendar_type)
 
 
 class Location(models.Model):
