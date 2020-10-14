@@ -7,12 +7,27 @@ from events.templatetags.event_extras import duration_calc
 from families.models import Member
 from groups.models import Group
 
-# Create your models here.
 EVENT_TYPE_CHOICES = (
         ('S', 'Simple'),
         ('R', 'Recurring Event'),
         ('H', 'Holiday'),
         )
+
+CALENDAR_TYPE_CHOICES = (
+        ('W', 'Weekly'),
+        ('M', 'Monthly'),
+        ('Y', 'Yearly'),
+        )
+
+class Calendar(models.Model):
+    calendar_type = models.CharField(choices=CALENDAR_TYPE_CHOICES, max_length=1)
+    begin_date = models.DateField()
+
+    def get_events():
+        nonlocal begin_date
+        nonlocal calendar_type
+        end_date = calculate_end_date(calendar_type=calendar_type)
+
 
 
 class Location(models.Model):
@@ -46,34 +61,34 @@ class Event(models.Model):
     def add_occurrences(self, **kwargs):
 
         '''
-        Add one or more occurences to the event using a comparable API to 
-        ``dateutil.rrule``. 
-        
+        Add one or more occurences to the event using a comparable API to
+        ``dateutil.rrule``.
+
         If ``rrule_params`` does not contain a ``freq``, one will be defaulted
         to ``rrule.DAILY``.
-        
+
         Because ``rrule.rrule`` returns an iterator that can essentially be
         unbounded, we need to slightly alter the expected behavior here in order
         to enforce a finite number of occurrence creation.
-        
+
         If both ``count`` and ``until`` entries are missing from ``rrule_params``,
         only a single ``Occurrence`` instance will be created using the exact
         ``start_time`` and ``end_time`` values.
         '''
 
-        # freq 
-        # dtstart 
-        # interval 
-        # wkst 
-        # count 
-        # until 
-        # bysetpos 
-        # bymonth 
-        # bymonthday 
-        # byyearday 
-        # byweekno 
-        # byweekday 
-        # byeaster 
+        # freq
+        # dtstart
+        # interval
+        # wkst
+        # count
+        # until
+        # bysetpos
+        # bymonth
+        # bymonthday
+        # byyearday
+        # byweekno
+        # byweekday
+        # byeaster
 
         freq = int(kwargs.pop('freq'))
         all_day = kwargs.pop('all_day', False)
@@ -127,6 +142,8 @@ class Occurrence(models.Model):
 
     @property
     def duration(self):
+        nonlocal end_time
+        nonlocal start_time
         duration = end_time - start_time
 
     #def get_duration(self): # return min as float
@@ -143,23 +160,23 @@ class Occurrence(models.Model):
 
 '''
 rrule parameters from documentation:
-freq    must be one of YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, or SECONDLY. 
-cache   If given, it must be a boolean value specifying to enable or disable caching of results. If you will use the same rrule instance multiple times, enabling caching will improve the performance considerably. 
-dtstart The recurrence start. Besides being the base for the recurrence, missing parameters in the final recurrence instances will also be extracted from this date. If not given, datetime.now() will be used instead. 
-interval The interval between each freq iteration. For example, when using YEARLY, an interval of 2 means once every two years, but with HOURLY, it means once every two hours. The default interval is 1. 
-wkst The week start day. Must be one of the MO, TU, WE constants, or an integer, specifying the first day of the week. This will affect recurrences based on weekly periods. The default week start is got from calendar.firstweekday(), and may be modified by calendar.setfirstweekday(). 
-wount How many occurrences will be generated. 
-until If given, this must be a datetime instance, that will specify the limit of the recurrence. If a recurrence instance happens to be the same as the datetime instance given in the until keyword, this will be the last occurrence. 
-bysetpos If given, it must be either an integer, or a sequence of integers, positive or negative. Each given integer will specify an occurrence number, corresponding to the nth occurrence of the rule inside the frequency period. For example, a bysetpos of -1 if combined with a MONTHLY frequency, and a byweekday of (MO, TU, WE, TH, FR), will result in the last work day of every month. 
-bymonth If given, it must be either an integer, or a sequence of integers, meaning the months to apply the recurrence to. 
-bymonthday If given, it must be either an integer, or a sequence of integers, meaning the month days to apply the recurrence to. 
-byyearday If given, it must be either an integer, or a sequence of integers, meaning the year days to apply the recurrence to. 
-byweekno If given, it must be either an integer, or a sequence of integers, meaning the week numbers to apply the recurrence to. Week numbers have the meaning described in ISO8601, that is, the first week of the year is that containing at least four days of the new year. 
-byweekday If given, it must be either an integer (0 == MO), a sequence of integers, one of the weekday constants (MO, TU, etc), or a sequence of these constants. When given, these variables will define the weekdays where the recurrence will be applied. It's also possible to use an argument n for the weekday instances, which will mean the nth occurrence of this weekday in the period. For example, with MONTHLY, or with YEARLY and BYMONTH, using FR(+1) in byweekday will specify the first friday of the month where the recurrence happens. Notice that in the RFC documentation, this is specified as BYDAY, but was renamed to avoid the ambiguity of that keyword. 
-byhour If given, it must be either an integer, or a sequence of integers, meaning the hours to apply the recurrence to. 
-byminute If given, it must be either an integer, or a sequence of integers, meaning the minutes to apply the recurrence to. 
-bysecond If given, it must be either an integer, or a sequence of integers, meaning the seconds to apply the recurrence to. 
-byeaster If given, it must be either an integer, or a sequence of integers, positive or negative. Each integer will define an offset from the Easter Sunday. Passing the offset 0 to byeaster will yield the Easter Sunday itself. This is an extension to the RFC specification. 
+freq    must be one of YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, or SECONDLY.
+cache   If given, it must be a boolean value specifying to enable or disable caching of results. If you will use the same rrule instance multiple times, enabling caching will improve the performance considerably.
+dtstart The recurrence start. Besides being the base for the recurrence, missing parameters in the final recurrence instances will also be extracted from this date. If not given, datetime.now() will be used instead.
+interval The interval between each freq iteration. For example, when using YEARLY, an interval of 2 means once every two years, but with HOURLY, it means once every two hours. The default interval is 1.
+wkst The week start day. Must be one of the MO, TU, WE constants, or an integer, specifying the first day of the week. This will affect recurrences based on weekly periods. The default week start is got from calendar.firstweekday(), and may be modified by calendar.setfirstweekday().
+wount How many occurrences will be generated.
+until If given, this must be a datetime instance, that will specify the limit of the recurrence. If a recurrence instance happens to be the same as the datetime instance given in the until keyword, this will be the last occurrence.
+bysetpos If given, it must be either an integer, or a sequence of integers, positive or negative. Each given integer will specify an occurrence number, corresponding to the nth occurrence of the rule inside the frequency period. For example, a bysetpos of -1 if combined with a MONTHLY frequency, and a byweekday of (MO, TU, WE, TH, FR), will result in the last work day of every month.
+bymonth If given, it must be either an integer, or a sequence of integers, meaning the months to apply the recurrence to.
+bymonthday If given, it must be either an integer, or a sequence of integers, meaning the month days to apply the recurrence to.
+byyearday If given, it must be either an integer, or a sequence of integers, meaning the year days to apply the recurrence to.
+byweekno If given, it must be either an integer, or a sequence of integers, meaning the week numbers to apply the recurrence to. Week numbers have the meaning described in ISO8601, that is, the first week of the year is that containing at least four days of the new year.
+byweekday If given, it must be either an integer (0 == MO), a sequence of integers, one of the weekday constants (MO, TU, etc), or a sequence of these constants. When given, these variables will define the weekdays where the recurrence will be applied. It's also possible to use an argument n for the weekday instances, which will mean the nth occurrence of this weekday in the period. For example, with MONTHLY, or with YEARLY and BYMONTH, using FR(+1) in byweekday will specify the first friday of the month where the recurrence happens. Notice that in the RFC documentation, this is specified as BYDAY, but was renamed to avoid the ambiguity of that keyword.
+byhour If given, it must be either an integer, or a sequence of integers, meaning the hours to apply the recurrence to.
+byminute If given, it must be either an integer, or a sequence of integers, meaning the minutes to apply the recurrence to.
+bysecond If given, it must be either an integer, or a sequence of integers, meaning the seconds to apply the recurrence to.
+byeaster If given, it must be either an integer, or a sequence of integers, positive or negative. Each integer will define an offset from the Easter Sunday. Passing the offset 0 to byeaster will yield the Easter Sunday itself. This is an extension to the RFC specification.
 
 '''
 

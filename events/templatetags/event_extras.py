@@ -1,5 +1,5 @@
 ##### Much of this code was taken from https://djangosnippets.org/snippets/2464/
-##### Here is the template tag code. It goes in a file named 
+##### Here is the template tag code. It goes in a file named
 # "event_tags.py" in a subdirectory of your app called "templatetags".
 #####
 import calendar
@@ -67,7 +67,9 @@ def do_monthly_calendar(parser, token):
         try:
             tag_name, year, month = token.split_contents()
         except ValueError:
-            raise template.TemplateSyntaxError("%r tag requires two arguments" % token.contents.split()[0])
+            raise template.TemplateSyntaxError(
+                    "%r tag requires two arguments" % token.contents.split()[0]
+                    )
     return EventCalendarNode('monthly', year, month=month, event_list=event_list)
 
 def do_daily_calendar(parser, token):
@@ -87,7 +89,7 @@ def do_daily_calendar(parser, token):
         return EventCalendarNode('daily', year, month=month, day=day, from_time=from_time, to_time=to_time, delta=delta, event_list=event_list)
     else:
         return EventCalendarNode('daily', year, month=month, day=day, from_time=from_time, to_time=to_time, delta=delta)
-    
+
 
 
 class EventCalendarNode(template.Node):
@@ -165,18 +167,18 @@ class EventCalendarNode(template.Node):
                 calweek = None
             if self.event_list:
                 my_event_list = self.event_list.resolve(context)
-                cal = EventCalendar(self.cal_type, calyear, month=calmonth, day=calday, 
-                        from_time=from_time, to_time=to_time, delta=delta, week=calweek, 
+                cal = EventCalendar(self.cal_type, calyear, month=calmonth, day=calday,
+                        from_time=from_time, to_time=to_time, delta=delta, week=calweek,
                         event_list=my_event_list)
             else:
-                cal = EventCalendar(self.cal_type, calyear, month=calmonth, day=calday, 
+                cal = EventCalendar(self.cal_type, calyear, month=calmonth, day=calday,
                         from_time=from_time, to_time=to_time, delta=delta, week=calweek)
             if self.cal_type == 'monthly':
                 return cal.format_month()
             elif self.cal_type == 'daily':
                 return cal.format_day()
         except ValueError:
-            return          
+            return
         except template.VariableDoesNotExist:
             return
 '''
@@ -204,12 +206,12 @@ class EventCalendarNode(template.Node):
                 my_event_list = self.event_list.resolve(context)
                 cal = EventCalendar(my_event_list)
             else:
-                cal = calendar.HTMLCalendar() 
+                cal = calendar.HTMLCalendar()
             my_year = self.year.resolve(context)
             my_month = self.month.resolve(context)
             return cal.formatmonth(int(my_year), int(my_month))
         except ValueError:
-            return          
+            return
         except template.VariableDoesNotExist:
             return
 '''
@@ -249,23 +251,23 @@ class EventCalendar:
         first_day = date(self.year, self.month, 1)
         prev_month = first_day - relativedelta(months=1)
         next_month = first_day + relativedelta(months=1)
-        body = ['<div class="cal">', 
-                '<header class="cal">', 
-                '<button class="cal"></button>', 
-                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">«</button>'.format(reverse('events:event_monthly', 
+        body = ['<div class="cal">',
+                '<header class="cal">',
+                '<button class="cal"></button>',
+                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">«</button>'.format(reverse('events:event_monthly',
                     kwargs={'year':prev_month.year,
                         'month': str(prev_month.month).zfill(2)}
                     )),
                 '<h2 class="cal">',
                 calendar.month_name[self.month],
-                ' ', 
-                str(self.year), 
-                '</h2>', 
-                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">»</button>'.format(reverse('events:event_monthly', 
+                ' ',
+                str(self.year),
+                '</h2>',
+                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">»</button>'.format(reverse('events:event_monthly',
                     kwargs={'year':next_month.year,
                         'month': str(next_month.month).zfill(2)}
                     )),
-                '</header>', 
+                '</header>',
                 '<table class="cal">']
         body.append('<tr class="thead">')
         for weekday in calendar.day_abbr:
@@ -283,7 +285,7 @@ class EventCalendar:
                     # To do: add multi-day events
                     multi_day_events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), multi_day=True)
                     all_day_events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), all_day=True)
-                    events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), delta=timedelta(days=1)) 
+                    events = self.get_time_events(self.localize_time(datetime.combine(day, time.min)), delta=timedelta(days=1))
                     max_event_ct = 8 - len(all_day_events) if len(all_day_events) <= 2 else 5
                     if multi_day_events:
                         body.append('<div class="all_day">')
@@ -308,7 +310,7 @@ class EventCalendar:
                     if events:
                         body.append('<table id="events">')
                         for event, _ in events[:max_event_ct]:
-                            body.append('<tr><td><a class="a" href="{}">{} {}</a></td></tr>'.format(event.event.get_absolute_url(), 
+                            body.append('<tr><td><a class="a" href="{}">{} {}</a></td></tr>'.format(event.event.get_absolute_url(),
                                 event.start_time.strftime('%H:%M'),
                                 event.event.name))
                         if len(events) > 5:
@@ -318,7 +320,7 @@ class EventCalendar:
                                 'year':day.year}), day.day))
                             body.append('<tr><td><table class="hidden">')
                             for event, _ in events[max_event_ct:]: # the reset is hidden
-                                body.append('<tr><td><a class="a" href="{}">{} {}</a></td></tr>'.format(event.event.get_absolute_url(), 
+                                body.append('<tr><td><a class="a" href="{}">{} {}</a></td></tr>'.format(event.event.get_absolute_url(),
                                 event.start_time.strftime('%H:%M'),
                                 event.event.name))
                             body.append('</table></td></tr>')
@@ -338,15 +340,15 @@ class EventCalendar:
         cal = calendar.HTMLCalendar()
         weekday = calendar.day_name[cal_date.weekday()]
         '''Create an empty calendar table as a base'''
-        body = ['<div class="cal">', '<header class="cal">', 
-                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">«</button>'.format(reverse('events:event_daily', 
+        body = ['<div class="cal">', '<header class="cal">',
+                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">«</button>'.format(reverse('events:event_daily',
                     kwargs={'year':prev_day.year,
                         'month': str(prev_day.month).zfill(2),
                         'day': str(prev_day.day).zfill(2)}
                     )),
-                '<h2 class="cal">', 
-                cal_date.strftime(settings.LONG_DATE_FORMAT), '</h2>', 
-                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">»</button>'.format(reverse('events:event_daily', 
+                '<h2 class="cal">',
+                cal_date.strftime(settings.LONG_DATE_FORMAT), '</h2>',
+                '<button class="cal" onclick="javascript:window.location.href=\'{}\'">»</button>'.format(reverse('events:event_daily',
                     kwargs={'year':next_day.year,
                         'month': str(next_day.month).zfill(2),
                         'day': str(next_day.day).zfill(2)}
@@ -359,11 +361,11 @@ class EventCalendar:
         body.append('</tr>')
         if settings.DEFAULT_TIME_INTERVAL:
             delta = timedelta(minutes=settings.DEFAULT_TIME_INTERVAL)
-        else: 
+        else:
             delta = timedelta(minutes=60)
         for from_time in self.time_iterator(self.year, self.month, self.day, settings.DEFAULT_DAY_BEGIN, settings.DEFAULT_DAY_END, delta):
             body.append('<tr>')
-            body.append('<td width="10%"><a href="{}">{}</a></td>'.format(reverse('events:event_create', 
+            body.append('<td width="10%"><a href="{}">{}</a></td>'.format(reverse('events:event_create',
                 kwargs={'start_time':from_time.strftime('%Y-%m-%dT%H:%M:%S')}),
                         from_time.strftime(settings.TIME_FORMAT)))
             if self.event_list:
@@ -388,8 +390,8 @@ class EventCalendar:
         else:
             return []
 
-        
-    
+
+
 '''
 class EventCalendar(calendar.HTMLCalendar):
     """
@@ -439,8 +441,8 @@ register.tag("daily_calendar", do_daily_calendar)
 
 # Register the template tag so it is available to templates
 
-##### Here's code for the view to look up the event objects for to put in 
-# the context for the template. It goes in your app's views.py file (or 
+##### Here's code for the view to look up the event objects for to put in
+# the context for the template. It goes in your app's views.py file (or
 # wherever you put your views).
 #####
 
@@ -470,9 +472,12 @@ def mycalendar(request, year, month, series_id=None):
     my_year = int(year)
     my_month = int(month)
     my_calendar_from_month = datetime(my_year, my_month, 1)
-    my_calendar_to_month = datetime(my_year, my_month, monthrange(my_year, my_month)[1])
+    my_calendar_to_month = datetime(my_year, my_month, monthrange(my_year,
+        my_month)[1])
 
-    my_events = Event.objects.filter(date_and_time__gte=my_calendar_from_month).filter(date_and_time__lte=my_calendar_to_month)
+    my_events = Event.objects.filter(
+            date_and_time__gte=my_calendar_from_month).filter(
+                    date_and_time__lte=my_calendar_to_month)
     if series_id:
         my_events = my_events.filter(series=series_id)
 
