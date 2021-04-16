@@ -19,7 +19,7 @@ django-bootstrap3-datetimepicker-2==2.8.2
 django-bootstrap4==2.1.1
 django-braces==1.14.0
 django-cities-light @ git+https://github.com/jazzband/django-cities-light.git@47ece311cc092e4f9482c3e87f931bf11f327cf5
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
 django-extra-views==0.13.0
 django-formset-bootstrap==1.4.0.dev3
 django-imagekit==4.0.2
