@@ -7,8 +7,8 @@ from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
-from extra_views import InlineFormSet, CreateWithInlinesView, UpdateWithInlinesView
-from extra_views.generic import GenericInlineFormSet
+from extra_views import InlineFormSetFactory, CreateWithInlinesView, UpdateWithInlinesView
+from extra_views.generic import GenericInlineFormSetView
 
 from . import forms
 from . import models
@@ -181,7 +181,7 @@ class EventCreateView(LoginRequiredMixin, CreateView):
 
         return super(EventCreateView, self).form_valid(form)
 
-class OccurrenceInline(InlineFormSet):
+class OccurrenceInline(InlineFormSetFactory):
     fields = ('start_time', 'duration', 'notes', 'all_day', 'multi_day')
     #max_num = 1
     model = models.Occurrence

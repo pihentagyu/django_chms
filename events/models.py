@@ -25,14 +25,6 @@ class Calendar(models.Model):
     month = models.CharField(max_length=2, blank=True, null=True)
     week = models.IntegerField(blank=True, null=True)
 
-    def get_events():
-        nonlocal year
-        nonlocal month
-        nonlocal week
-        nonlocal calendar_type
-        events = get_events(calendar_type=calendar_type)
-
-
 class Location(models.Model):
     name = models.CharField(max_length=35)
     building = models.CharField(max_length=35)
@@ -145,9 +137,7 @@ class Occurrence(models.Model):
 
     @property
     def duration(self):
-        nonlocal end_time
-        nonlocal start_time
-        duration = end_time - start_time
+        duration = self.end_time - self.start_time
 
     #def get_duration(self): # return min as float
     #    return duration_calc(self.start_time, self.end_time)
