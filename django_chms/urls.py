@@ -15,21 +15,21 @@ Including another URLconf
 """
 
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns, static
 
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.front_page, name='home'),
-    url(r'^admin/', admin.site.urls),
-    url(r'^accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
-    url(r'^accounts/', include('django.contrib.auth.urls')),
-    url(r'^families/', include(('families.urls', 'families'), namespace='families')),
-    url(r'^cities_local/', include(('cities_local.urls', 'cities_local'), namespace='cities_local')),
-    url(r'^groups/', include(('groups.urls', 'groups'), namespace='groups')),
-    url(r'^events/', include(('events.urls', 'events'), namespace='events')),
+    re_path(r'^$', views.front_page, name='home'),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
+    re_path(r'^accounts/', include('django.contrib.auth.urls')),
+    re_path(r'^families/', include(('families.urls', 'families'), namespace='families')),
+    re_path(r'^cities_local/', include(('cities_local.urls', 'cities_local'), namespace='cities_local')),
+    re_path(r'^groups/', include(('groups.urls', 'groups'), namespace='groups')),
+    re_path(r'^events/', include(('events.urls', 'events'), namespace='events')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()
@@ -38,5 +38,5 @@ urlpatterns += staticfiles_urlpatterns()
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
-            url(r'^__debug__/', include(debug_toolbar.urls))
+            re_path(r'^__debug__/', include(debug_toolbar.urls))
             ]

@@ -5,7 +5,7 @@ from django.contrib.admin import widgets
 from dateutil import rrule
 from django.conf import settings
 #from djangoformsetjs.utils import formset_media_js
-from bootstrap_datepicker_plus import DateTimePickerInput
+from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 
 from .models import *
 import pytz

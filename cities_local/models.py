@@ -1,4 +1,4 @@
-from cities_light.abstract_models import AbstractCountry, AbstractRegion, AbstractCity, AbstractSubRegion
+from cities_light.abstract_models import AbstractCountry, AbstractRegion, AbstractSubRegion, AbstractCity 
 from cities_light.receivers import connect_default_signals
 from django.db import models
 
@@ -12,16 +12,14 @@ connect_default_signals(Country)
 
 class Region(AbstractRegion):
     pass
-
 connect_default_signals(Region)
 
 class SubRegion(AbstractSubRegion):
     pass
-
-#connect_default_signals(SubRegion)
+connect_default_signals(SubRegion)
 
 class City(AbstractCity):
-    pass
+    timezone = models.CharField(max_length=40)
 connect_default_signals(City)
 
 
