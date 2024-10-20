@@ -6,9 +6,7 @@ from django.db import models
 
 class Country(AbstractCountry):
     pass
-
 connect_default_signals(Country)
-
 
 class Region(AbstractRegion):
     pass

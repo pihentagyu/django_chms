@@ -26,7 +26,7 @@ SECRET_KEY = 'n4vqg2&4gvtm6n**4&nn$*f1&2g_^m5ornve6+p64oet%z33q='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['django-chms.herokuapp.com', 'localhost', 'testserver']
+ALLOWED_HOSTS = ['127.0.0.1', 'django-chms.herokuapp.com', 'localhost', 'testserver']
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
